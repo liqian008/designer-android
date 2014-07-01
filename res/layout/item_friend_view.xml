@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="70.0dip"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginTop="15.0dip" >
+
+            <include layout="@layout/avatar" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignBottom="@id/avatar"
+            android:layout_alignTop="@id/avatar"
+            android:layout_marginLeft="58.0dip"
+            android:layout_marginRight="80.0dip"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="#ff252525"
+            android:textSize="16.0sp" />
+
+        <Button
+            android:id="@+id/btnFollow"
+            android:layout_width="60.0dip"
+            android:layout_height="28.0dip"
+            android:layout_toLeftOf="@+id/btnSendMsg"
+            android:layout_marginRight="10.0dip"
+            android:layout_marginTop="20.0dip"
+            android:background="@drawable/button_green_bg"
+            android:text="关注"
+            android:textColor="#ffffffff"
+            android:textSize="12.0sp"
+            android:visibility="visible" />
+
+        <Button
+            android:id="@+id/btnUnfollow"
+            android:layout_width="60.0dip"
+            android:layout_height="28.0dip"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10.0dip"
+            android:layout_marginTop="20.0dip"
+            android:background="@drawable/button_grey_bg"
+            android:text="已关注"
+            android:textColor="#ff999999"
+            android:textSize="12.0sp"
+            android:visibility="gone" />
+        
+        <Button
+            android:id="@+id/btnSendMsg"
+            android:layout_width="60.0dip"
+            android:layout_height="28.0dip"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10.0dip"
+            android:layout_marginTop="20.0dip"
+            android:background="@drawable/button_orange_bg" 
+            android:text="私信"
+            android:textColor="#ffffffff"
+            android:textSize="12.0sp"
+            android:visibility="visible" />
+        
+    </RelativeLayout>
+
+</LinearLayout>

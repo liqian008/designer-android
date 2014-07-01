@@ -1,0 +1,9 @@
+<resources>
+
+    <item type="id" name="test_feed_image1"/>
+    <item type="id" name="test_feed_image2"/>
+    <item type="id" name="test_feed_image3"/>
+    <item type="id" name="test_feed_image4"/>
+
+
+</resources>

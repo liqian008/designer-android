@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titlebar" />
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="50.0dip"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="30.0dip"
+                android:background="#fff2f2f2"
+                android:gravity="center_vertical"
+                android:paddingLeft="10.0dip"
+                android:text="应用" />
+            
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_white_bg" >
+
+                <TextView
+                    android:id="@+id/aboutUs"
+                    android:layout_width="fill_parent"
+                    android:layout_height="58.0dip"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10.0dip"
+                    android:text="关于我们"
+                     />
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20.0dip"
+                    android:layout_marginTop="22.0dip"
+                    android:src="@drawable/btn_explore_more" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="1.0px"
+                android:background="#fff2f2f2" />
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_white_bg" >
+
+                <TextView
+                    android:id="@+id/clearCache"
+                    android:layout_width="fill_parent"
+                    android:layout_height="58.0dip"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10.0dip"
+                    android:text="清除缓存"
+                     />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="20.0dip"
+                    android:layout_marginTop="22.0dip"
+                    android:src="@drawable/btn_explore_more" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="1.0px"
+                android:background="#fff2f2f2" />
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="58.0dip"
+                android:background="@drawable/button_white_bg">
+
+                <TextView
+                    android:id="@+id/checkUpdate"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="10.0dip"
+                    android:text="检查新版本"
+                     />
+
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="20.0dip"
+                    android:src="@drawable/btn_explore_more" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/introduceBorder"
+                android:layout_width="fill_parent"
+                android:layout_height="1.0px"
+                android:background="#fff2f2f2"
+                android:orientation="horizontal" />
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

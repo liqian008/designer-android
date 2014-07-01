@@ -1,0 +1,71 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <!-- <include layout="@layout/activity_main_header" /> -->
+    
+    <fragment
+       	android:id="@+id/fragment_main"
+        android:name="com.bruce.designer.activity.fragment.Fragment_Main"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+    
+    <fragment
+       	android:id="@+id/fragment_myprofile"
+        android:name="com.bruce.designer.activity.fragment.Fragment_MyProfile"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="57.0dip"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/btnTabMain"
+            android:layout_width="fill_parent"
+            android:layout_height="57.0dip"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1.0"
+            android:background="@drawable/main_tab_bg"
+            android:src="@drawable/tab_icon_main" />
+		
+        
+        <ImageButton
+            android:id="@+id/btnTabHotAlbum"
+            android:layout_width="fill_parent"
+            android:layout_height="57.0dip"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1.0"
+            android:background="@drawable/main_tab_bg"
+            android:src="@drawable/tab_icon_explore" />
+
+        <ImageButton
+            android:id="@+id/btnTabHotDesigner"
+            android:layout_width="fill_parent"
+            android:layout_height="57.0dip"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1.0"
+            android:background="@drawable/main_tab_bg"
+            android:src="@drawable/tab_icon_main" />
+        
+         
+        <ImageButton
+            android:id="@+id/btnTabProfile"
+            android:layout_width="fill_parent"
+            android:layout_height="57.0dip"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1.0"
+            android:background="@drawable/main_tab_bg"
+            android:src="@drawable/tab_icon_profile" />
+    </LinearLayout>
+
+</RelativeLayout>

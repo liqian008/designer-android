@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="fill_parent"
+        android:layout_height="50.0dip"
+        android:background="#ffffd800" >
+
+        <!-- 
+        logo image
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginTop="14.0dip"
+            android:src="@drawable/icon_nice" />  -->
+            
+        <TextView 
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_centerVertical="true"
+            android:text="金玩儿网"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            />    
+
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="50.0dip"
+            android:layout_height="50.0dip"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/header_button_bg"
+            android:src="@drawable/icon_index_tag" />
+
+        <ImageButton
+            android:id="@+id/btnRefresh"
+            android:layout_width="50.0dip"
+            android:layout_height="50.0dip"
+            android:layout_toLeftOf="@+id/btnSettings"
+            android:background="@drawable/header_button_bg"
+            android:src="@drawable/icon_refresh_normal" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/tab"
+        android:layout_width="fill_parent"
+        android:layout_height="48.0dip"
+        android:background="@color/white"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/tab_recommend"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="精选推荐" />
+
+            <ImageView
+                android:layout_width="1.0px"
+                android:layout_height="30.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10.0dip"
+                android:background="#ffeeeeee" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_recommend_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="#ffffd800"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tab_latest"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="最新发布" />
+
+            <ImageView
+                android:layout_width="1.0px"
+                android:layout_height="30.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10.0dip"
+                android:background="#ffeeeeee" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_latest_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="#ffffd800"/>
+            </RelativeLayout>
+            
+			<!-- 
+			<ImageView
+                android:id="@+id/new_notice"
+                android:layout_width="6.0dip"
+                android:layout_height="6.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20.0dip"
+                android:layout_marginTop="10.0dip"
+                android:background="@drawable/new_notice_tip"/>
+             -->
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tab_myview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="我的关注" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_myview_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="#ffffd800"/>
+            </RelativeLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- <com.nice.main.viewpagerindicator.UnderlinePageIndicator
+        android:id="@+id/indicator"
+        android:layout_width="fill_parent"
+        android:layout_height="2.0dip"
+        android:background="@color/white"
+        android:duplicateParentState="true" /> -->
+
+    <LinearLayout
+        android:id="@+id/border"
+        android:layout_width="fill_parent"
+        android:layout_height="1.0dip"
+        android:background="@color/border_bg"
+        android:orientation="horizontal" />
+
+    <LinearLayout
+        android:id="@+id/publishContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0" />
+
+</LinearLayout>

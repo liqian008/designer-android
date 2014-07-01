@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="20dp"
+    android:background="#ececec" >
+	
+    <ImageView 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/logo_splash"
+		android:layout_centerHorizontal="true"
+		android:layout_marginTop="30dp"
+        />
+    
+    
+   
+    
+    <LinearLayout
+        android:id="@+id/loginBindContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical" >
+		
+        
+        <TextView 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="还差一步您就可完成登录"
+        android:layout_above="@+id/loginBindContainer"
+        android:padding="10dp"
+        android:textSize="14dp"
+	    android:background="#fff"/>
+         
+         <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0.5dp"
+            android:layout_weight="0"
+            android:background="#ececec" >
+        </FrameLayout>
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1" 
+            android:background="#fff">
+
+            <ImageView
+                android:id="@+id/loginUsernameIcon"
+                android:layout_width="50dp"
+                android:layout_height="fill_parent" 
+                android:padding="12dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/add_user_icon"
+                />
+			
+            <EditText
+                android:id="@+id/loginUsernameText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" 
+                android:layout_toRightOf="@+id/loginUsernameIcon"
+                android:hint="请输入邮箱"
+                android:textSize="14dp"
+                />
+        </RelativeLayout>
+
+        <FrameLayout
+            android:layout_width="fill_parent"
+            android:layout_height="0.5dp"
+            android:layout_weight="0"
+            android:background="#ececec" >
+        </FrameLayout>
+        
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1" android:background="#fff">
+
+            <ImageView
+                android:id="@+id/loginPasswordIcon"
+                android:layout_width="50dp"
+                android:layout_height="fill_parent" 
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/add_user_icon"
+                />
+			
+            <EditText
+                android:id="@+id/loginPasswordText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent" 
+                android:layout_toRightOf="@+id/loginPasswordIcon"
+                android:hint="请输入密码"
+                android:textSize="14dp"
+                />
+        </RelativeLayout>
+        
+        <Button 
+		     android:layout_width="fill_parent"
+		     android:layout_height="40dp"
+		     android:layout_marginTop="10dp"
+		     android:background="@drawable/button_green_bg"
+		     android:textColor="#fff"
+		     android:text="完 成"
+		     />
+        
+    </LinearLayout>
+    
+   
+
+</RelativeLayout>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/commentContainer"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#ffffffff"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10.0dip" >
+
+        <RelativeLayout
+            android:id="@+id/commentAvatarBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+            <include layout="@layout/avatar" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/commentUserame"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/commentAvatarBox"
+            android:layout_marginLeft="10.0dip"
+            android:layout_toRightOf="@+id/commentAvatarBox"
+            android:text=""
+            android:textColor="#ff245f93"
+            android:textSize="16.0sp" />
+
+        <TextView
+            android:id="@+id/commentContent"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/commentUserame"
+            android:layout_below="@+id/commentUserame"
+            android:text="content"
+            android:textColor="#ff252525"
+            android:textSize="14.0sp" />
+
+        <TextView
+            android:id="@+id/commentTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:text=""
+            android:textColor="#ff999999"
+            android:textSize="12.0sp" />
+    </RelativeLayout>
+
+</LinearLayout>
