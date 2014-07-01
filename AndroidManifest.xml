@@ -85,6 +85,10 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name="com.bruce.designer.activity.Activity_AboutUs"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name="com.bruce.designer.activity.Activity_Test"
             android:screenOrientation="portrait" >
         </activity>

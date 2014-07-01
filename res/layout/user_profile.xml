@@ -259,9 +259,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="50.0dip"
                 android:layout_alignStart="@+id/snsInfoLayout"
-                android:background="@drawable/button_white_bg"
+                android:background="@drawable/button_grey_bg"
                 android:text="编辑个人资料"
-                android:textColor="#ffffffff"
+				android:textColor="#ff252525"
                 android:textSize="15.0sp" />
         </LinearLayout>
     </RelativeLayout>

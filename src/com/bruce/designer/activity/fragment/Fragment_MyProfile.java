@@ -6,10 +6,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_AboutUs;
+import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserEdit;
 
 /**
@@ -21,6 +25,8 @@ public class Fragment_MyProfile extends Fragment {
 	
 	private Activity context;
 	private LayoutInflater inflater;
+	
+	private ImageButton btnSettings;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,6 +49,11 @@ public class Fragment_MyProfile extends Fragment {
 		TextView titlebarTitle = (TextView) mainView.findViewById(R.id.titlebar_title);
 		titlebarTitle.setText("爬行蜗牛");
 		
+		//setting按钮及点击事件
+		btnSettings = (ImageButton) mainView.findViewById(R.id.btnSettings);
+		btnSettings.setOnClickListener(listener);
+		btnSettings.setVisibility(View.VISIBLE);
+		
 		
 		View snsBtnContainer = (View) mainView.findViewById(R.id.snsBtnContainer);
 		snsBtnContainer.setVisibility(View.GONE);
@@ -50,17 +61,27 @@ public class Fragment_MyProfile extends Fragment {
 		editBtnContainer.setVisibility(View.VISIBLE);
 		
 		Button btnEditMyInfo = (Button) mainView.findViewById(R.id.btnEditMyInfo);
-		btnEditMyInfo.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Activity_UserEdit.show(getActivity());
-//				TODO 测试
-//				AppManager.getInstance().finishAllActivity();
-//				Activity_Login.show(getActivity());
-			}
-		});
-		
-		
+		btnEditMyInfo.setOnClickListener(listener);
 	}
+	
+	
+	private OnClickListener listener = new OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			
+			switch (view.getId()) {
+			case R.id.btnEditMyInfo:
+				Activity_UserEdit.show(getActivity());
+				break;
+			case R.id.btnSettings:
+				Activity_Settings.show(context);
+				break;
+			default:
+				break;
+			}
+		}
+	};
+	
+	
 	
 }
