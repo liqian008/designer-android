@@ -22,7 +22,7 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumCommentApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
-import com.bruce.designer.constants.BundleKey;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
@@ -125,7 +125,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 		 
 		
 		Intent intent = getIntent();
-		Album album = (Album) intent.getSerializableExtra(BundleKey.BUNDLE_ALBUM_INFO);
+		Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
 		//读取上个activity传入的albumId值 
 		if(album!=null&&album.getId()!=null){
 			//UI线程展示

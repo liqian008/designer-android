@@ -19,7 +19,7 @@ import com.bruce.designer.R;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.user.UserFansApi;
-import com.bruce.designer.constants.BundleKey;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.ApiUtil;
@@ -41,7 +41,7 @@ public class Activity_UserFans extends BaseActivity {
 		
 		Intent intent = getIntent();
 		//获取userid
-		userId =  intent.getIntExtra(BundleKey.BUNDLE_USER_INFO_ID, 0);
+		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);

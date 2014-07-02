@@ -3,8 +3,13 @@ package com.bruce.designer.api;
 import java.util.Map;
 import java.util.TreeMap;
 
+import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 
+import com.bruce.designer.broadcast.BroadcastSender;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.json.JsonResultBean;
@@ -32,7 +37,7 @@ public abstract class ApiWrapper {
 		//检查网络状态
 		if(!MobileUtils.isNetworkConnected(context)){//未联网
 			//TODO 异常或错误码
-//			UiUtil.showShortToast(context, "无可用网络");
+			BroadcastSender.networkUnavailable(context);
 		}
 		String requestUri = api.getRequestUri();
 		Map<String, String> apiParamMap = api.getParamMap();

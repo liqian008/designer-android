@@ -32,7 +32,7 @@ import com.bruce.designer.adapter.GridAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.constants.BundleKey;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.AlbumDB;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
@@ -272,7 +272,7 @@ public class Fragment_Main extends Fragment {
 					@Override
 					public void onClick(View arg0) {
 						Intent intent = new Intent(context, Activity_UserProfile.class);
-						intent.putExtra(BundleKey.BUNDLE_USER_INFO_ID, album.getUserId());
+						intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, album.getUserId());
 						context.startActivity(intent);
 					}
 				});
@@ -306,7 +306,7 @@ public class Fragment_Main extends Fragment {
 					@Override
 					public void onClick(View arg0) {
 						Intent intent = new Intent(context, Activity_AlbumInfo.class);
-						intent.putExtra(BundleKey.BUNDLE_ALBUM_INFO, album);
+						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
 						context.startActivity(intent);
 					}
 				});
@@ -321,14 +321,14 @@ public class Fragment_Main extends Fragment {
 	OnRefreshListener2<ListView> tab0RefreshListener = new OnRefreshListener2<ListView>() {
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
+//			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
 			//tab0请求新数据
 			getAlbums(tab0AlbumHeadId, HANDLER_FLAG_TAB0);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
+//			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
 			//tab0请求历史数据
 			getAlbums(tab0AlbumTailId, HANDLER_FLAG_TAB0);
 		}
@@ -337,14 +337,14 @@ public class Fragment_Main extends Fragment {
 	OnRefreshListener2<ListView> tab1RefreshListener = new OnRefreshListener2<ListView>() {
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
+//			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
 			//tab1请求数据
 			getAlbums(tab1AlbumHeadId, HANDLER_FLAG_TAB1);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
+//			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
 			//tab0请求历史数据
 			getAlbums(tab1AlbumTailId, HANDLER_FLAG_TAB1);
 		}
