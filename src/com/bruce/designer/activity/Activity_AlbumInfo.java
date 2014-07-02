@@ -66,17 +66,18 @@ public class Activity_AlbumInfo extends BaseActivity {
 					}
 					break;
 				case HANDLER_FLAG_SLIDE:
-					Album albumObj = (Album) msg.obj;
-					if(albumObj!=null){
-						List<AlbumSlide> slideList = albumObj.getSlideList();
+					Map<String, Object> albumDataMap = (Map<String, Object>) msg.obj;
+					if(albumDataMap!=null){
+						Album albumInfo = (Album) albumDataMap.get("albumInfo");
+						List<AlbumSlide> slideList = albumInfo.getSlideList();
 						slideAdapter.setSlideList(slideList);
 						slideAdapter.notifyDataSetChanged();
 					}
 					break;
 				case HANDLER_FLAG_COMMENT:
-					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
-					if(dataMap!=null){
-						List<Comment> commentList = (List<Comment>) dataMap.get("commentList");
+					Map<String, Object> commentDataMap = (Map<String, Object>) msg.obj;
+					if(commentDataMap!=null){
+						List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
 						commentsAdapter.setCommentList(commentList);
 						commentsAdapter.notifyDataSetChanged();
 						//解决scrollview与list的冲突

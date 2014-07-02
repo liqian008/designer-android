@@ -51,34 +51,10 @@ public class CheckVersionApi extends AbstractApi {
 	}
 
 	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
-		if (response != null) {
-			try {
-				JSONObject jsonObject = new JSONObject(response);
-				int result = jsonObject.getInt("result");
-				if (result == 1) {// 成功响应
-					JSONObject jsonData = jsonObject.getJSONObject("data");
-					String fanListStr = jsonData.getString("fanList");
-					List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr,
-							new TypeToken<List<UserFan>>() {
-							}.getType());
-					if (fanList != null) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("fanList", fanList);
-						jsonResult = new JsonResultBean(result, map, 0, null);
-					}
-				} else {// 错误响应
-					int errorcode = jsonObject.getInt("errorcode");
-					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode,
-							message);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-		return jsonResult;
+	protected Map<String, Object> processBusinessData(String data) {
+		// TODO Auto-generated method stub
+		return null;
 	}
+
 
 }

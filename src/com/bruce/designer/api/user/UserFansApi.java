@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.Album;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
@@ -41,35 +42,56 @@ public class UserFansApi extends AbstractApi {
 		return REQUESTS_URI;
 	}
 
+//	@Override
+//	public JsonResultBean processResponse(String response) {
+//		JsonResultBean jsonResult = null;
+//		if (response != null) {
+//			try {
+//				JSONObject jsonObject = new JSONObject(response);
+//				int result = jsonObject.getInt("result");
+//				if (result == 1) {// 成功响应
+//					JSONObject jsonData = jsonObject.getJSONObject("data");
+//					String fanListStr = jsonData.getString("fanList");
+//					List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr,
+//							new TypeToken<List<UserFan>>() {
+//							}.getType());
+//					if (fanList != null) {
+//						Map<String, Object> map = new HashMap<String, Object>();
+//						map.put("fanList", fanList);
+//						jsonResult = new JsonResultBean(result, map, 0, null);
+//					}
+//				} else {// 错误响应
+//					int errorcode = jsonObject.getInt("errorcode");
+//					String message = jsonObject.getString("message");
+//					jsonResult = new JsonResultBean(result, null, errorcode,
+//							message);
+//				}
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return jsonResult;
+//	}
+
+	
+
 	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
-		if (response != null) {
-			try {
-				JSONObject jsonObject = new JSONObject(response);
-				int result = jsonObject.getInt("result");
-				if (result == 1) {// 成功响应
-					JSONObject jsonData = jsonObject.getJSONObject("data");
-					String fanListStr = jsonData.getString("fanList");
-					List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr,
-							new TypeToken<List<UserFan>>() {
-							}.getType());
-					if (fanList != null) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("fanList", fanList);
-						jsonResult = new JsonResultBean(result, map, 0, null);
-					}
-				} else {// 错误响应
-					int errorcode = jsonObject.getInt("errorcode");
-					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode,
-							message);
+	protected Map<String, Object> processBusinessData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			String fanListStr = jsonData.getString("fanList");
+			if(fanListStr!=null){
+				List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr, new TypeToken<List<UserFan>>() {}.getType());
+				if (fanList != null) {
+					dataMap.put("fanList", fanList);
 				}
-			} catch (JSONException e) {
-				e.printStackTrace();
 			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		return jsonResult;
+		return dataMap;
 	}
 
 }

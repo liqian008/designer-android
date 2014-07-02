@@ -12,7 +12,6 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
 import com.google.gson.reflect.TypeToken;
 
@@ -43,33 +42,53 @@ public class AlbumListApi extends AbstractApi{
 		return REQUESTS_URI;
 	}
 	
-	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
-		if(response!=null){
-			JSONObject jsonObject;
-			try {
-				jsonObject = new JSONObject(response);
-				int result = jsonObject.getInt("result");
-				if(result==1){//成功响应
-					JSONObject jsonData = jsonObject.getJSONObject("data");
-					int resTailId = jsonData.getInt("albumTailId");
-					String albumListStr = jsonData.getString("albumList");
-					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-					Map<String, Object> map = new HashMap<String, Object>();
-					map.put("albumTailId", resTailId);
-					map.put("albumList", albumList);
-					jsonResult = new JsonResultBean(result, map, 0, null);
-				}else{//错误响应
-					int errorcode = jsonObject.getInt("errorcode");
-					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode, message);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-		return jsonResult;
-	}
+//	@Override
+//	public JsonResultBean processResponse(String response) {
+//		JsonResultBean jsonResult = null;
+//		if(response!=null){
+//			JSONObject jsonObject;
+//			try {
+//				jsonObject = new JSONObject(response);
+//				int result = jsonObject.getInt("result");
+//				if(result==1){//成功响应
+//					JSONObject jsonData = jsonObject.getJSONObject("data");
+//					int resTailId = jsonData.getInt("albumTailId");
+//					String albumListStr = jsonData.getString("albumList");
+//					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
+//					Map<String, Object> map = new HashMap<String, Object>();
+//					map.put("albumTailId", resTailId);
+//					map.put("albumList", albumList);
+//					jsonResult = new JsonResultBean(result, map, 0, null);
+//				}else{//错误响应
+//					int errorcode = jsonObject.getInt("errorcode");
+//					String message = jsonObject.getString("message");
+//					jsonResult = new JsonResultBean(result, null, errorcode, message);
+//				}
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return jsonResult;
+//	}
 	
+	
+	@Override
+	protected Map<String, Object> processBusinessData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			int resTailId = jsonData.getInt("albumTailId");
+			String albumListStr = jsonData.getString("albumList");
+			if(albumListStr!=null){
+				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
+				dataMap.put("albumTailId", resTailId);
+				dataMap.put("albumList", albumList);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataMap;
+	}
+
 }

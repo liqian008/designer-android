@@ -22,4 +22,10 @@ public class UploadApi extends AbstractApi{
 		return null;
 	}
 
+	@Override
+	protected Map<String, Object> processBusinessData(String data) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

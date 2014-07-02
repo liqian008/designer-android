@@ -2,12 +2,9 @@ package com.bruce.designer.api;
 
 import java.util.Map;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.JsonUtil;
 
 public abstract class AbstractApi {
 
@@ -26,19 +23,29 @@ public abstract class AbstractApi {
 	 * @param response
 	 * @return 
 	 */
-	protected abstract JsonResultBean processResponse(String response);
+//	protected abstract JsonResultBean processResponse(String response);
 	
-	protected JsonResultBean process(String response) throws Exception{
-		JSONObject jsonObject;
-		try {
-			jsonObject = new JSONObject(response);
-			int result = jsonObject.getInt("result");
-			//t票失效，sig不匹配等情况下，需要抛出相应异常，以便进行特别处理
-			if(result==100||result==101){
+	protected abstract Map<String, Object> processBusinessData(String data);
+	
+	public JsonResultBean processResponse(String response) throws Exception{
+		int errorcode = 0;
+		JSONObject jsonObject = new JSONObject(response);
+		int result = jsonObject.getInt("result");
+		if(result==1){//成功响应
+			String dataStr = jsonObject.getString("data");
+			//交由子类处理业务数据
+			Map<String, Object> dataMap = processBusinessData(dataStr);
+			return new JsonResultBean(result, dataMap, errorcode, null);
+		}else{//错误响应
+			errorcode = jsonObject.getInt("errorcode");
+			String message = jsonObject.getString("message");
+			//t票失效，sig不匹配等情况下，需要抛出相应异常，以便进行特殊处理
+			boolean specError = true;
+			if(specError){
 				throw new Exception();
+			}else{
+				jsonResult = new JsonResultBean(result, null, errorcode, message);
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return jsonResult;
 	}

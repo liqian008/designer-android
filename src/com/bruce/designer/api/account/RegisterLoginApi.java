@@ -47,37 +47,59 @@ public class RegisterLoginApi extends AbstractApi{
 		return REQUESTS_URI;
 	}
 	
+//	@Override
+//	public JsonResultBean processResponse(String response) {
+//		JsonResultBean jsonResult = null;
+//		if(response!=null){
+//			try {
+//				JSONObject jsonObject = new JSONObject(response);
+//				int result = jsonObject.getInt("result");
+//				if(result==1){//成功响应
+//					JSONObject jsonData = jsonObject.getJSONObject("data");
+//					int followsCount = jsonData.getInt("followsCount");
+//					int fansCount = jsonData.getInt("fansCount");
+//					
+//					String userinfoStr = jsonData.getString("userinfo");
+//					User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
+//					if(userinfo!=null){
+//						Map<String, Object> map = new HashMap<String, Object>();
+//						map.put("userinfo", userinfo);
+//						map.put("followsCount", followsCount);
+//						map.put("fansCount", fansCount);
+//						jsonResult = new JsonResultBean(result, map, 0, null);
+//					}
+//				}else{//错误响应
+//					int errorcode = jsonObject.getInt("errorcode");
+//					String message = jsonObject.getString("message");
+//					jsonResult = new JsonResultBean(result, null, errorcode, message);
+//				}
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return jsonResult;
+//	}
+	
 	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
-		if(response!=null){
-			try {
-				JSONObject jsonObject = new JSONObject(response);
-				int result = jsonObject.getInt("result");
-				if(result==1){//成功响应
-					JSONObject jsonData = jsonObject.getJSONObject("data");
-					int followsCount = jsonData.getInt("followsCount");
-					int fansCount = jsonData.getInt("fansCount");
-					
-					String userinfoStr = jsonData.getString("userinfo");
-					User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
-					if(userinfo!=null){
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("userinfo", userinfo);
-						map.put("followsCount", followsCount);
-						map.put("fansCount", fansCount);
-						jsonResult = new JsonResultBean(result, map, 0, null);
-					}
-				}else{//错误响应
-					int errorcode = jsonObject.getInt("errorcode");
-					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode, message);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
+	protected Map<String, Object> processBusinessData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			int followsCount = jsonData.getInt("followsCount");
+			int fansCount = jsonData.getInt("fansCount");
+			
+			String userinfoStr = jsonData.getString("userinfo");
+			User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
+			if(userinfo!=null){
+				dataMap.put("userinfo", userinfo);
+				dataMap.put("followsCount", followsCount);
+				dataMap.put("fansCount", fansCount);
 			}
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
-		return jsonResult;
+		return dataMap;
 	}
 	
 }

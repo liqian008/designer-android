@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
@@ -42,35 +43,52 @@ public class UserFollowsApi extends AbstractApi {
 		return REQUESTS_URI;
 	}
 
-	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
-		if (response != null) {
-			try {
-				JSONObject jsonObject = new JSONObject(response);
-				int result = jsonObject.getInt("result");
-				if (result == 1) {// 成功响应
-					JSONObject jsonData = jsonObject.getJSONObject("data");
-					String followListStr = jsonData.getString("followList");
-					List<UserFollow> followList = JsonUtil.gson.fromJson(
-							followListStr, new TypeToken<List<UserFollow>>() {
-							}.getType());
-					if (followList != null) {
-						Map<String, Object> map = new HashMap<String, Object>();
-						map.put("followList", followList);
-						jsonResult = new JsonResultBean(result, map, 0, null);
-					}
-				} else {// 错误响应
-					int errorcode = jsonObject.getInt("errorcode");
-					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode,
-							message);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-		}
-		return jsonResult;
-	}
+//	@Override
+//	public JsonResultBean processResponse(String response) {
+//		JsonResultBean jsonResult = null;
+//		if (response != null) {
+//			try {
+//				JSONObject jsonObject = new JSONObject(response);
+//				int result = jsonObject.getInt("result");
+//				if (result == 1) {// 成功响应
+//					JSONObject jsonData = jsonObject.getJSONObject("data");
+//					String followListStr = jsonData.getString("followList");
+//					List<UserFollow> followList = JsonUtil.gson.fromJson(
+//							followListStr, new TypeToken<List<UserFollow>>() {
+//							}.getType());
+//					if (followList != null) {
+//						Map<String, Object> map = new HashMap<String, Object>();
+//						map.put("followList", followList);
+//						jsonResult = new JsonResultBean(result, map, 0, null);
+//					}
+//				} else {// 错误响应
+//					int errorcode = jsonObject.getInt("errorcode");
+//					String message = jsonObject.getString("message");
+//					jsonResult = new JsonResultBean(result, null, errorcode,
+//							message);
+//				}
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return jsonResult;
+//	}
 
+	
+	@Override
+	protected Map<String, Object> processBusinessData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			String followListStr = jsonData.getString("followList");
+			List<UserFollow> followList = JsonUtil.gson.fromJson(followListStr, new TypeToken<List<UserFollow>>() {}.getType());
+			if (followList != null) {
+				dataMap.put("followList", followList);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataMap;
+	}
 }

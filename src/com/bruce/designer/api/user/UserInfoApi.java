@@ -1,6 +1,7 @@
 package com.bruce.designer.api.user;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -10,8 +11,10 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
+import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
+import com.google.gson.reflect.TypeToken;
 
 public class UserInfoApi extends AbstractApi{
 	
@@ -72,4 +75,26 @@ public class UserInfoApi extends AbstractApi{
 		return jsonResult;
 	}
 	
+	
+	@Override
+	protected Map<String, Object> processBusinessData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			int followsCount = jsonData.getInt("followsCount");
+			int fansCount = jsonData.getInt("fansCount");
+			
+			String userinfoStr = jsonData.getString("userinfo");
+			User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
+			if(userinfo!=null){
+				dataMap.put("userinfo", userinfo);
+				dataMap.put("followsCount", followsCount);
+				dataMap.put("fansCount", fansCount);
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataMap;
+	}
 }
