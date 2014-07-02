@@ -38,11 +38,12 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.cache.ImageLoader;
+//import com.bruce.designer.util.cache.ImageLoader;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Fragment_Main extends Fragment {
 
@@ -262,7 +263,8 @@ public class Fragment_Main extends Fragment {
 				}else{//mainImg mode
 					albumItemView = LayoutInflater.from(context).inflate(R.layout.item_album_view, null);
 					ImageView coverView = (ImageView) albumItemView.findViewById(R.id.cover_img);
-					ImageLoader.loadImage(album.getCoverMediumImg(), coverView);
+//					ImageLoader.loadImage(album.getCoverMediumImg(), coverView);
+					ImageLoader.getInstance().displayImage(album.getCoverMediumImg(), coverView);
 				}
 				
 				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
@@ -277,7 +279,8 @@ public class Fragment_Main extends Fragment {
 				
 				
 				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
-				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
+//				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
+				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
 				
 				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
 				usernameView.setText("大树珠宝");

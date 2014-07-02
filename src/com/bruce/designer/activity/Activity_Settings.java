@@ -2,11 +2,18 @@ package com.bruce.designer.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.bruce.designer.AppManager;
@@ -18,7 +25,8 @@ public class Activity_Settings extends BaseActivity {
 	private View titlebarView;
 	private TextView titleView;
 	private View aboutUsView;
-	private ImageButton btnSettings;
+	private View clearCacheView;
+
 	private Button btnLogout;
 
 	public static void show(Context context) {
@@ -43,8 +51,11 @@ public class Activity_Settings extends BaseActivity {
 
 		aboutUsView = findViewById(R.id.aboutUs);
 		aboutUsView.setOnClickListener(listener);
-		
-		btnLogout = (Button)findViewById(R.id.logout);
+
+		clearCacheView = findViewById(R.id.clearCache);
+		clearCacheView.setOnClickListener(listener);
+
+		btnLogout = (Button) findViewById(R.id.logout);
 		btnLogout.setOnClickListener(listener);
 	}
 
@@ -62,6 +73,14 @@ public class Activity_Settings extends BaseActivity {
 			case R.id.aboutUs:
 				Activity_AboutUs.show(context);
 				break;
+			case R.id.clearCache:
+				UiUtil.showLongToast(context, "clear");
+				// 弹起popWindow
+				// 新建一个poppopWindow，并显示里面的内容
+				PopupWindow popupWindow = makePopupWindow(context);
+				//指定显示位置
+				popupWindow.showAsDropDown(clearCacheView);
+				break;
 			case R.id.logout:
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);
@@ -72,4 +91,25 @@ public class Activity_Settings extends BaseActivity {
 			}
 		}
 	};
+
+	/**
+	 * 创建一个包含自定义view的PopupWindow
+	 * 
+	 * @param context
+	 * @return
+	 */
+	private PopupWindow makePopupWindow(Context context) {
+		PopupWindow popWindow = new PopupWindow(context);
+		View contentView = LayoutInflater.from(this).inflate(R.layout.popup_window, null);
+		popWindow = new PopupWindow(contentView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		//以下两行实现点击back按钮消失
+		ColorDrawable dw = new ColorDrawable(-00000);
+		popWindow.setBackgroundDrawable(dw);
+		
+		// 设置PopupWindow外部区域是否可触摸
+		popWindow.setFocusable(true); // 设置PopupWindow可获得焦点
+		popWindow.setTouchable(true); // 设置PopupWindow可触摸
+		popWindow.setOutsideTouchable(true);// 设置非PopupWindow区域可触摸
+		return popWindow;
+	}
 }

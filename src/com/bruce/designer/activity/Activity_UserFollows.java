@@ -28,7 +28,6 @@ import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.ApiUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.cache.ImageLoader;
 
 public class Activity_UserFollows extends BaseActivity {
 	

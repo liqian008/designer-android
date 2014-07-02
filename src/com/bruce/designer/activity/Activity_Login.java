@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
+import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.account.WeiboLoginApi;
@@ -50,28 +52,12 @@ public class Activity_Login extends BaseActivity{
 		setContentView(R.layout.activity_login);
 		
 		Button wbLoginBtn = (Button) findViewById(R.id.wbLoginButton);
-		Button guestLoginBtn = (Button) findViewById(R.id.guestLoginButton);
+		Button selfLoginBtn = (Button) findViewById(R.id.selfLoginButton);
+		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
 		
-		wbLoginBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				//跳转wb oauth
-				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY,
-						ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
-				//SSO登录
-				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
-				mSsoHandler.authorize(new AuthListener());
-			}
-		});
-		
-		guestLoginBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent(context, Activity_Main.class);
-				startActivity(intent);
-				finish();
-			}
-		});
+		wbLoginBtn.setOnClickListener(listener);
+		selfLoginBtn.setOnClickListener(listener);
+		skipLoginBtn.setOnClickListener(listener);
 	}
 
 	/**
@@ -210,6 +196,31 @@ public class Activity_Login extends BaseActivity{
     
     
     
-    
+
+	private OnClickListener listener = new OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			switch (view.getId()) {
+			case R.id.wbLoginButton:
+				//跳转wb oauth
+				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY,
+						ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
+				//SSO登录
+				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
+				mSsoHandler.authorize(new AuthListener());
+				break;
+			case R.id.skipLoginButton://游客登录
+				Intent intent = new Intent(context, Activity_Main.class);
+				startActivity(intent);
+				finish();
+				break;
+			case R.id.selfLoginButton:
+				Activity_Login_Bind.show(context);
+				break;
+			default:
+				break;
+			}
+		}
+	};
     
 }

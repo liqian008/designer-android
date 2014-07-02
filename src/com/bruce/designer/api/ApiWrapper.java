@@ -18,6 +18,8 @@ public abstract class ApiWrapper {
 
 	/* 加密 5000字 上限 */
 	private static final int MD5_STRING_LIMIT = 5000;
+	/* 错误的响应 */
+	private static JsonResultBean errorResult = new JsonResultBean(0, null, 0, "操作失败");
 	
 	/**
 	 * 
@@ -55,7 +57,8 @@ public abstract class ApiWrapper {
 			e.printStackTrace();
 			//TODO 异常或错误码
 		}
-		return null;
+		//默认返回错误响应
+		return errorResult;
 	}
 
 	/**

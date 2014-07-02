@@ -22,16 +22,13 @@ import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.constants.BundleKey;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.ApiUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.cache.ImageLoader;
 
 /**
  * 
