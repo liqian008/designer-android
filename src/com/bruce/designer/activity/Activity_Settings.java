@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.UiUtil;
 
 public class Activity_Settings extends BaseActivity {
@@ -59,9 +60,33 @@ public class Activity_Settings extends BaseActivity {
 		btnLogout.setOnClickListener(listener);
 	}
 
-	private OnClickListener listener = new OnClickListener() {
+	
+
+	/**
+	 * 创建一个包含自定义view的PopupWindow
+	 * 
+	 * @param context
+	 * @return
+	 */
+	private PopupWindow makePopupWindow(Context context) {
+		PopupWindow popWindow = new PopupWindow(context);
+		View contentView = LayoutInflater.from(this).inflate(R.layout.popup_window, null);
+		popWindow = new PopupWindow(contentView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		//以下两行实现点击back按钮消失
+		ColorDrawable dw = new ColorDrawable(-00000);
+		popWindow.setBackgroundDrawable(dw);
+		
+		// 设置PopupWindow外部区域是否可触摸
+		popWindow.setFocusable(true); // 设置PopupWindow可获得焦点
+		popWindow.setTouchable(true); // 设置PopupWindow可触摸
+		popWindow.setOutsideTouchable(true);// 设置非PopupWindow区域可触摸
+		return popWindow;
+	}
+	
+	
+	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
-		public void onClick(View view) {
+		public void onSingleClick(View view) {
 
 			switch (view.getId()) {
 			case R.id.titlebar_return:
@@ -91,25 +116,4 @@ public class Activity_Settings extends BaseActivity {
 			}
 		}
 	};
-
-	/**
-	 * 创建一个包含自定义view的PopupWindow
-	 * 
-	 * @param context
-	 * @return
-	 */
-	private PopupWindow makePopupWindow(Context context) {
-		PopupWindow popWindow = new PopupWindow(context);
-		View contentView = LayoutInflater.from(this).inflate(R.layout.popup_window, null);
-		popWindow = new PopupWindow(contentView, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		//以下两行实现点击back按钮消失
-		ColorDrawable dw = new ColorDrawable(-00000);
-		popWindow.setBackgroundDrawable(dw);
-		
-		// 设置PopupWindow外部区域是否可触摸
-		popWindow.setFocusable(true); // 设置PopupWindow可获得焦点
-		popWindow.setTouchable(true); // 设置PopupWindow可触摸
-		popWindow.setOutsideTouchable(true);// 设置非PopupWindow区域可触摸
-		return popWindow;
-	}
 }

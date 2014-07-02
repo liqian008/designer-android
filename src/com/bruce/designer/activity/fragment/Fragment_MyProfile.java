@@ -15,6 +15,7 @@ import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AboutUs;
 import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserEdit;
+import com.bruce.designer.listener.OnSingleClickListener;
 
 /**
  * 我的个人资料的Fragment
@@ -65,10 +66,9 @@ public class Fragment_MyProfile extends Fragment {
 	}
 	
 	
-	private OnClickListener listener = new OnClickListener() {
+	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
-		public void onClick(View view) {
-			
+		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.btnEditMyInfo:
 				Activity_UserEdit.show(getActivity());

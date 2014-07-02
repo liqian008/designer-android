@@ -1,6 +1,5 @@
 package com.bruce.designer.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,22 +11,18 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiWrapper;
-import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.constants.ConstantsKey;
-import com.bruce.designer.model.User;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.ApiUtil;
-import com.bruce.designer.util.TimeUtil;
 
 public class Activity_UserFollows extends BaseActivity {
 	
@@ -50,12 +45,7 @@ public class Activity_UserFollows extends BaseActivity {
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("TA的关注");
 		
@@ -169,4 +159,16 @@ public class Activity_UserFollows extends BaseActivity {
 		}
 	};
 	
+	private OnClickListener listener = new OnSingleClickListener() {
+		@Override
+		public void onSingleClick(View view) {
+			switch (view.getId()) {
+			case R.id.titlebar_return:
+				finish();
+				break;
+			default:
+				break;
+			}
+		}
+	};
 }

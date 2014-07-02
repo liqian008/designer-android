@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.listener.OnSingleClickListener;
 
 public class Activity_AboutUs extends BaseActivity {
 
@@ -40,10 +41,9 @@ public class Activity_AboutUs extends BaseActivity {
 
 	}
 
-	private OnClickListener listener = new OnClickListener() {
+	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
-		public void onClick(View view) {
-
+		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.titlebar_return:
 				finish();

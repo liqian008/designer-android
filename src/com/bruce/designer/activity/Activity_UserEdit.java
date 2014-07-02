@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.listener.OnSingleClickListener;
 
 public class Activity_UserEdit extends BaseActivity {
 	
@@ -32,18 +34,19 @@ public class Activity_UserEdit extends BaseActivity {
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		titlebarView.setOnClickListener(listener);
 		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("我");
-		
 	}
 	
+	
+	private OnClickListener listener = new OnSingleClickListener() {
+		@Override
+		public void onSingleClick(View view) {
+			finish();
+		}
+	};
 	
 	
 }

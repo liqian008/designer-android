@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.UiUtil;
 
 public class Activity_Main extends BaseActivity {
@@ -76,31 +77,6 @@ public class Activity_Main extends BaseActivity {
 	}
 
 	
-	private OnClickListener tabOnclickListener = new OnClickListener() {
-		@Override
-		public void onClick(View view) {
-			switch(view.getId()){
-				case R.id.btnTabMain:{
-					highLight(0);
-					break;
-				}
-				case R.id.btnTabHotDesigner:{
-					highLight(1);
-					break;
-				}
-				case R.id.btnTabHotAlbum:{
-					highLight(2);
-					break;
-				}
-				case R.id.btnTabProfile:{
-					highLight(3);
-					break;
-				}default:{
-					break;
-				}
-			}
-		}
-	};
 	
 	
 	/**
@@ -126,5 +102,33 @@ public class Activity_Main extends BaseActivity {
 		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]);  
         fragmentTransaction.show(mFragments[index]).commit();
 	}
+	
+	
+
+	private OnClickListener tabOnclickListener = new OnSingleClickListener() {
+		@Override
+		public void onSingleClick(View view) {
+			switch(view.getId()){
+				case R.id.btnTabMain:{
+					highLight(0);
+					break;
+				}
+				case R.id.btnTabHotDesigner:{
+					highLight(1);
+					break;
+				}
+				case R.id.btnTabHotAlbum:{
+					highLight(2);
+					break;
+				}
+				case R.id.btnTabProfile:{
+					highLight(3);
+					break;
+				}default:{
+					break;
+				}
+			}
+		}
+	};
 	
 }

@@ -12,23 +12,28 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 
 /**
  * 
@@ -69,12 +74,8 @@ public class Activity_UserProfile extends BaseActivity {
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		titlebarView.setOnClickListener(listener);
+		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("设计师");
 		
@@ -85,25 +86,11 @@ public class Activity_UserProfile extends BaseActivity {
 		
 		fansView = (View) findViewById(R.id.fansContainer);
 		fansNumView = (TextView) findViewById(R.id.txtFansNum);
+		fansView.setOnClickListener(listener);
+		
 		followsView = (View) findViewById(R.id.followsContainer);
 		followsNumView = (TextView) findViewById(R.id.txtFollowsNum);
-		
-		followsView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent(context, Activity_UserFollows.class);
-				intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
-				context.startActivity(intent);
-			}
-		});
-		fansView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent(context, Activity_UserFans.class);
-				intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
-				context.startActivity(intent);
-			}
-		});
+		followsView.setOnClickListener(listener);
 		
 		ListView albumListView = (ListView)findViewById(R.id.designerAlbums);
 		albumListAdapter = new AlbumListAdapter(context, null);
@@ -264,6 +251,31 @@ public class Activity_UserProfile extends BaseActivity {
 					break;
 				default:
 					break;
+			}
+		}
+	};
+	
+	
+	private OnClickListener listener = new OnSingleClickListener() {
+		@Override
+		public void onSingleClick(View view) {
+
+			switch (view.getId()) {
+			case R.id.titlebar_return:
+				finish();
+				break;
+			case R.id.followsContainer:
+				Intent followsIntent = new Intent(context, Activity_UserFollows.class);
+				followsIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
+				context.startActivity(followsIntent);
+				break;
+			case R.id.fansContainer:
+				Intent fansIntent = new Intent(context, Activity_UserFans.class);
+				fansIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
+				context.startActivity(fansIntent);
+				break;	
+			default:
+				break;
 			}
 		}
 	};

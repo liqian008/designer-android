@@ -34,6 +34,7 @@ import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.AlbumDB;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.LogUtil;
@@ -119,9 +120,9 @@ public class Fragment_Main extends Fragment {
 		for(int i=0;i<tabViews.length;i++){
 			View tabView = tabViews[i];
 			final int tabIndex = i;
-			tabView.setOnClickListener(new View.OnClickListener() {
+			tabView.setOnClickListener(new OnSingleClickListener() {
 				@Override
-				public void onClick(View view) {
+				public void onSingleClick(View view) {
 					highLight(tabIndex);
 				}
 			});
@@ -268,9 +269,9 @@ public class Fragment_Main extends Fragment {
 				}
 				
 				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
-				designerView.setOnClickListener(new View.OnClickListener() {
+				designerView.setOnClickListener(new OnSingleClickListener() {
 					@Override
-					public void onClick(View arg0) {
+					public void onSingleClick(View view) {
 						Intent intent = new Intent(context, Activity_UserProfile.class);
 						intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, album.getUserId());
 						context.startActivity(intent);
@@ -302,9 +303,9 @@ public class Fragment_Main extends Fragment {
 				
 //				final int albumId = album.getId();
 				
-				albumItemView.setOnClickListener(new View.OnClickListener() {
+				albumItemView.setOnClickListener(new OnSingleClickListener() {
 					@Override
-					public void onClick(View arg0) {
+					public void onSingleClick(View view) {
 						Intent intent = new Intent(context, Activity_AlbumInfo.class);
 						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
 						context.startActivity(intent);
@@ -423,9 +424,9 @@ public class Fragment_Main extends Fragment {
 	/**
 	 * 按钮监听listener
 	 */
-	private View.OnClickListener listener = new View.OnClickListener() {
+	private View.OnClickListener listener = new OnSingleClickListener() {
 		@Override
-		public void onClick(View view) {
+		public void onSingleClick(View view) {
 			switch (view.getId()){
 			case R.id.btnRefresh://刷新按钮
 				switch(currentTab){

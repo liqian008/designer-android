@@ -16,6 +16,7 @@ import com.bruce.designer.R;
 import com.bruce.designer.api.ApiWrapper;
 import com.bruce.designer.api.account.WeiboLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.LogUtil;
@@ -195,11 +196,9 @@ public class Activity_Login extends BaseActivity{
     }
     
     
-    
-
-	private OnClickListener listener = new OnClickListener() {
+	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
-		public void onClick(View view) {
+		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.wbLoginButton:
 				//跳转wb oauth
