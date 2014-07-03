@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import com.bruce.designer.model.json.JsonResultBean;
 
 public abstract class AbstractApi {
-
+	
 	private JsonResultBean jsonResult = null;
 	
 	protected abstract Map<String, String> getParamMap();
@@ -20,11 +20,9 @@ public abstract class AbstractApi {
 	
 	/**
 	 * 抽象方法，子类需要对响应做处理
-	 * @param response
-	 * @return 
+	 * @param data
+	 * @return
 	 */
-//	protected abstract JsonResultBean processResponse(String response);
-	
 	protected abstract Map<String, Object> processBusinessData(String data);
 	
 	public JsonResultBean processResponse(String response) throws Exception{

@@ -10,9 +10,7 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
-import com.bruce.designer.model.Album;
 import com.bruce.designer.model.UserFan;
-import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
 import com.google.gson.reflect.TypeToken;
 

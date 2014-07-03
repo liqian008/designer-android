@@ -19,7 +19,7 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumCommentApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
@@ -151,7 +151,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumInfo(albumId);
 				
 				AlbumInfoApi api = new AlbumInfoApi(albumId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
@@ -174,7 +174,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumComments(albumId, commentsTailId);
 				
 				AlbumCommentApi api = new AlbumCommentApi(albumId, commentsTailId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_COMMENT);

@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.account.WeiboLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -140,7 +140,7 @@ public class Activity_Login extends BaseActivity{
 			@Override
 			public void run() {
 				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					//weibo登录成功，两种情况
 					boolean result = true;

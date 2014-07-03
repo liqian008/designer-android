@@ -23,7 +23,7 @@ import android.widget.TextView;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
@@ -186,7 +186,7 @@ public class Activity_UserProfile extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getUserinfo(userId);
 				
 				UserInfoApi api = new UserInfoApi(userId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -208,7 +208,7 @@ public class Activity_UserProfile extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(userId, albumTailId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(1);

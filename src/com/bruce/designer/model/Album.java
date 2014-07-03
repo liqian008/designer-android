@@ -1,7 +1,6 @@
 package com.bruce.designer.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class Album extends AlbumBase implements Serializable {
 

@@ -1,7 +1,6 @@
 package com.bruce.designer.api.user;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -11,10 +10,8 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
-import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.JsonUtil;
-import com.google.gson.reflect.TypeToken;
 
 public class UserInfoApi extends AbstractApi{
 	

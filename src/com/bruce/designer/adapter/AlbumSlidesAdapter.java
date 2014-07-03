@@ -16,6 +16,7 @@ import android.widget.ImageView.ScaleType;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.util.DipUtil;
 import com.bruce.designer.util.LogUtil;
+import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class AlbumSlidesAdapter extends BaseAdapter {
@@ -78,7 +79,7 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 	            itemImageView.setScaleType(ScaleType.CENTER_CROP);
 	            layout.addView(itemImageView, params);
 //	            ImageLoader.loadImage(albumSlide.getSlideSmallImg(), itemImageView);
-	            ImageLoader.getInstance().displayImage(albumSlide.getSlideSmallImg(), itemImageView);
+	            ImageLoader.getInstance().displayImage(albumSlide.getSlideSmallImg(), itemImageView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION );
 	            //TODO 此种方式构造的item列表的尺寸会有些许误差，待修复
 	            layout.setLayoutParams(new GridView.LayoutParams(itemWidth, itemWidth));
 				return layout;

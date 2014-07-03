@@ -17,7 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -126,7 +126,7 @@ public class Activity_UserFollows extends BaseActivity {
 				Message message;
 				
 				UserFollowsApi api = new UserFollowsApi(userId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(0);

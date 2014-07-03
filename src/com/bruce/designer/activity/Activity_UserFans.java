@@ -16,7 +16,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
@@ -132,7 +132,7 @@ public class Activity_UserFans extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getUserFans(userId);
 				
 				UserFansApi api = new UserFansApi(userId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(0);

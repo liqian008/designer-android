@@ -19,7 +19,7 @@ import com.bruce.designer.util.MD5;
 import com.bruce.designer.util.MobileUtils;
 import com.bruce.designer.util.SharedPreferenceUtil;
 
-public abstract class ApiWrapper {
+public class ApiManager {
 
 	/* 加密 5000字 上限 */
 	private static final int MD5_STRING_LIMIT = 5000;
@@ -38,6 +38,7 @@ public abstract class ApiWrapper {
 		if(!MobileUtils.isNetworkConnected(context)){//未联网
 			//TODO 异常或错误码
 			BroadcastSender.networkUnavailable(context);
+			return errorResult;
 		}
 		String requestUri = api.getRequestUri();
 		Map<String, String> apiParamMap = api.getParamMap();

@@ -22,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AlbumInfo;
@@ -30,7 +29,7 @@ import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserProfile;
 import com.bruce.designer.adapter.GridAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
-import com.bruce.designer.api.ApiWrapper;
+import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.AlbumDB;
@@ -39,18 +38,22 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.TimeUtil;
-//import com.bruce.designer.util.cache.ImageLoader;
+import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+//import com.bruce.designer.util.cache.ImageLoader;
 
 public class Fragment_Main extends Fragment {
 
-	private static final int HANDLER_FLAG_ERROR = 0;
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
+	private static final int HANDLER_FLAG_ERROR = -1;
+//	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
+//	private static final int HANDLER_FLAG_TAB1_ERROR = 11;
+	
 	
 	private int currentTab = 0;
 	
@@ -265,7 +268,7 @@ public class Fragment_Main extends Fragment {
 					albumItemView = LayoutInflater.from(context).inflate(R.layout.item_album_view, null);
 					ImageView coverView = (ImageView) albumItemView.findViewById(R.id.cover_img);
 //					ImageLoader.loadImage(album.getCoverMediumImg(), coverView);
-					ImageLoader.getInstance().displayImage(album.getCoverMediumImg(), coverView);
+					ImageLoader.getInstance().displayImage(album.getCoverMediumImg(), coverView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
 				}
 				
 				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
@@ -281,7 +284,7 @@ public class Fragment_Main extends Fragment {
 				
 				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
 //				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
-				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
+				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
 				
 				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
 				usernameView.setText("大树珠宝");
@@ -361,14 +364,14 @@ public class Fragment_Main extends Fragment {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(0, albumTailId);
-				JsonResultBean jsonResult = ApiWrapper.invoke(context, api);
-				
+				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
 					message.obj = jsonResult.getData();
 					message.sendToTarget(); 
 				}else{//发送失败消息
-					tabDataHandler.obtainMessage(HANDLER_FLAG_ERROR).sendToTarget();
+					int errorFlag = HANDLER_FLAG_ERROR;
+					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
 				}
 			}
 		});
@@ -384,7 +387,6 @@ public class Fragment_Main extends Fragment {
 					if(tab0DataMap!=null){
 						List<Album> albumList = (List<Album>) tab0DataMap.get("albumList");
 						if(albumList!=null&&albumList.size()>0){
-							
 							//save to db
 							AlbumDB.save(context, albumList);
 							
