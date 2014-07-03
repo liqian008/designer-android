@@ -12,6 +12,12 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
     
+     <fragment
+       	android:id="@+id/fragment_msgbox"
+        android:name="com.bruce.designer.activity.fragment.Fragment_Msgbox"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+     
     <fragment
        	android:id="@+id/fragment_myprofile"
         android:name="com.bruce.designer.activity.fragment.Fragment_MyProfile"
@@ -47,14 +53,14 @@
             android:src="@drawable/tab_icon_explore" />
 
         <ImageButton
-            android:id="@+id/btnTabHotDesigner"
+            android:id="@+id/btnTabMsgbox"
             android:layout_width="fill_parent"
             android:layout_height="57.0dip"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
-            android:src="@drawable/tab_icon_main" />
+            android:src="@drawable/tab_icon_notification" />
         
          
         <ImageButton

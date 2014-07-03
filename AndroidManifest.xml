@@ -90,9 +90,16 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name="com.bruce.designer.activity.Activity_Msgbox"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name="com.bruce.designer.activity.Activity_Test"
             android:screenOrientation="portrait" >
         </activity>
+        
+        
+        
         <receiver android:name="com.bruce.designer.broadcast.DesignerReceiver" >
             <intent-filter>
                 <action android:name="com.bruce.designer" />

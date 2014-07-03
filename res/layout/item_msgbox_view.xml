@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+我的消息条目
+-->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/avatarContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="70.0dp"
+        android:background="@drawable/button_white_bg" >
+
+        <RelativeLayout
+            android:id="@+id/msgAvatarBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginTop="10.0dip" >
+
+            <ImageView
+                android:id="@+id/msgAvatar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/icon_msgbox_sys" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:layout_toLeftOf="@+id/msgDetailImg"
+            android:layout_toRightOf="@+id/msgAvatarBox"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip" >
+
+            <TextView
+                android:id="@+id/msgTitle"
+                android:layout_width="fill_parent"
+                android:layout_height="35dp"
+                android:gravity="bottom"
+                android:text="系统消息"
+                android:textSize="18.0sp" />
+
+            <TextView
+                android:id="@+id/msgContent"
+                android:layout_width="fill_parent"
+                android:layout_below="@+id/msgTitle"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical"
+                android:text="欢迎您访问金玩儿网"
+                android:textSize="13.0sp" 
+				android:singleLine="true"
+                />
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/msgDetailImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20.0dip"
+            android:src="@drawable/btn_explore_more" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1.0px"
+        android:background="#fff2f2f2" />
+
+</LinearLayout>

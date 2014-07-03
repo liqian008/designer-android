@@ -36,23 +36,18 @@ public class Activity_Main extends BaseActivity {
 		
 		mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
 		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_myprofile);
-        mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_main);
+        mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_msgbox);
         mFragments[3] = fragmentManager.findFragmentById(R.id.fragment_myprofile);
         
         footerTabs[0] = (ImageButton) findViewById(R.id.btnTabMain);
-        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabProfile);
-        footerTabs[2] = (ImageButton) findViewById(R.id.btnTabMain);
+        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabHotAlbum);
+        footerTabs[2] = (ImageButton) findViewById(R.id.btnTabMsgbox);
         footerTabs[3] = (ImageButton) findViewById(R.id.btnTabProfile);
         
         for(int i=0; i<footerTabs.length;i++){
         	footerTabs[i].setOnClickListener(tabOnclickListener);
         }
         
-//        ImageButton btnTabMain = (ImageButton) findViewById(R.id.btnTabMain);
-//        btnTabMain.setOnClickListener(tabOnclickListener);
-//        ImageButton profileBtn = (ImageButton) findViewById(R.id.btnTabProfile);
-//		profileBtn.setOnClickListener(tabOnclickListener);
-		
 		highLight(0);
 	}
 
@@ -99,7 +94,7 @@ public class Activity_Main extends BaseActivity {
 	 * @param index
 	 */
 	private void showFragment(int index) {
-		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]);  
+		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);  
         fragmentTransaction.show(mFragments[index]).commit();
 	}
 	
@@ -113,11 +108,11 @@ public class Activity_Main extends BaseActivity {
 					highLight(0);
 					break;
 				}
-				case R.id.btnTabHotDesigner:{
+				case R.id.btnTabHotAlbum:{
 					highLight(1);
 					break;
 				}
-				case R.id.btnTabHotAlbum:{
+				case R.id.btnTabMsgbox:{
 					highLight(2);
 					break;
 				}

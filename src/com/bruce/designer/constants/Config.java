@@ -11,7 +11,7 @@ public class Config {
 	public static final String APP_SECRET_KEY = "&8(UiOJkL";
 	
 	
-	public static final String JINWAN_DOMAIN = "http://m.jinwanr.com.cn";
+	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn";
 	
 	public static final String JINWAN_API_PREFIX = JINWAN_DOMAIN + "/api";
 	

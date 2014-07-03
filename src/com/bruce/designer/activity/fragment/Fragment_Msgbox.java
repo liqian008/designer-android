@@ -1,66 +1,86 @@
-package com.bruce.designer.activity;
+package com.bruce.designer.activity.fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_Msgbox;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.user.UserFansApi;
-import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.ApiUtil;
 
-public class Activity_UserFans extends BaseActivity {
+/**
+ * 我的个人资料的Fragment
+ * @author liqian
+ *
+ */
+public class Fragment_Msgbox extends Fragment {
 	
 	private View titlebarView;
 
 	private TextView titleView;
 	
 	private FansListAdapter fansListAdapter;
-
-	private int userId;
+	
+	private Activity context;
+	
+	private LayoutInflater inflater;
+	
+	private int userId = 100012;
+	
+	private int[] msgAvatarIds = new int[]{R.drawable.icon_msgbox_at,R.drawable.icon_msgbox_comment,R.drawable.icon_msgbox_sys,R.drawable.icon_msgbox_like};
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_user_fans);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		context = getActivity();
+		this.inflater = inflater;
 		
-		Intent intent = getIntent();
-		//获取userid
-		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		View mainView = inflater.inflate(R.layout.activity_msg_box, null);
 		
+		initView(mainView);
+		return mainView;
+	}
+
+	
+	private void initView(View mainView) {
+		View titlebarIcon = (View) mainView.findViewById(R.id.titlebar_icon);
+		titlebarIcon.setVisibility(View.GONE);
 		//init view
-		titlebarView = findViewById(R.id.titlebar_return);
+		titlebarView = mainView.findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
-		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("TA的粉丝");
+		titleView = (TextView) mainView.findViewById(R.id.titlebar_title);
+		titleView.setText("我的消息");
 		
-		ListView fansListView = (ListView)findViewById(R.id.userFans);
+		ListView msgboxView = (ListView)mainView.findViewById(R.id.msgBox);
 		fansListAdapter = new FansListAdapter(context, null);
-		fansListView.setAdapter(fansListAdapter);
+		msgboxView.setAdapter(fansListAdapter);
 		
 		//获取关注列表
 		getFans(0);
 		//TODO 需要增加下拉刷新
+		
 	}
-	
-	
+
 	class FansListAdapter extends BaseAdapter {
 
 		private List<UserFan> fanUserList;
@@ -105,12 +125,28 @@ public class Activity_UserFans extends BaseActivity {
 			//TODO 暂未使用convertView
 			if(getItem(position)!=null){
 				final UserFan user = getItem(position);
-				View friendItemView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
+				View itemView = LayoutInflater.from(context).inflate(R.layout.item_msgbox_view, null);
 				
-				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
-				usernameView.setText(user.getFanUser().getNickname());
+				itemView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						Activity_Msgbox.show(context);
+					}
+				});
 				
-				return friendItemView;
+				
+//				ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
+//				Random random = new Random(System.currentTimeMillis());
+//				int randomResIndex = random.nextInt(msgAvatarIds.length);
+//				msgAvatrView.setBackgroundResource(msgAvatarIds[randomResIndex]);
+				
+//				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
+//				msgTitleView.setText(user.getFanUser().getNickname());
+//				
+//				TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
+//				msgContentView.setText(user.getFanUser().getNickname());
+				
+				return itemView;
 			}
 			return null;
 		}
@@ -126,8 +162,6 @@ public class Activity_UserFans extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getUserFans(userId);
-				
 				UserFansApi api = new UserFansApi(userId);
 				JsonResultBean jsonResult = ApiManager.invoke(context, api);
 				
@@ -149,11 +183,19 @@ public class Activity_UserFans extends BaseActivity {
 				case 0:
 					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
 					if(userFansDataMap!=null){
-						List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
-						if(fanList!=null&&fanList.size()>0){
-							fansListAdapter.setFanUserList(fanList);
-							fansListAdapter.notifyDataSetChanged();
+//						List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
+//						if(fanList!=null&&fanList.size()>0){
+//							fansListAdapter.setFanUserList(fanList);
+//							fansListAdapter.notifyDataSetChanged();
+//						}
+					
+						List<UserFan> fanList = new ArrayList<UserFan>();
+						for(int i=0;i<10;i++){
+							UserFan userFan = new UserFan();
+							fanList.add(userFan);
 						}
+						fansListAdapter.setFanUserList(fanList);
+						fansListAdapter.notifyDataSetChanged();
 					}
 					break;
 				default:
@@ -166,9 +208,6 @@ public class Activity_UserFans extends BaseActivity {
 		@Override
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
-			case R.id.titlebar_return:
-				finish();
-				break;
 			default:
 				break;
 			}

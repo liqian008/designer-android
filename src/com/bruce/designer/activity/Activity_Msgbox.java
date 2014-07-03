@@ -10,23 +10,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.ApiUtil;
 
-public class Activity_UserFans extends BaseActivity {
+public class Activity_Msgbox extends BaseActivity {
 	
 	private View titlebarView;
 
@@ -36,10 +34,16 @@ public class Activity_UserFans extends BaseActivity {
 
 	private int userId;
 	
+	public static void show(Context context){
+		Intent intent = new Intent(context, Activity_Msgbox.class);
+		context.startActivity(intent);
+	}
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_user_fans);
+		setContentView(R.layout.activity_msg_dialog);
 		
 		Intent intent = getIntent();
 		//获取userid
@@ -49,11 +53,11 @@ public class Activity_UserFans extends BaseActivity {
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("TA的粉丝");
+		titleView.setText("消息");
 		
-		ListView fansListView = (ListView)findViewById(R.id.userFans);
+		ListView msgDialogView = (ListView)findViewById(R.id.msgDialog);
 		fansListAdapter = new FansListAdapter(context, null);
-		fansListView.setAdapter(fansListAdapter);
+		msgDialogView.setAdapter(fansListAdapter);
 		
 		//获取关注列表
 		getFans(0);
@@ -105,12 +109,10 @@ public class Activity_UserFans extends BaseActivity {
 			//TODO 暂未使用convertView
 			if(getItem(position)!=null){
 				final UserFan user = getItem(position);
-				View friendItemView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
+				View msgItemView = LayoutInflater.from(context).inflate(R.layout.item_msgbox_view, null);
 				
-				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
-				usernameView.setText(user.getFanUser().getNickname());
 				
-				return friendItemView;
+				return msgItemView;
 			}
 			return null;
 		}
@@ -161,6 +163,7 @@ public class Activity_UserFans extends BaseActivity {
 			}
 		}
 	};
+	
 
 	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
