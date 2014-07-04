@@ -47,7 +47,6 @@ public class Activity_Main extends BaseActivity {
         for(int i=0; i<footerTabs.length;i++){
         	footerTabs[i].setOnClickListener(tabOnclickListener);
         }
-        
 		highLight(0);
 	}
 
@@ -96,6 +95,7 @@ public class Activity_Main extends BaseActivity {
 	private void showFragment(int index) {
 		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);  
         fragmentTransaction.show(mFragments[index]).commit();
+        mFragments[index].onResume();
 	}
 	
 	

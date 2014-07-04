@@ -12,7 +12,14 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 public class UniversalImageUtil {
 	
-	public static final DisplayImageOptions DEFAULT_DISPLAY_OPTION = buildDisplayOption(R.drawable.logo_splash);
+	private static final int LOADING_IMAGE_ID = R.drawable.tab_icon_main;
+	private static final int LOADING_FAIL_IMAGE_ID = R.drawable.tab_icon_main;
+	
+	private static final int LOADING_AVATAR_IMAGE_ID = R.drawable.default_avatar;
+	private static final int LOADING_FAIL_AVATAR_IMAGE_ID = R.drawable.default_avatar;
+	
+	public static final DisplayImageOptions DEFAULT_DISPLAY_OPTION = buildDisplayOption(LOADING_IMAGE_ID, LOADING_FAIL_IMAGE_ID);
+	public static final DisplayImageOptions DEFAULT_AVATAR_DISPLAY_OPTION = buildDisplayOption(LOADING_AVATAR_IMAGE_ID, LOADING_FAIL_AVATAR_IMAGE_ID);
 	
 	public static ImageLoaderConfiguration buildUniversalImageConfig(
 			Context context) {
@@ -47,13 +54,13 @@ public class UniversalImageUtil {
 		return config;
 	}
 
-	public static DisplayImageOptions buildDisplayOption(int defaultImageId) {
+	public static DisplayImageOptions buildDisplayOption(int loadingImgId, int failImgId) {
 		DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder()
-//				.showStubImage(defaultImageId)
-//				.showImageForEmptyUri(defaultImageId)
-//				.showImageOnFail(defaultImageId)
+				.showImageOnLoading(loadingImgId)
+				.showImageForEmptyUri(loadingImgId)
+				.showImageOnFail(loadingImgId)
 				.cacheInMemory(true)
-				.cacheOnDisc(true).resetViewBeforeLoading().build();
+				.cacheOnDisk(true).resetViewBeforeLoading(true).build();
 		return displayImageOptions;
 	}
 

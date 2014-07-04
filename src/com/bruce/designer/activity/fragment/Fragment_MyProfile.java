@@ -65,6 +65,11 @@ public class Fragment_MyProfile extends Fragment {
 		btnEditMyInfo.setOnClickListener(listener);
 	}
 	
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+	
 	
 	private OnClickListener listener = new OnSingleClickListener() {
 		@Override

@@ -8,17 +8,16 @@
         android:id="@+id/header"
         android:layout_width="fill_parent"
         android:layout_height="50.0dip"
-        android:background="#ffffd800" >
-
-        <!-- 
-        logo image
+        android:background="@color/green" >
+       
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10.0dip"
-            android:layout_marginTop="14.0dip"
-            android:src="@drawable/icon_nice" />  -->
+            android:layout_centerVertical="true"
+            android:src="@drawable/icon_jinwanr" />
             
+         <!-- 
         <TextView 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -28,14 +27,14 @@
             android:textSize="18dp"
             android:textStyle="bold"
             />    
-
+  -->
         <ImageButton
             android:id="@+id/btnSettings"
             android:layout_width="50.0dip"
             android:layout_height="50.0dip"
             android:layout_alignParentRight="true"
             android:background="@drawable/header_button_bg"
-            android:src="@drawable/icon_index_tag" />
+            android:src="@drawable/icon_settings" />
 
         <ImageButton
             android:id="@+id/btnRefresh"
@@ -43,7 +42,7 @@
             android:layout_height="50.0dip"
             android:layout_toLeftOf="@+id/btnSettings"
             android:background="@drawable/header_button_bg"
-            android:src="@drawable/icon_refresh_normal" />
+            android:src="@drawable/icon_refresh" />
     </RelativeLayout>
 
     <LinearLayout
@@ -85,7 +84,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent" 
                     android:layout_height="match_parent"
-                    android:background="#ffffd800"/>
+                    android:background="@color/green"/>
             </RelativeLayout>
         </RelativeLayout>
 
@@ -121,7 +120,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent" 
                     android:layout_height="match_parent"
-                    android:background="#ffffd800"/>
+                    android:background="@color/green"/>
             </RelativeLayout>
             
 			<!-- 
@@ -161,7 +160,7 @@
                 <RelativeLayout
                     android:layout_width="match_parent" 
                     android:layout_height="match_parent"
-                    android:background="#ffffd800"/>
+                    android:background="@color/green"/>
             </RelativeLayout>
         </RelativeLayout>
     </LinearLayout>

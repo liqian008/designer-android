@@ -74,13 +74,16 @@ public class Fragment_Msgbox extends Fragment {
 		ListView msgboxView = (ListView)mainView.findViewById(R.id.msgBox);
 		fansListAdapter = new FansListAdapter(context, null);
 		msgboxView.setAdapter(fansListAdapter);
-		
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
 		//获取关注列表
 		getFans(0);
 		//TODO 需要增加下拉刷新
-		
 	}
-
+	
 	class FansListAdapter extends BaseAdapter {
 
 		private List<UserFan> fanUserList;

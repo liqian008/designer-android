@@ -17,10 +17,7 @@ public class ViewPagerAdapter extends PagerAdapter {
 		this.views = views;
 		this.activity = activity;
 	}
-	
-	
-	
-	
+
 	/**
 	 * 销毁划过的界面
 	 */

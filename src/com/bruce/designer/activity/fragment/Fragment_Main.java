@@ -36,7 +36,7 @@ import com.bruce.designer.db.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.LogUtil;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -54,6 +54,7 @@ public class Fragment_Main extends Fragment {
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
 //	private static final int HANDLER_FLAG_TAB1_ERROR = 11;
 	
+	private static final int TAB_NUM = 3;
 	
 	private int currentTab = 0;
 	
@@ -61,15 +62,11 @@ public class Fragment_Main extends Fragment {
 	private int tab0AlbumHeadId = 0;
 	/*tab0中最老一条的albumId*/
 	private int tab0AlbumTailId = 0;
-	/*tab0中最后刷新时间*/
-	private int tab0LastRefreshTime = 0;
 	
 	/*tab1中最新一条的albumId*/
 	private int tab1AlbumHeadId = 0;
 	/*tab1中最老一条的albumId*/
 	private int tab1AlbumTailId = 0;
-	/*tab1中最后刷新时间*/
-	private int tab1LastRefreshTime = 0;
 	
 	private ViewPager viewPager;
 	
@@ -78,12 +75,7 @@ public class Fragment_Main extends Fragment {
 	private ListView listView1;
 	private AlbumListAdapter listView1Adapter;
 	
-	private static final int TAB_NUM = 3;
 	
-	/*Tabs*/
-	private View tab0View;
-	private View tab1View;
-	private View tab2View;
 	
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
@@ -98,14 +90,13 @@ public class Fragment_Main extends Fragment {
 	private LayoutInflater inflater;
 	private ImageButton btnSettings;
 	
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		context = getActivity();
 		this.inflater = inflater;
 		
-		View mainView = inflater.inflate(R.layout.activity_main_header, container);
+		View mainView = inflater.inflate(R.layout.activity_main_header, null);
 		initView(mainView);
 		return mainView;
 	}
@@ -126,7 +117,7 @@ public class Fragment_Main extends Fragment {
 			tabView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
-					highLight(tabIndex);
+					highLightTab(tabIndex);
 				}
 			});
 		}
@@ -160,43 +151,28 @@ public class Fragment_Main extends Fragment {
 		listView0Adapter = new AlbumListAdapter(context, null, 0);
 		listView0.setAdapter(listView0Adapter);
 		
-		//tab0请求db数据
-		List<Album> albumList= AlbumDB.queryAll(context);
-		LogUtil.d("====albumList==="+albumList);
-		if(albumList!=null&&albumList.size()>0){//展示db中数据
-			listView0Adapter.setAlbumList(albumList);
-			listView0Adapter.notifyDataSetChanged();
-			tab0AlbumHeadId = albumList.get(0).getId();
-			tab0AlbumTailId = albumList.get(albumList.size()-1).getId();
-		}
-		
-		if(albumList==null||albumList.size()==0){//需要加载网络数据
-			//tab0请求网络数据
-			getAlbums(tab0AlbumHeadId, HANDLER_FLAG_TAB0);
-		}
-		
 		pullToRefreshView1 = (PullToRefreshListView) tabContentView1.findViewById(R.id.pull_refresh_list);
 		pullToRefreshView1.setMode(Mode.BOTH);
 		pullToRefreshView1.setOnRefreshListener(tab1RefreshListener);
 		listView1 = pullToRefreshView1.getRefreshableView();
 		listView1Adapter = new AlbumListAdapter(context, null, 0);
 		listView1.setAdapter(listView1Adapter);
-		//刷新
-//		pullToRefreshView1.setRefreshing(true);
 		
-		//tab1请求db数据
-		
-		//TODO tab切换时再请求网络数据
-		getAlbums(tab1AlbumHeadId, HANDLER_FLAG_TAB1);
-		
-		highLight(currentTab);
 	}
-
+	
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+		//根据tabIndex展示相应数据
+		highLightTab(currentTab);
+	}
+	
 	/**
-	 * 高亮显示
+	 * 高亮显示上部的Tab
 	 * @param tabIndex
 	 */
-	private void highLight(int tabIndex){
+	private void highLightTab(int tabIndex){
 		if(tabIndex>=TAB_NUM){
 			tabIndex = 0;
 		}
@@ -208,6 +184,43 @@ public class Fragment_Main extends Fragment {
 		//显示
 		tabIndicators[currentTab].setVisibility(View.VISIBLE);
 		viewPager.setCurrentItem(currentTab);
+		
+		//判断tab的上次刷新时间
+		long currentTime = System.currentTimeMillis();
+		String tabRefreshKey = getRefreshKey(tabIndex);
+		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
+		
+		//相应page上请求数据
+		switch(currentTab){
+		case 1:
+			//请求db数据
+			List<Album> recommendAlbumList= AlbumDB.queryAll(context);
+			if(recommendAlbumList!=null&&recommendAlbumList.size()>0){//展示db中数据
+				listView1Adapter.setAlbumList(recommendAlbumList);
+				listView1Adapter.notifyDataSetChanged();
+				tab1AlbumHeadId = recommendAlbumList.get(0).getId();
+				tab1AlbumTailId = recommendAlbumList.get(recommendAlbumList.size()-1).getId();
+			}
+			if(currentTime - lastRefreshTime > TimeUtil.TIME_UNIT_HOUR){
+				pullToRefreshView1.setRefreshing(true);
+			}
+			SharedPreferenceUtil.putSharePre(context, tabRefreshKey, currentTime);
+			break;
+		case 0:
+		default://刷新首个tab
+			List<Album> timelineAlbumList= AlbumDB.queryAll(context);
+			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
+				listView0Adapter.setAlbumList(timelineAlbumList);
+				listView0Adapter.notifyDataSetChanged();
+				tab0AlbumHeadId = timelineAlbumList.get(0).getId();
+				tab0AlbumTailId = timelineAlbumList.get(timelineAlbumList.size()-1).getId();
+			}
+			if(currentTime - lastRefreshTime > TimeUtil.TIME_UNIT_HOUR){
+				pullToRefreshView0.setRefreshing(true);
+			}
+			SharedPreferenceUtil.putSharePre(context, tabRefreshKey, currentTime);
+			break;	
+		}
 	}
 	
 
@@ -284,7 +297,7 @@ public class Fragment_Main extends Fragment {
 				
 				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
 //				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
-				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
+				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				
 				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
 				usernameView.setText("大树珠宝");
@@ -320,19 +333,15 @@ public class Fragment_Main extends Fragment {
 		}
 	}
 
-	
-
 	OnRefreshListener2<ListView> tab0RefreshListener = new OnRefreshListener2<ListView>() {
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-//			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
 			//tab0请求新数据
 			getAlbums(tab0AlbumHeadId, HANDLER_FLAG_TAB0);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-//			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
 			//tab0请求历史数据
 			getAlbums(tab0AlbumTailId, HANDLER_FLAG_TAB0);
 		}
@@ -341,14 +350,12 @@ public class Fragment_Main extends Fragment {
 	OnRefreshListener2<ListView> tab1RefreshListener = new OnRefreshListener2<ListView>() {
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-//			Toast.makeText(context, "下拉刷新", Toast.LENGTH_LONG).show();
 			//tab1请求数据
 			getAlbums(tab1AlbumHeadId, HANDLER_FLAG_TAB1);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-//			Toast.makeText(context, "上拉获取更多", Toast.LENGTH_LONG).show();
 			//tab0请求历史数据
 			getAlbums(tab1AlbumTailId, HANDLER_FLAG_TAB1);
 		}
@@ -449,6 +456,10 @@ public class Fragment_Main extends Fragment {
 		}
 	};
 	
+	private static String getRefreshKey(int tabIndex){
+		return ConstantsKey.LAST_REFRESH_TIME_PREFIX + tabIndex;
+	}
+	
 	/**
 	 * viewPager的listener
 	 */
@@ -456,7 +467,7 @@ public class Fragment_Main extends Fragment {
 		// 新的界面被选中时调用
 		@Override
 		public void onPageSelected(int index) {
-			highLight(index);
+			highLightTab(index);
 		}
 		
 		@Override

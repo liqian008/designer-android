@@ -18,8 +18,8 @@ public class Config {
 	
 	public static final String JINWAN_API_ALBUMS = JINWAN_API_PREFIX + "/moreAlbums.json";
 	
-	
-	
+	/*SP的默认Config*/
+	public static final String SP_CONFIG_DEFAULT = "CONFIG";
 	public static final String SP_CONFIG_ACCOUNT = "ACCOUNT";
 	public static final String SP_KEY_USERPASSPORT = "USER_PASSPORT";
 	
