@@ -116,7 +116,7 @@
                     android:id="@+id/logout"
                     android:layout_width="fill_parent"
                     android:layout_height="45.0dip"
-                    android:background="@drawable/button_green_bg"
+                    android:background="@drawable/button_red_bg"
                     android:layout_margin="10dp"
                     android:text="注销登录"
                     android:textColor="#ffffffff"

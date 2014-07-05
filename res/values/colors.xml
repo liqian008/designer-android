@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="abc_search_url_text_normal">#ff7fa87f</color>
-    <item type="color" name="abc_search_url_text_pressed">@*android:color/black</item>
-    <item type="color" name="abc_search_url_text_selected">@*android:color/black</item>
     <color name="black">#ff000000</color>
+    <color name="black2c">#ff2c2c2c</color>
     <color name="blue">#ff0000ff</color>
+    <color name="red">#ffff0000</color>
+    <color name="green">#ff2bb458</color>
+    <color name="red">#ff0000</color>
+    
     <color name="border_bg">#ffeeeeee</color>
     <color name="brand_selected_color">#ffe5e5e5</color>
     <color name="btn_camera_layer_active_color">#19000000</color>
@@ -38,22 +40,38 @@
     <color name="default_title_indicator_selected_color">#ffffffff</color>
     <color name="default_title_indicator_text_color">#bbffffff</color>
     <color name="default_underline_indicator_selected_color">#ffffd800</color>
+    
     <color name="filter_button_active_color">#ff000000</color>
     <color name="filter_button_normal_color">#ff252525</color>
-    <color name="follow_button_active_color">#ff229147</color>
-    <color name="follow_button_normal_color">#ff2bb458</color>
-    <color name="sendmsg_button_active_color">#fff06522</color>
-    <color name="sendmsg_button_normal_color">#fff26522</color>
+    
+    <color name="green_button_active_color">#ff229147</color>
+    <color name="green_button_normal_color">#ff2bb458</color>
+    
+    <color name="orange_button_active_color">#fff06522</color>
+    <color name="orange_button_normal_color">#fff26522</color>
+    
+    <color name="red_button_active_color">#ffa72727</color>
+    <color name="red_button_normal_color">#ffd04040</color>
+    
+    <color name="blue_button_active_color">#ff35639b</color>
+    <color name="blue_button_normal_color">#ff20416a</color>
+    
+    
+    <color name="white_button_active_color">#ffe5e5e5</color>
+    <color name="white_button_normal_color">#ffffffff</color>
+    
     <color name="grey_button_active_color">#ffd9d9d9</color>
     <color name="grey_button_normal_color">#fff2f2f2</color>
+    
     <color name="history_active_color">#ff000000</color>
     <color name="history_normal_color">#ff666666</color>
     <color name="own_button_active_color">#ffb8561a</color>
     <color name="own_button_normal_color">#ffe66a20</color>
-    <color name="red">#ffff0000</color>
+    
     <color name="tab_active_color">#ff2bb458</color>
     <color name="tab_camera_color">#ff000000</color>
     <color name="tab_normal_color">#ff2c2c2c</color>
+    
     <color name="theme_color">#ffffd800</color>
     <color name="tip_correct_color">#ff40bc69</color>
     <color name="tip_uncorrect_color">#ffe33636</color>
@@ -67,7 +85,6 @@
     <item type="color" name="vpi__bright_foreground_inverse_holo_dark">@color/vpi__bright_foreground_holo_light</item>
     <item type="color" name="vpi__bright_foreground_inverse_holo_light">@color/vpi__bright_foreground_holo_dark</item>
     <color name="white">#ffffffff</color>
-    <color name="white_button_active_color">#ffe5e5e5</color>
-    <color name="white_button_normal_color">#ffffffff</color>
-    <color name="green">#ff2bb458</color>
+   
+    
 </resources>
