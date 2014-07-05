@@ -75,8 +75,6 @@ public class Fragment_Main extends Fragment {
 	private ListView listView1;
 	private AlbumListAdapter listView1Adapter;
 	
-	
-	
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
 	
@@ -122,6 +120,13 @@ public class Fragment_Main extends Fragment {
 			});
 		}
 		
+		//刷新按钮及点击事件
+		btnRefresh = (ImageButton) view.findViewById(R.id.btnRefresh);
+		btnRefresh.setOnClickListener(listener);
+		//setting按钮及点击事件
+		btnSettings = (ImageButton) view.findViewById(R.id.btnSettings);
+		btnSettings.setOnClickListener(listener);
+		
 		//构造viewPager
 		viewPager = (ViewPager) view.findViewById(R.id.viewPager);
 		List<View> pagerViews = new ArrayList<View>();
@@ -132,16 +137,9 @@ public class Fragment_Main extends Fragment {
 		pagerViews.add(tabContentView0);
 		pagerViews.add(tabContentView1);
 		//viewPager的适配器
-		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(pagerViews, context);
+		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(context, pagerViews);
 		viewPager.setAdapter(viewPagerAdapter);
 		viewPager.setOnPageChangeListener(viewPagerListener);
-		
-		//刷新按钮及点击事件
-		btnRefresh = (ImageButton) view.findViewById(R.id.btnRefresh);
-		btnRefresh.setOnClickListener(listener);
-		//setting按钮及点击事件
-		btnSettings = (ImageButton) view.findViewById(R.id.btnSettings);
-		btnSettings.setOnClickListener(listener);
 		
 		//ViewPager0
 		pullToRefreshView0 = (PullToRefreshListView) tabContentView0.findViewById(R.id.pull_refresh_list);
@@ -157,7 +155,6 @@ public class Fragment_Main extends Fragment {
 		listView1 = pullToRefreshView1.getRefreshableView();
 		listView1Adapter = new AlbumListAdapter(context, null, 0);
 		listView1.setAdapter(listView1Adapter);
-		
 	}
 	
 	
@@ -166,6 +163,11 @@ public class Fragment_Main extends Fragment {
 		super.onResume();
 		//根据tabIndex展示相应数据
 		highLightTab(currentTab);
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
 	}
 	
 	/**
@@ -189,7 +191,7 @@ public class Fragment_Main extends Fragment {
 		long currentTime = System.currentTimeMillis();
 		String tabRefreshKey = getRefreshKey(tabIndex);
 		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
-		
+		long interval = currentTime - lastRefreshTime;
 		//相应page上请求数据
 		switch(currentTab){
 		case 1:
@@ -201,24 +203,27 @@ public class Fragment_Main extends Fragment {
 				tab1AlbumHeadId = recommendAlbumList.get(0).getId();
 				tab1AlbumTailId = recommendAlbumList.get(recommendAlbumList.size()-1).getId();
 			}
-			if(currentTime - lastRefreshTime > TimeUtil.TIME_UNIT_HOUR){
+			if(interval > TimeUtil.TIME_UNIT_SECOND){
 				pullToRefreshView1.setRefreshing(true);
 			}
-			SharedPreferenceUtil.putSharePre(context, tabRefreshKey, currentTime);
 			break;
 		case 0:
 		default://刷新首个tab
 			List<Album> timelineAlbumList= AlbumDB.queryAll(context);
+			
+//			Album album = new Album();
+//			album.setId(0);
+//			timelineAlbumList.add(album);
+			
 			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
 				listView0Adapter.setAlbumList(timelineAlbumList);
 				listView0Adapter.notifyDataSetChanged();
 				tab0AlbumHeadId = timelineAlbumList.get(0).getId();
 				tab0AlbumTailId = timelineAlbumList.get(timelineAlbumList.size()-1).getId();
 			}
-			if(currentTime - lastRefreshTime > TimeUtil.TIME_UNIT_HOUR){
+			if(interval > TimeUtil.TIME_UNIT_SECOND){
 				pullToRefreshView0.setRefreshing(true);
 			}
-			SharedPreferenceUtil.putSharePre(context, tabRefreshKey, currentTime);
 			break;	
 		}
 	}
@@ -407,6 +412,7 @@ public class Fragment_Main extends Fragment {
 						}
 					}
 					pullToRefreshView0.onRefreshComplete();
+					SharedPreferenceUtil.putSharePre(context, getRefreshKey(0), System.currentTimeMillis());
 					break;
 				case HANDLER_FLAG_TAB1:
 					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
@@ -422,6 +428,7 @@ public class Fragment_Main extends Fragment {
 							listView1Adapter.notifyDataSetChanged();
 						}
 					}
+					SharedPreferenceUtil.putSharePre(context, getRefreshKey(1), System.currentTimeMillis());
 					pullToRefreshView1.onRefreshComplete();
 					break;
 				default:

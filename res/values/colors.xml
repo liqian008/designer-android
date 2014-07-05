@@ -51,9 +51,9 @@
     <color name="own_button_active_color">#ffb8561a</color>
     <color name="own_button_normal_color">#ffe66a20</color>
     <color name="red">#ffff0000</color>
-    <color name="tab_active_color">#ff2a3343</color>
+    <color name="tab_active_color">#ff2bb458</color>
     <color name="tab_camera_color">#ff000000</color>
-    <color name="tab_normal_color">#ff323c4d</color>
+    <color name="tab_normal_color">#ff2c2c2c</color>
     <color name="theme_color">#ffffd800</color>
     <color name="tip_correct_color">#ff40bc69</color>
     <color name="tip_uncorrect_color">#ffe33636</color>

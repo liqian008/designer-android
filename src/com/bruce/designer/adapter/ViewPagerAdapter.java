@@ -13,9 +13,9 @@ public class ViewPagerAdapter extends PagerAdapter {
 	private List<View> views;
 	private Activity activity;
 
-	public ViewPagerAdapter(List<View> views, Activity activity) {
-		this.views = views;
+	public ViewPagerAdapter(Activity activity, List<View> views) {
 		this.activity = activity;
+		this.views = views;
 	}
 
 	/**

@@ -9,7 +9,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="58dp" >
+        android:layout_marginBottom="55dp" >
 
         <fragment
             android:id="@+id/fragment_main"
@@ -33,14 +33,14 @@
     <LinearLayout
         android:id="@+id/btnTabContainer"
         android:layout_width="match_parent"
-        android:layout_height="57.0dip"
+        android:layout_height="55.0dip"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal" >
 
         <ImageButton
             android:id="@+id/btnTabMain"
             android:layout_width="match_parent"
-            android:layout_height="57.0dip"
+            android:layout_height="55.0dip"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
@@ -50,7 +50,7 @@
         <ImageButton
             android:id="@+id/btnTabHotAlbum"
             android:layout_width="match_parent"
-            android:layout_height="57.0dip"
+            android:layout_height="55.0dip"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
@@ -60,7 +60,7 @@
         <ImageButton
             android:id="@+id/btnTabMsgbox"
             android:layout_width="match_parent"
-            android:layout_height="57.0dip"
+            android:layout_height="55.0dip"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
@@ -70,7 +70,7 @@
         <ImageButton
             android:id="@+id/btnTabProfile"
             android:layout_width="match_parent"
-            android:layout_height="57.0dip"
+            android:layout_height="55.0dip"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
