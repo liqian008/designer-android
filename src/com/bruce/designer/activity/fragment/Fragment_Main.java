@@ -32,7 +32,7 @@ import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
-import com.bruce.designer.db.AlbumDB;
+import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.json.JsonResultBean;
@@ -217,7 +217,7 @@ public class Fragment_Main extends Fragment {
 		switch(currentTab){
 		case 1:
 			//请求db数据
-			List<Album> recommendAlbumList= AlbumDB.queryAll(context);
+			List<Album> recommendAlbumList= AlbumDB.queryAllRecommend(context);
 			if(recommendAlbumList!=null&&recommendAlbumList.size()>0){//展示db中数据
 				listView1Adapter.setAlbumList(recommendAlbumList);
 				listView1Adapter.notifyDataSetChanged();
@@ -230,7 +230,7 @@ public class Fragment_Main extends Fragment {
 			break;
 		case 2:
 			//请求db数据
-			List<Album> tab2AlbumList= AlbumDB.queryAll(context);
+			List<Album> tab2AlbumList= AlbumDB.queryAllFollow(context);
 			if(tab2AlbumList!=null&&tab2AlbumList.size()>0){//展示db中数据
 				listView2Adapter.setAlbumList(tab2AlbumList);
 				listView2Adapter.notifyDataSetChanged();
@@ -243,7 +243,7 @@ public class Fragment_Main extends Fragment {
 			break;
 		case 0:
 		default://刷新首个tab
-			List<Album> timelineAlbumList= AlbumDB.queryAll(context);
+			List<Album> timelineAlbumList= AlbumDB.queryAllLatest(context);
 			
 			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
 				listView0Adapter.setAlbumList(timelineAlbumList);

@@ -23,6 +23,8 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumCommentApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.db.album.AlbumCommentDB;
+import com.bruce.designer.db.album.AlbumSlideDB;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
@@ -50,6 +52,8 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private AlbumCommentsAdapter commentsAdapter;
 	private AlbumSlidesAdapter slideAdapter;
 	
+	private Integer albumId;
+	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
@@ -70,6 +74,10 @@ public class Activity_AlbumInfo extends BaseActivity {
 					if(albumDataMap!=null){
 						Album albumInfo = (Album) albumDataMap.get("albumInfo");
 						List<AlbumSlide> slideList = albumInfo.getSlideList();
+						//先将slide列表存入db
+						AlbumSlideDB.deleteByAlbumId(context, albumId);
+						AlbumSlideDB.save(context, slideList);
+						
 						slideAdapter.setSlideList(slideList);
 						slideAdapter.notifyDataSetChanged();
 					}
@@ -78,6 +86,10 @@ public class Activity_AlbumInfo extends BaseActivity {
 					Map<String, Object> commentDataMap = (Map<String, Object>) msg.obj;
 					if(commentDataMap!=null){
 						List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
+						//先将评论存入db
+						AlbumCommentDB.deleteByAlbumId(context, albumId);
+						AlbumCommentDB.save(context, commentList);
+						
 						commentsAdapter.setCommentList(commentList);
 						commentsAdapter.notifyDataSetChanged();
 						//解决scrollview与list的冲突
@@ -126,17 +138,32 @@ public class Activity_AlbumInfo extends BaseActivity {
 		
 		Intent intent = getIntent();
 		Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
+		albumId = album.getId();
 		//读取上个activity传入的albumId值 
-		if(album!=null&&album.getId()!=null){
+		if(album!=null&&albumId!=null){
 			//UI线程展示
 			Message message = handler.obtainMessage(HANDLER_FLAG_INFO);
 			message.obj = album;
 			message.sendToTarget();
 			
-			//获取图片列表
-			getAlbumInfo(album.getId());
+			//获取db中的图片列表
+			List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
+			if(albumSlideList!=null&&albumSlideList.size()>0){//展示db中数据
+				slideAdapter.setSlideList(albumSlideList);
+				slideAdapter.notifyDataSetChanged();
+			}
+			//获取实时图片列表
+//			getAlbumInfo(album.getId());
 			
-			//获取评论列表
+			//获取db中的评论列表
+			List<Comment> commentList= AlbumCommentDB.queryByAlbumId(context, albumId);
+			if(commentList!=null&&commentList.size()>0){//展示db中数据
+				commentsAdapter.setCommentList(commentList);
+				commentsAdapter.notifyDataSetChanged();
+			}
+			//解决scrollview与list的冲突
+			UiUtil.setListViewHeightBasedOnChildren(commentListView);
+			//获取实时评论列表
 			getAlbumComments(album.getId(), 0);
 		}
 	}

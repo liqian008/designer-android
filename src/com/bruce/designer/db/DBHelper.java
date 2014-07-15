@@ -9,7 +9,8 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+
+import com.bruce.designer.util.LogUtil;
 
 public class DBHelper extends SQLiteOpenHelper {
 	
@@ -55,19 +56,21 @@ public class DBHelper extends SQLiteOpenHelper {
 	private void initDB() throws IOException {
 		AssetManager assetManager = context.getAssets();
 		InputStream inStream = assetManager.open("jinwanr.sql");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				inStream));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
 
 		StringBuffer sql = new StringBuffer();
 		String line = null;
 		while ((line = reader.readLine()) != null) {
 			sql.append(line);
+			if(line.trim().endsWith(";")){
+				LogUtil.d("SQLite", "Init db " + sql.toString());
+				db.execSQL(sql.toString());
+				LogUtil.d("SQLite", "Init database");
+				//继续组装下一条sql脚本
+				sql = new StringBuffer();
+			}
 		}
 		reader.close();
-
-		Log.d("SQLite", "Init db " + sql.toString());
-		db.execSQL(sql.toString());
-		Log.i("SQLite", "Init database");
 	}
 
 	public SQLiteDatabase getDb() {
