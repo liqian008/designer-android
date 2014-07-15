@@ -23,7 +23,7 @@ public class AlbumSlideDB {
 			SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
 	
 			// 这里是把SQLite里面的数据进行排序，依据ID由大到小排序，这样可以保证ListView展示在最上面的一条 数据是最新的一条
-			Cursor cursor = db.query(TB_ALBUM_SLIDE, null, "album_id=?", new String[]{String.valueOf(albumId)}, null, null, "id asc");
+			Cursor cursor = db.query(TB_ALBUM_SLIDE, null, "album_id=?", new String[]{String.valueOf(albumId)}, null, null, "id desc");
 	
 			while (cursor.moveToNext()) {
 				AlbumSlide albumSlide = new AlbumSlide();

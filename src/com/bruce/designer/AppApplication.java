@@ -12,6 +12,8 @@ import android.os.Handler;
 public class AppApplication extends Application {
 
 	private static String versionName;
+	private static int versionCode;
+	
 //	private static float screendensity;
 //	private static int screenHeight;
 //	private static int screenWidth;
@@ -21,8 +23,6 @@ public class AppApplication extends Application {
 	 */
 	private static AppApplication application;
 	private static Handler uiHandler = new Handler();
-
-//	private static WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
 
 	@Override
 	public void onCreate() {
@@ -40,6 +40,7 @@ public class AppApplication extends Application {
 		try {
 			PackageInfo info = pm.getPackageInfo(packageName, 0);
 			versionName = info.versionName;
+			versionCode = info.versionCode;
 		} catch (NameNotFoundException ignored) {
 			versionName = "";
 		}
@@ -47,6 +48,10 @@ public class AppApplication extends Application {
 
 	public static String getVersionName() {
 		return versionName;
+	}
+	
+	public static int getVersionCode() {
+		return versionCode;
 	}
 
 	public static AppApplication getApplication() {

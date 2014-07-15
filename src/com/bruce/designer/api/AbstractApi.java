@@ -23,7 +23,7 @@ public abstract class AbstractApi {
 	 * @param data
 	 * @return
 	 */
-	protected abstract Map<String, Object> processBusinessData(String data);
+	protected abstract Map<String, Object> processResultData(String data);
 	
 	public JsonResultBean processResponse(String response) throws Exception{
 		int errorcode = 0;
@@ -32,7 +32,7 @@ public abstract class AbstractApi {
 		if(result==1){//成功响应
 			String dataStr = jsonObject.getString("data");
 			//交由子类处理业务数据
-			Map<String, Object> dataMap = processBusinessData(dataStr);
+			Map<String, Object> dataMap = processResultData(dataStr);
 			return new JsonResultBean(result, dataMap, errorcode, null);
 		}else{//错误响应
 			errorcode = jsonObject.getInt("errorcode");

@@ -164,7 +164,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 			//解决scrollview与list的冲突
 			UiUtil.setListViewHeightBasedOnChildren(commentListView);
 			//获取实时评论列表
-			getAlbumComments(album.getId(), 0);
+//			getAlbumComments(album.getId(), 0);
 		}
 	}
 	

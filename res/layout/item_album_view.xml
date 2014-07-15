@@ -20,7 +20,22 @@
         android:layout_marginTop="10.0dip" >
 
         <include layout="@layout/avatar" />
-
+	
+        <TextView
+            android:id="@+id/txtUsername"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="48.0dip"
+            android:layout_marginRight="10.0dip"
+            android:layout_marginTop="8.0dip"
+            android:layout_toLeftOf="@+id/txtTime"
+            android:gravity="center_vertical"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="#ff252525"
+            android:textSize="16.0sp"
+            android:textStyle="normal" />
+        
         <TextView
             android:id="@+id/txtTime"
             android:layout_width="80.0dip"
@@ -59,20 +74,7 @@
             android:textSize="12.0sp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/txtUsername"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="48.0dip"
-            android:layout_marginRight="60.0dip"
-            android:layout_marginTop="8.0dip"
-            android:layout_toLeftOf="@+id/txtTime"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:text=""
-            android:textColor="#ff252525"
-            android:textSize="16.0sp"
-            android:textStyle="normal" />
+        
 
         <RelativeLayout
             android:id="@+id/viewEditor"

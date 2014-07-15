@@ -1,7 +1,6 @@
 package com.bruce.designer.api.system;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,10 +11,6 @@ import com.bruce.designer.AppApplication;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
-import com.bruce.designer.model.UserFan;
-import com.bruce.designer.model.json.JsonResultBean;
-import com.bruce.designer.util.JsonUtil;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * 检查版本更新API
@@ -34,9 +29,10 @@ public class CheckVersionApi extends AbstractApi {
 
 	@Override
 	public Map<String, String> getParamMap() {
-//		paramMap = new TreeMap<String, String>();
-//		//客户端版本号
-//		paramMap.put("clientVersion", AppApplication.getVersionName());
+		paramMap = new TreeMap<String, String>();
+		//客户端版本号
+		paramMap.put("versionCode", String.valueOf(AppApplication.getVersionCode()));
+		paramMap.put("versionName", AppApplication.getVersionName());
 		return paramMap;
 	}
 
@@ -51,10 +47,26 @@ public class CheckVersionApi extends AbstractApi {
 	}
 
 	@Override
-	protected Map<String, Object> processBusinessData(String data) {
-		// TODO Auto-generated method stub
-		return null;
+	protected Map<String, Object> processResultData(String dataStr) {
+		JSONObject jsonData;
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		try {
+			jsonData = new JSONObject(dataStr);
+			int updateType = jsonData.getInt("updateType");
+			String updateMessage = jsonData.getString("updateMessage");
+			String updateUrl = jsonData.getString("updateUrl");
+			dataMap.put("updateType", updateType);
+			dataMap.put("updateMessage", updateMessage);
+			dataMap.put("updateUrl", updateUrl);
+			
+//			//构造用户登录状态
+//			int needLogin = jsonData.getInt("needLogin");
+//			dataMap.put("needLogin", needLogin);
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return dataMap;
 	}
-
 
 }

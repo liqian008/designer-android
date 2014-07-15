@@ -73,7 +73,7 @@ public class AlbumListApi extends AbstractApi{
 	
 	
 	@Override
-	protected Map<String, Object> processBusinessData(String dataStr) {
+	protected Map<String, Object> processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
