@@ -38,10 +38,9 @@
         <activity
             android:name="com.bruce.designer.activity.Activity_Splash"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -97,7 +96,6 @@
             android:name="com.bruce.designer.activity.Activity_Test"
             android:screenOrientation="portrait" >
         </activity>
-        
         
         
         <receiver android:name="com.bruce.designer.broadcast.DesignerReceiver" >

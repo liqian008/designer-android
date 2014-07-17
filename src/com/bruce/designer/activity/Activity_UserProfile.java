@@ -31,7 +31,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.User;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 
@@ -186,7 +186,7 @@ public class Activity_UserProfile extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getUserinfo(userId);
 				
 				UserInfoApi api = new UserInfoApi(userId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -208,7 +208,7 @@ public class Activity_UserProfile extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(userId, albumTailId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(1);

@@ -37,7 +37,7 @@ public class Activity_AboutUs extends BaseActivity {
 		titleView.setText("关于我们");
 
 		version = (TextView) findViewById(R.id.version);
-		version.setText("版本号: " + Config.APP_VERSION);
+		version.setText("版本号: " + Config.APP_VERSION_NAME);
 
 	}
 

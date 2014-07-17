@@ -6,7 +6,6 @@ public class UserPassport {
 	private String ticket;
 	private String secretKey;
 	
-	
 	public UserPassport(int userId, String ticket, String secretKey) {
 		super();
 		this.userId = userId;

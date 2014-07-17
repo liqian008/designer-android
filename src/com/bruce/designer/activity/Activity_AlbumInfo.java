@@ -28,7 +28,7 @@ import com.bruce.designer.db.album.AlbumSlideDB;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 
@@ -178,7 +178,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumInfo(albumId);
 				
 				AlbumInfoApi api = new AlbumInfoApi(albumId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
@@ -201,7 +201,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumComments(albumId, commentsTailId);
 				
 				AlbumCommentApi api = new AlbumCommentApi(albumId, commentsTailId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_COMMENT);

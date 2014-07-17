@@ -26,10 +26,10 @@ public class UserFollowsApi extends AbstractApi {
 				+ "/follows.json";
 	}
 
-	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
-	}
+//	@Override
+//	public Map<String, String> getParamMap() {
+//		return paramMap;
+//	}
 
 	@Override
 	public RequestMethodEnum getRequestMethod() {
@@ -88,5 +88,15 @@ public class UserFollowsApi extends AbstractApi {
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected void fillDataMap(Map<String, String> dataMap) {
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

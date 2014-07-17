@@ -18,7 +18,7 @@ import com.bruce.designer.api.account.WeiboLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserPassport;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
@@ -69,7 +69,6 @@ public class Activity_Login extends BaseActivity{
      * 当授权成功后，请保存该 access_token、expires_in、uid 等信息到 SharedPreferences 中。
      */
     class AuthListener implements WeiboAuthListener {
-        
         @Override
         public void onComplete(Bundle values) {
             // 从 Bundle 中解析 Token
@@ -87,7 +86,7 @@ public class Activity_Login extends BaseActivity{
                 Activity_Login_Bind.show(context);
                 finish();
                 //TODO 向服务器提交token
-//                weiboLogin(uid, accessToken, new WeiboLoginListener());
+                weiboLogin(uid, accessToken);
             } else {
                 // 以下几种情况，您会收到 Code：
                 // 1. 当您未在平台上注册的应用程序的包名与签名时；
@@ -134,24 +133,24 @@ public class Activity_Login extends BaseActivity{
      * @param accessToken
      * @param thirdpartyType
      */
-    private void weiboLogin(final String uid, final String accessToken, final OAuthLoginListener oAuthLoginListener) {
+    private void weiboLogin(final String uid, final String accessToken) {
 		//启动线程获取用户数据
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					//weibo登录成功，两种情况
 					boolean result = true;
 					if(result){//直接返回用户ticket信息
 						UserPassport userPassport = new UserPassport(1, "asdfghjkl", "");
-						oAuthLoginListener.loginComplete(userPassport);
+//						oAuthLoginListener.loginComplete(userPassport);
 					}else{//第一次登录，需要完善用户资料
-						oAuthLoginListener.needComplete();
+//						oAuthLoginListener.needComplete();
 					}
 				}else{//发送失败消息
-					oAuthLoginListener.loginFailed();
+//					oAuthLoginListener.loginFailed();
 				}
 			}
 		}).start();
@@ -177,23 +176,23 @@ public class Activity_Login extends BaseActivity{
 //		};
 //	};
     
-    class WeiboLoginListener implements OAuthLoginListener{
-		@Override
-		public void loginComplete(UserPassport userPassport) {
-			UiUtil.showShortToast(context, "登录成功");
-//			SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERPASSPORT);
-		}
-		@Override
-		public void needComplete() {
-			UiUtil.showShortToast(context, "登录成功，需要完善个人资料");
-		}
-
-		@Override
-		public void loginFailed() {
-			UiUtil.showShortToast(context, "登录失败");
-		}
-    	
-    }
+//    class WeiboLoginListener implements OAuthLoginListener{
+//		@Override
+//		public void loginComplete(UserPassport userPassport) {
+//			UiUtil.showShortToast(context, "登录成功");
+////			SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERPASSPORT);
+//		}
+//		@Override
+//		public void needComplete() {
+//			UiUtil.showShortToast(context, "登录成功，需要完善个人资料");
+//		}
+//
+//		@Override
+//		public void loginFailed() {
+//			UiUtil.showShortToast(context, "登录失败");
+//		}
+//    	
+//    }
     
     
 	private OnClickListener listener = new OnSingleClickListener() {

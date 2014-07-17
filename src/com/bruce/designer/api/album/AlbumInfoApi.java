@@ -14,7 +14,7 @@ import com.bruce.designer.util.JsonUtil;
 
 public class AlbumInfoApi extends AbstractApi{
 	
-	private String REQUESTS_URI=null;
+	private String REQUESTS_URI=null; 
 	
 	
 	private Map<String, String> paramMap = null;
@@ -23,10 +23,10 @@ public class AlbumInfoApi extends AbstractApi{
 		REQUESTS_URI = Config.JINWAN_API_PREFIX+"/album/"+albumId + ".json";
 	}
 	
-	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
-	}
+//	@Override
+//	public Map<String, String> getParamMap() {
+//		return paramMap;
+//	}
 
 	@Override
 	public RequestMethodEnum getRequestMethod() {
@@ -79,6 +79,16 @@ public class AlbumInfoApi extends AbstractApi{
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected void fillDataMap(Map<String, String> dataMap) {
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

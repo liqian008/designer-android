@@ -3,15 +3,19 @@ package com.bruce.designer.constants;
 import com.bruce.designer.AppApplication;
 
 public class Config {
-	/*客户端version*/
-	public static final String APP_VERSION = AppApplication.getVersionName();
+	/*客户端versionName*/
+	public static final String APP_VERSION_NAME = AppApplication.getVersionName();
+	/*客户端versionCode*/
+	public static final int APP_VERSION_CODE = AppApplication.getVersionCode();
 	/*客户端ID*/
 	public static final String APP_ID = "1";//jinwanr_android
 	/*客户端SECRET KEY*/
-	public static final String APP_SECRET_KEY = "&8(UiOJkL";
+	public static final String APP_SECRET_KEY = "1qaz2wsx";
 	
 	
-	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn";
+//	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn";
+	//test mcap api
+	public static final String JINWAN_DOMAIN = "http://172.168.1.88:8080/foundation-mcap";
 	
 	public static final String JINWAN_API_PREFIX = JINWAN_DOMAIN + "/api";
 	

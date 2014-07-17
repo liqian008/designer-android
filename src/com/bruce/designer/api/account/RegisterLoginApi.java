@@ -11,7 +11,7 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 
 /**
@@ -33,8 +33,7 @@ public class RegisterLoginApi extends AbstractApi{
 	}
 	
 	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
+	public void fillDataMap(Map<String, String> dataMap){
 	}
 
 	@Override
@@ -100,6 +99,12 @@ public class RegisterLoginApi extends AbstractApi{
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

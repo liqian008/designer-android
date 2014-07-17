@@ -27,10 +27,10 @@ public class AlbumListApi extends AbstractApi{
 		paramMap.put("albumsTailId", String.valueOf(albumsTailId));
 	}
 	
-	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
-	}
+//	@Override
+//	public Map<String, String> getParamMap() {
+//		return paramMap;
+//	}
 
 	@Override
 	public RequestMethodEnum getRequestMethod() {
@@ -71,7 +71,6 @@ public class AlbumListApi extends AbstractApi{
 //		return jsonResult;
 //	}
 	
-	
 	@Override
 	protected Map<String, Object> processResultData(String dataStr) {
 		JSONObject jsonData;
@@ -89,6 +88,16 @@ public class AlbumListApi extends AbstractApi{
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected void fillDataMap(Map<String, String> dataMap) {
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

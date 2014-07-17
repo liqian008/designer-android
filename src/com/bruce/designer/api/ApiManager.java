@@ -3,16 +3,12 @@ package com.bruce.designer.api;
 import java.util.Map;
 import java.util.TreeMap;
 
-import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 
 import com.bruce.designer.broadcast.BroadcastSender;
-import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserPassport;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.MD5;
@@ -24,7 +20,7 @@ public class ApiManager {
 	/* 加密 5000字 上限 */
 	private static final int MD5_STRING_LIMIT = 5000;
 	/* 错误的响应 */
-	private static JsonResultBean errorResult = new JsonResultBean(0, null, 0, "操作失败");
+	private static ApiResult errorResult = new ApiResult(0, null, 0, "操作失败");
 	
 	/**
 	 * 
@@ -33,7 +29,7 @@ public class ApiManager {
 	 * @return
 	 * @throws Exception
 	 */
-	public static JsonResultBean invoke(Context context, AbstractApi api){
+	public static ApiResult invoke(Context context, AbstractApi api){
 		//检查网络状态
 		if(!MobileUtils.isNetworkConnected(context)){//未联网
 			//TODO 异常或错误码
@@ -77,12 +73,14 @@ public class ApiManager {
 		if (param!= null&&param.size()>0) {
 			fullParamMap.putAll(param);
 		}
-		String appVersion = Config.APP_VERSION;
+		String appVersionName = Config.APP_VERSION_NAME;
+		int appVersionCode = Config.APP_VERSION_CODE;
 		String appId = Config.APP_ID;
 		String secretKey = Config.APP_SECRET_KEY;
 		
 		fullParamMap.put("app_id", appId);
-		fullParamMap.put("v", appVersion);
+		fullParamMap.put("v_name", appVersionName);
+		fullParamMap.put("v_code", String.valueOf(appVersionCode));
 		fullParamMap.put("call_id", Long.toString(System.currentTimeMillis()));
 		//构造用户级的请求参数
 		UserPassport userPassport = SharedPreferenceUtil.readObjectFromSp(
@@ -92,8 +90,8 @@ public class ApiManager {
 			String ticket= null;
 			ticket= userPassport.getTicket();
 			fullParamMap.put("t", ticket);
-			//TODO 使用用户的密钥进行加密，此处暂时屏蔽，使用统一的secretKey进行加密
-			//secretKey = userPassport.getSecretKey();
+			//使用返回UserPassport中secret进行加密，使用统一的secretKey进行加密
+			secretKey = userPassport.getSecretKey();
 		}
 		
 		final StringBuilder sb = new StringBuilder("");
@@ -102,8 +100,8 @@ public class ApiManager {
 		}
 
 		String value = limitedString(sb.toString(), MD5_STRING_LIMIT) + secretKey;
-		final String sig = MD5.toMD5(value);
 		LogUtil.d("======value: " + value);
+		final String sig = MD5.toMD5(value);
 		LogUtil.d("======secretKey: " + secretKey);
 		LogUtil.d("======sig: " + sig);
 		fullParamMap.put("sig", sig);

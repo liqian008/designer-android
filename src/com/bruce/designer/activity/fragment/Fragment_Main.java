@@ -35,7 +35,7 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
@@ -420,7 +420,7 @@ public class Fragment_Main extends Fragment {
 //				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(0, albumTailId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
 					message.obj = jsonResult.getData();

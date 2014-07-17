@@ -10,7 +10,7 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 
 public class UserInfoApi extends AbstractApi{
@@ -24,10 +24,10 @@ public class UserInfoApi extends AbstractApi{
 		REQUESTS_URI = Config.JINWAN_API_PREFIX+"/"+userId+"/info.json";
 	}
 	
-	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
-	}
+//	@Override
+//	public Map<String, String> getParamMap() {
+//		return paramMap;
+//	}
 
 	@Override
 	public RequestMethodEnum getRequestMethod() {
@@ -40,8 +40,8 @@ public class UserInfoApi extends AbstractApi{
 	}
 	
 	@Override
-	public JsonResultBean processResponse(String response) {
-		JsonResultBean jsonResult = null;
+	public ApiResult processResponse(String response) {
+		ApiResult jsonResult = null;
 		if(response!=null){
 			try {
 				JSONObject jsonObject = new JSONObject(response);
@@ -58,12 +58,12 @@ public class UserInfoApi extends AbstractApi{
 						map.put("userinfo", userinfo);
 						map.put("followsCount", followsCount);
 						map.put("fansCount", fansCount);
-						jsonResult = new JsonResultBean(result, map, 0, null);
+						jsonResult = new ApiResult(result, map, 0, null);
 					}
 				}else{//错误响应
 					int errorcode = jsonObject.getInt("errorcode");
 					String message = jsonObject.getString("message");
-					jsonResult = new JsonResultBean(result, null, errorcode, message);
+					jsonResult = new ApiResult(result, null, errorcode, message);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -93,5 +93,15 @@ public class UserInfoApi extends AbstractApi{
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected void fillDataMap(Map<String, String> dataMap) {
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

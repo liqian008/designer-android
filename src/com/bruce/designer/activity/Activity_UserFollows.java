@@ -22,7 +22,7 @@ import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 
 public class Activity_UserFollows extends BaseActivity {
 	
@@ -126,7 +126,7 @@ public class Activity_UserFollows extends BaseActivity {
 				Message message;
 				
 				UserFollowsApi api = new UserFollowsApi(userId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(0);

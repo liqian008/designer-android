@@ -1,18 +1,18 @@
 package com.bruce.designer.activity;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -99,12 +99,14 @@ public class Activity_Settings extends BaseActivity {
 				Activity_AboutUs.show(context);
 				break;
 			case R.id.clearCache:
-				UiUtil.showLongToast(context, "clear");
 				// 弹起popWindow
 				// 新建一个poppopWindow，并显示里面的内容
-				PopupWindow popupWindow = makePopupWindow(context);
-				//指定显示位置
-				popupWindow.showAsDropDown(clearCacheView);
+//				PopupWindow popupWindow = makePopupWindow(context);
+//				//指定显示位置
+//				popupWindow.showAsDropDown(clearCacheView);
+				
+				AlertDialog clearDialog = UiUtil.showAlertDialog(context, "清除缓存", "根据缓存文件大小，清理时间从几秒到几分钟不等，请耐心等待", "清理", null, "取消", null);
+				clearDialog.show();
 				break;
 			case R.id.logout:
 				AppManager.getInstance().finishAllActivity();

@@ -54,7 +54,7 @@ public class Activity_Main extends BaseActivity {
 
 	
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		boolean flag = false;
 		if (keyCode == KeyEvent.KEYCODE_BACK) {// 退出
 			long currentTime = System.currentTimeMillis();

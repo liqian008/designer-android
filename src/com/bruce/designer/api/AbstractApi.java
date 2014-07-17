@@ -1,19 +1,33 @@
 package com.bruce.designer.api;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.json.JSONObject;
 
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 
 public abstract class AbstractApi {
 	
-	private JsonResultBean jsonResult = null;
+	private ApiResult apiResult = null;
 	
-	protected abstract Map<String, String> getParamMap();
-
+	/*抽象方法，统一url后，可删除 @Deprecated*/
 	protected abstract String getRequestUri();
+	/*抽象方法，子类需要构造业务数据*/
+	protected abstract void fillDataMap(Map<String, String> dataMap);
+	/*抽象方法，子类需要构造apiMethodName*/
+	protected abstract String getApiMethodName();
 	
+	public final Map<String, String> getParamMap(){
+		Map<String, String> paramMap = new TreeMap<String, String>();
+		//构造method名称
+		paramMap.put("cmd_method", getApiMethodName());
+		//构造业务请求参数
+		fillDataMap(paramMap);
+		return paramMap;
+	}
+	
+	/*抽象方法，统一后可均使用post*/
 	protected RequestMethodEnum getRequestMethod(){
 		return RequestMethodEnum.POST;
 	}
@@ -25,7 +39,7 @@ public abstract class AbstractApi {
 	 */
 	protected abstract Map<String, Object> processResultData(String data);
 	
-	public JsonResultBean processResponse(String response) throws Exception{
+	public ApiResult processResponse(String response) throws Exception{
 		int errorcode = 0;
 		JSONObject jsonObject = new JSONObject(response);
 		int result = jsonObject.getInt("result");
@@ -33,7 +47,7 @@ public abstract class AbstractApi {
 			String dataStr = jsonObject.getString("data");
 			//交由子类处理业务数据
 			Map<String, Object> dataMap = processResultData(dataStr);
-			return new JsonResultBean(result, dataMap, errorcode, null);
+			return new ApiResult(result, dataMap, errorcode, null);
 		}else{//错误响应
 			errorcode = jsonObject.getInt("errorcode");
 			String message = jsonObject.getString("message");
@@ -42,10 +56,10 @@ public abstract class AbstractApi {
 			if(specError){
 				throw new Exception();
 			}else{
-				jsonResult = new JsonResultBean(result, null, errorcode, message);
+				apiResult = new ApiResult(result, null, errorcode, message);
 			}
 		}
-		return jsonResult;
+		return apiResult;
 	}
 	
 }

@@ -13,7 +13,7 @@ import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.UserFollow;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.google.gson.reflect.TypeToken;
 
 public class ApiUtil {

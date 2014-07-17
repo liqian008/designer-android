@@ -23,7 +23,7 @@ import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ApiUtil;
 
 public class Activity_UserFans extends BaseActivity {
@@ -129,7 +129,7 @@ public class Activity_UserFans extends BaseActivity {
 //				JsonResultBean jsonResult = ApiUtil.getUserFans(userId);
 				
 				UserFansApi api = new UserFansApi(userId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(0);

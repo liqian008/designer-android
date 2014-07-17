@@ -26,7 +26,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
-import com.bruce.designer.model.json.JsonResultBean;
+import com.bruce.designer.model.result.ApiResult;
 
 /**
  * 我的个人资料的Fragment
@@ -166,7 +166,7 @@ public class Fragment_Msgbox extends Fragment {
 			public void run() {
 				Message message;
 				UserFansApi api = new UserFansApi(userId);
-				JsonResultBean jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(0);

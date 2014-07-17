@@ -9,8 +9,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Random;
 
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,22 +16,35 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.system.CheckUpdateApi;
+import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.UiUtil;
 
 public class Activity_Splash extends BaseActivity {
-
+	
+	/* 检查更新 */
+	private static final int CHECK_UPDATE = 0;
+	/* 有新下载 */
+	private static final int DOWNLOADING = 1;
+	/* 下载完成 */
+	private static final int DOWNLOAD_OVER = 2;
+	
+	// 提示标题
+	private String updateTitle = "发现新版本客户端";
 	// 提示语
 	private String updateMsg = "有最新的软件包哦，亲快下载吧~";
 	// 返回的安装包url
 	private String apkUrl = "http://softfile.3g.qq.com:8080/msoft/179/24659/43549/qq_hd_mini_1.4.apk";
 
-	private Dialog noticeDialog;
-	private Dialog downloadDialog;
+	private Dialog downloadPromptDialog;
+	private Dialog downloadingDialog;
 
 	/* 下载包安装路径 */
 	private static final String savePath = "/sdcard/updatedemo/";
@@ -41,12 +52,6 @@ public class Activity_Splash extends BaseActivity {
 
 	/* 进度条与通知ui刷新的handler和msg常量 */
 	private ProgressBar mProgress;
-	/* 检查更新 */
-	private static final int CHECK_UPDATE = 0;
-	/* 有新下载 */
-	private static final int DOWNLOADING = 1;
-	/* 下载完成 */
-	private static final int DOWNLOAD_OVER = 2;
 	/* 下载进度 */
 	private int progress;
 	/* 是否中断 */
@@ -54,12 +59,14 @@ public class Activity_Splash extends BaseActivity {
 	/* 下载线程 */
 	private Thread downLoadThread;
 	
+	private int updateStatus = 0;
+	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case CHECK_UPDATE:
-				int updateStatus = 0;//new Random(System.currentTimeMillis()).nextInt(3);
-				showDownloadPrompt(updateStatus, apkUrl);
+				updateStatus = 0;//new Random(System.currentTimeMillis()).nextInt(3);
+				processDownloadPrompt(updateStatus, apkUrl);
 				break;
 			case DOWNLOADING:
 				mProgress.setProgress(progress);
@@ -79,19 +86,23 @@ public class Activity_Splash extends BaseActivity {
 		this.context = Activity_Splash.this;
 		setContentView(R.layout.activity_splash);
 
-//		UpdateManager updateManager = new UpdateManager(context);
-//		updateManager.checkResult(false);
-
-//		 启动线程
+		//启动线程
 		 Thread thread = new Thread(new Runnable() {
-			 @Override
+			 private boolean testApi = false;
+
+			@Override
 			 public void run() {
-				 //TODO 检查客户端版本
-				 try {
-					 Thread.sleep(2000);
-					 handler.obtainMessage(CHECK_UPDATE).sendToTarget();
-				 } catch (InterruptedException e) {
-					 e.printStackTrace();
+				 if(testApi){
+					//测试mcap api
+					 ApiResult apiResult = ApiManager.invoke(context, new CheckUpdateApi());
+				 }else{
+					 //TODO 检查客户端版本
+					 try {
+						 Thread.sleep(2000);
+						 handler.obtainMessage(CHECK_UPDATE).sendToTarget();
+					 } catch (InterruptedException e) {
+						 e.printStackTrace();
+					 }
 				 }
 			 }
 		 });
@@ -113,11 +124,11 @@ public class Activity_Splash extends BaseActivity {
 	/**
 	 * 禁止使用退出键
 	 */
-	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		boolean flag = false;
-		return flag;
-	}
+//	@Override
+//	public boolean onKeyUp(int keyCode, KeyEvent event) {
+//		boolean flag = false;
+//		return flag;
+//	}
 
 	/**
 	 * 
@@ -125,65 +136,79 @@ public class Activity_Splash extends BaseActivity {
 	 * @param updateStatus， 0无更新/1为建议更新/2为强制更新
 	 * @param apkUrl
 	 */
-	private void showDownloadPrompt(int updateStatus, final String apkUrl) {
-		if (updateStatus >= 1) {
-			AlertDialog.Builder builder = new Builder(context);
-			builder.setTitle("软件版本更新");
-			builder.setMessage(updateMsg);
-			builder.setCancelable(false); 
-			builder.setPositiveButton("立即体验", new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					dialog.dismiss();
-					showDownloadDialog(apkUrl);
-				}
-			});
-			if (updateStatus == 2) {// 非强制更新情况下，用户可以取消
-				builder.setNegativeButton("下次再说", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-						Activity_Login.show(context);
-						finish();
-					}
-				});
-			}
-			noticeDialog = builder.create();
-			noticeDialog.show();
+	private void processDownloadPrompt(int updateStatus, final String apkUrl) {
+		if (updateStatus == 1) {
+			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, "下次再说", ignoreListener);
+		}else if (updateStatus == 2) {
+			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, null, null);
 		}else{
+			//无更新
 			Activity_Login.show(context);
 			finish();
+			return;
 		}
-		
+		if(downloadPromptDialog!=null){
+			downloadPromptDialog.show();
+		}
 	}
 
 	/**
-	 * 下载中的展示框
+	 * 客户端下载中的展示框
 	 * 
 	 * @param apkUrl
 	 */
-	private void showDownloadDialog(String apkUrl) {
-		AlertDialog.Builder builder = new Builder(context);
-		builder.setTitle("软件版本更新");
-		builder.setCancelable(false);
+	private void showDownloadingDialog(String apkUrl) {
 		final LayoutInflater inflater = LayoutInflater.from(context);
-		View progressView = inflater.inflate(R.layout.download_progress, null);
-		mProgress = (ProgressBar) progressView.findViewById(R.id.progress);
-		builder.setView(progressView);
-		builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				interceptFlag = true;
-				Activity_Login.show(context);
-				finish();
-			}
-		});
-		downloadDialog = builder.create();
-		downloadDialog.show();
+		View downloadingView = inflater.inflate(R.layout.download_progress, null);
+		mProgress = (ProgressBar) downloadingView.findViewById(R.id.progress);
+		downloadingDialog = UiUtil.showAlertDialog(context, false, downloadingView, "客户端版本更新", null, "取消", quitDownloadListener, null, null);
+//		downloadingDialog = UiUtil.showAlertDialog(context, false, downloadingView, "客户端版本更新", null, null, null, null, null);
+		downloadingDialog.show();
+		//开启下载线程
 		downloadApk(apkUrl);
 	}
 
+	/**
+	 * 点击下载的listener
+	 */
+	private DialogInterface.OnClickListener downloadListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			dialog.dismiss();
+			showDownloadingDialog(apkUrl);
+		}
+	};
+	
+	/**
+	 * 点击下次再说的listener
+	 */
+	private DialogInterface.OnClickListener ignoreListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			dialog.dismiss();
+			Activity_Login.show(context);
+			finish();
+		}
+	};
+	
+	/**
+	 * 取消下载的listener
+	 */
+	private DialogInterface.OnClickListener quitDownloadListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			dialog.dismiss();
+			interceptFlag = true;
+			
+			if(updateStatus==1){//建议更新策略可以取消下载
+				Activity_Login.show(context);
+				finish();
+			}else if(updateStatus==2){//强制更新策略，取消下载则直接退出客户端
+				AppManager.getInstance().exitApp(context);
+			}
+		}
+	};
+	
 	/**
 	 * 下载线程
 	 */

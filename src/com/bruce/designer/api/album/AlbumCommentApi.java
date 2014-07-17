@@ -15,7 +15,7 @@ import com.bruce.designer.model.Comment;
 import com.bruce.designer.util.JsonUtil;
 import com.google.gson.reflect.TypeToken;
 
-public class AlbumCommentApi extends AbstractApi {
+public class AlbumCommentApi extends AbstractApi { 
 
 	private static final String REQUESTS_URI = Config.JINWAN_API_PREFIX
 			+ "/moreComments.json";
@@ -28,10 +28,10 @@ public class AlbumCommentApi extends AbstractApi {
 		paramMap.put("commentsTailId", String.valueOf(commentsTailId));
 	}
 
-	@Override
-	public Map<String, String> getParamMap() {
-		return paramMap;
-	}
+//	@Override
+//	public Map<String, String> getParamMap() {
+//		return paramMap;
+//	}
 
 	@Override
 	public RequestMethodEnum getRequestMethod() {
@@ -92,6 +92,16 @@ public class AlbumCommentApi extends AbstractApi {
 			e.printStackTrace();
 		}
 		return dataMap;
+	}
+
+	@Override
+	protected void fillDataMap(Map<String, String> dataMap) {
+	}
+
+	@Override
+	protected String getApiMethodName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
