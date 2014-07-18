@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Random;
 
 import android.app.Dialog;
@@ -24,6 +25,8 @@ import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.CheckUpdateApi;
+import com.bruce.designer.api.system.SystemCheckApi;
+import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.UiUtil;
 
@@ -60,13 +63,21 @@ public class Activity_Splash extends BaseActivity {
 	private Thread downLoadThread;
 	
 	private int updateStatus = 0;
+	/*需要跳转至登录界面的标志*/
+	private boolean needLogin = true; 
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case CHECK_UPDATE:
-				updateStatus = 0;//new Random(System.currentTimeMillis()).nextInt(3);
-				processDownloadPrompt(updateStatus, apkUrl);
+				Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
+				//判断是否需要用户登录
+				needLogin = (Boolean) dataMap.get("needLogin");
+				
+				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
+				updateStatus = versionCheckResult.getUpdateStatus();//new Random(System.currentTimeMillis()).nextInt(3);
+				processDownloadDialog(updateStatus, apkUrl);
+				
 				break;
 			case DOWNLOADING:
 				mProgress.setProgress(progress);
@@ -75,6 +86,7 @@ public class Activity_Splash extends BaseActivity {
 				installApk();
 				break;
 			default:
+				//出错了
 				break;
 			}
 		};
@@ -98,9 +110,14 @@ public class Activity_Splash extends BaseActivity {
 				 }else{
 					 //TODO 检查客户端版本
 					 try {
-						 Thread.sleep(2000);
-						 handler.obtainMessage(CHECK_UPDATE).sendToTarget();
-					 } catch (InterruptedException e) {
+						Thread.sleep(1000);
+						ApiResult jsonResult = ApiManager.invoke(context, new SystemCheckApi());
+						if (jsonResult != null && jsonResult.getResult() == 1) {
+							Message message = handler.obtainMessage(CHECK_UPDATE);
+							message.obj = jsonResult.getData();
+							message.sendToTarget();
+						}
+					 } catch (Exception e) {
 						 e.printStackTrace();
 					 }
 				 }
@@ -136,15 +153,16 @@ public class Activity_Splash extends BaseActivity {
 	 * @param updateStatus， 0无更新/1为建议更新/2为强制更新
 	 * @param apkUrl
 	 */
-	private void processDownloadPrompt(int updateStatus, final String apkUrl) {
+	private void processDownloadDialog(int updateStatus, final String apkUrl) {
 		if (updateStatus == 1) {
 			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, "下次再说", ignoreListener);
 		}else if (updateStatus == 2) {
 			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, null, null);
 		}else{
 			//无更新
-			Activity_Login.show(context);
-			finish();
+//			Activity_Login.show(context);
+//			finish();
+			jumpToNextActivity();
 			return;
 		}
 		if(downloadPromptDialog!=null){
@@ -186,8 +204,9 @@ public class Activity_Splash extends BaseActivity {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
 			dialog.dismiss();
-			Activity_Login.show(context);
-			finish();
+//			Activity_Login.show(context);
+//			finish();
+			jumpToNextActivity();
 		}
 	};
 	
@@ -201,8 +220,7 @@ public class Activity_Splash extends BaseActivity {
 			interceptFlag = true;
 			
 			if(updateStatus==1){//建议更新策略可以取消下载
-				Activity_Login.show(context);
-				finish();
+				jumpToNextActivity();
 			}else if(updateStatus==2){//强制更新策略，取消下载则直接退出客户端
 				AppManager.getInstance().exitApp(context);
 			}
@@ -288,5 +306,20 @@ public class Activity_Splash extends BaseActivity {
 		context.startActivity(intent);
 		finish();
 	}
+	
+	/**
+	 * 跳转至下一activity(未登录需要跳到登录页，已登录则需要跳转到首页)
+	 */
+	public void jumpToNextActivity(){
+		if(needLogin){
+			Activity_Login.show(context);
+			finish();
+		}else{
+			Activity_Main.show(context);
+			finish();
+		}
+	}
+	
+	
 
 }

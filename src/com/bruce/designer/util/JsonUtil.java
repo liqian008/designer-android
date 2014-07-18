@@ -7,7 +7,4 @@ public class JsonUtil {
 	
 	public static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 	
-	
-	
-	
 }

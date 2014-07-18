@@ -5,14 +5,21 @@ import java.util.TreeMap;
 
 import org.json.JSONObject;
 
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.result.ApiResult;
 
 public abstract class AbstractApi {
 	
 	private ApiResult apiResult = null;
 	
-	/*抽象方法，统一url后，可删除 @Deprecated*/
-	protected abstract String getRequestUri();
+	/**
+	 * api url
+	 * @return
+	 */
+	protected String getRequestUri(){
+		return Config.JINWAN_API_PREFIX;
+	}
+	
 	/*抽象方法，子类需要构造业务数据*/
 	protected abstract void fillDataMap(Map<String, String> dataMap);
 	/*抽象方法，子类需要构造apiMethodName*/
@@ -46,14 +53,18 @@ public abstract class AbstractApi {
 		if(result==1){//成功响应
 			String dataStr = jsonObject.getString("data");
 			//交由子类处理业务数据
-			Map<String, Object> dataMap = processResultData(dataStr);
+			Map<String, Object> dataMap = null;//
+			if(dataStr!=null){
+				dataMap = processResultData(dataStr);
+			}
 			return new ApiResult(result, dataMap, errorcode, null);
 		}else{//错误响应
 			errorcode = jsonObject.getInt("errorcode");
 			String message = jsonObject.getString("message");
-			//t票失效，sig不匹配等情况下，需要抛出相应异常，以便进行特殊处理
-			boolean specError = true;
-			if(specError){
+			//t票失效或secretKey不正确或sig不匹配等情况下，需要抛出相应异常，以便进行特殊处理
+			boolean authencatiedError = true;
+			if(authencatiedError){
+				//TODO 抛出特定异常，通常需要跳转回登录界面
 				throw new Exception();
 			}else{
 				apiResult = new ApiResult(result, null, errorcode, message);

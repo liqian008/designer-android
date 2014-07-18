@@ -1,9 +1,13 @@
 package com.bruce.designer.activity;
 
+import java.util.Map;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,8 +17,12 @@ import android.widget.Toast;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.account.TestLoginApi;
 import com.bruce.designer.api.account.WeiboLoginApi;
+import com.bruce.designer.api.system.SystemCheckApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserPassport;
@@ -35,6 +43,9 @@ public class Activity_Login extends BaseActivity{
 	private static final int HANDLER_FLAG_WB_LOGIN_SUCCESS = 1;
 	/*微博登录失败*/
 	private static final int HANDLER_FLAG_WB_LOGIN_FAILED = 2;
+	/*测试登录成功*/
+	private static final int HANDLER_TEST_LOGIN_SUCCEED = 10;
+	
 	
 	private Context context;
 	private SsoHandler mSsoHandler; 
@@ -144,7 +155,7 @@ public class Activity_Login extends BaseActivity{
 					//weibo登录成功，两种情况
 					boolean result = true;
 					if(result){//直接返回用户ticket信息
-						UserPassport userPassport = new UserPassport(1, "asdfghjkl", "");
+						UserPassport userPassport = new UserPassport(1, "");
 //						oAuthLoginListener.loginComplete(userPassport);
 					}else{//第一次登录，需要完善用户资料
 //						oAuthLoginListener.needComplete();
@@ -157,24 +168,30 @@ public class Activity_Login extends BaseActivity{
 	}
     
     
-//    private Handler loginHandler = new Handler(){
-//		@SuppressWarnings("unchecked")
-//		public void handleMessage(Message msg) {
-//			switch(msg.what){
-//				case HANDLER_FLAG_WB_LOGIN_SUCCESS:
-//					//1、直接登录进入
-//					
-//					//2、需要绑定账户
-//					
-//					break;
-//				case HANDLER_FLAG_WB_LOGIN_FAILED:
-//					
-//					break;
-//				default:
-//					break;
-//			}
-//		};
-//	};
+    private Handler loginHandler = new Handler(){
+		@SuppressWarnings("unchecked")
+		public void handleMessage(Message msg) {
+			switch(msg.what){
+				case HANDLER_FLAG_WB_LOGIN_SUCCESS:
+					//1、直接登录进入
+					
+					//2、需要绑定账户
+					
+					break;
+				case HANDLER_FLAG_WB_LOGIN_FAILED:
+					break;
+				case HANDLER_TEST_LOGIN_SUCCEED:
+					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
+					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
+					if(userPassport!=null){
+						SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+					}
+					break;
+				default:
+					break;
+			}
+		};
+	};
     
 //    class WeiboLoginListener implements OAuthLoginListener{
 //		@Override
@@ -213,7 +230,20 @@ public class Activity_Login extends BaseActivity{
 				finish();
 				break;
 			case R.id.selfLoginButton:
-				Activity_Login_Bind.show(context);
+//				Activity_Login_Bind.show(context);
+				
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ApiResult jsonResult = ApiManager.invoke(context,new TestLoginApi());
+						if (jsonResult != null && jsonResult.getResult() == 1) {
+							Message message = loginHandler.obtainMessage(HANDLER_TEST_LOGIN_SUCCEED);
+							message.obj = jsonResult.getData();
+							message.sendToTarget();
+						}
+					}
+				}).start();
+				
 				break;
 			default:
 				break;

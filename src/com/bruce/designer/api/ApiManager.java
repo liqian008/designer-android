@@ -90,8 +90,8 @@ public class ApiManager {
 			String ticket= null;
 			ticket= userPassport.getTicket();
 			fullParamMap.put("t", ticket);
-			//使用返回UserPassport中secret进行加密，使用统一的secretKey进行加密
-			secretKey = userPassport.getSecretKey();
+			//TODO 使用返回UserPassport中secret进行加密，使用统一的secretKey进行加密
+//			secretKey = userPassport.getUserSecretKey();
 		}
 		
 		final StringBuilder sb = new StringBuilder("");

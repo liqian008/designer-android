@@ -1,5 +1,7 @@
 package com.bruce.designer.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -24,9 +26,14 @@ public class Activity_Main extends BaseActivity {
 	private Fragment[] mFragments = new Fragment[TAB_NUM];
 	private FragmentTransaction fragmentTransaction;
 	
-	
 	private ImageButton[] footerTabs = new ImageButton[TAB_NUM];
-
+	
+	
+	public static void show(Context context){
+		Intent intent = new Intent(context, Activity_Main.class);
+		context.startActivity(intent);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

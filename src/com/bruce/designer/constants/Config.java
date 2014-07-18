@@ -24,7 +24,9 @@ public class Config {
 	
 	/*SP的默认Config*/
 	public static final String SP_CONFIG_DEFAULT = "CONFIG";
+	/*SP的账户Config*/
 	public static final String SP_CONFIG_ACCOUNT = "ACCOUNT";
+	/*SP的key*/
 	public static final String SP_KEY_USERPASSPORT = "USER_PASSPORT";
 	
 	

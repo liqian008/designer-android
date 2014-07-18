@@ -4,18 +4,25 @@ public class UserPassport {
 
 	private int userId;
 	private String ticket;
-	private String secretKey;
+//	private String userSecretKey;
 	
-	public UserPassport(int userId, String ticket, String secretKey) {
+	public UserPassport(int userId, String ticket) {
 		super();
 		this.userId = userId;
 		this.ticket = ticket;
-		this.secretKey = secretKey;
 	}
+	
+//	public UserPassport(int userId, String ticket, String userSecretKey) {
+//		super();
+//		this.userId = userId;
+//		this.ticket = ticket;
+//		this.userSecretKey = userSecretKey;
+//	}
 	
 	public int getUserId() {
 		return userId;
 	}
+	
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
@@ -25,13 +32,13 @@ public class UserPassport {
 	public void setTicket(String ticket) {
 		this.ticket = ticket;
 	}
-	public String getSecretKey() {
-		return secretKey;
-	}
-	public void setSecretKey(String secretKey) {
-		this.secretKey = secretKey;
-	}
 
-	
+//	public String getUserSecretKey() {
+//		return userSecretKey;
+//	}
+//
+//	public void setUserSecretKey(String userSecretKey) {
+//		this.userSecretKey = userSecretKey;
+//	}
 
 }
