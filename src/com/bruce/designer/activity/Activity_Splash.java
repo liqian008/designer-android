@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Random;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,7 +23,6 @@ import android.widget.ProgressBar;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.system.CheckUpdateApi;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
@@ -106,7 +104,7 @@ public class Activity_Splash extends BaseActivity {
 			 public void run() {
 				 if(testApi){
 					//测试mcap api
-					 ApiResult apiResult = ApiManager.invoke(context, new CheckUpdateApi());
+					 ApiResult apiResult = ApiManager.invoke(context, new SystemCheckApi());
 				 }else{
 					 //TODO 检查客户端版本
 					 try {

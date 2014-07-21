@@ -32,7 +32,7 @@ public class ApiManager {
 	public static ApiResult invoke(Context context, AbstractApi api){
 		//检查网络状态
 		if(!MobileUtils.isNetworkConnected(context)){//未联网
-			//TODO 异常或错误码
+			//无网情况下的处理
 			BroadcastSender.networkUnavailable(context);
 			return errorResult;
 		}

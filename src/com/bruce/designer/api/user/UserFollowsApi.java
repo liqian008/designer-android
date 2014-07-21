@@ -11,7 +11,9 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserFollow;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
 public class UserFollowsApi extends AbstractApi {
@@ -70,7 +72,7 @@ public class UserFollowsApi extends AbstractApi {
 
 	
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -79,11 +81,12 @@ public class UserFollowsApi extends AbstractApi {
 			List<UserFollow> followList = JsonUtil.gson.fromJson(followListStr, new TypeToken<List<UserFollow>>() {}.getType());
 			if (followList != null) {
 				dataMap.put("followList", followList);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override

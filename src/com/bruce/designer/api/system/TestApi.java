@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.result.ApiResult;
 
 /**
  * 检查版本更新API
@@ -38,7 +39,7 @@ public class TestApi extends AbstractApi {
 	}
 
 	@Override
-	protected Map<String, Object> processResultData(String data) {
+	protected ApiResult processResultData(String data) {
 		return null;
 	}
 

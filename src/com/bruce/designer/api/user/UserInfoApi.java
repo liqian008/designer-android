@@ -12,6 +12,7 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 
 public class UserInfoApi extends AbstractApi{
 	
@@ -70,7 +71,7 @@ public class UserInfoApi extends AbstractApi{
 	
 	
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -84,11 +85,12 @@ public class UserInfoApi extends AbstractApi{
 				dataMap.put("userinfo", userinfo);
 				dataMap.put("followsCount", followsCount);
 				dataMap.put("fansCount", fansCount);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override

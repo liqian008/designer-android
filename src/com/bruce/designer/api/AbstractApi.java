@@ -44,7 +44,8 @@ public abstract class AbstractApi {
 	 * @param data
 	 * @return
 	 */
-	protected abstract Map<String, Object> processResultData(String data);
+	protected abstract ApiResult processResultData(String data);
+	
 	
 	public ApiResult processResponse(String response) throws Exception{
 		int errorcode = 0;
@@ -55,7 +56,8 @@ public abstract class AbstractApi {
 			//交由子类处理业务数据
 			Map<String, Object> dataMap = null;//
 			if(dataStr!=null){
-				dataMap = processResultData(dataStr);
+//				dataMap = processResultData(dataStr);
+				return processResultData(dataStr);
 			}
 			return new ApiResult(result, dataMap, errorcode, null);
 		}else{//错误响应

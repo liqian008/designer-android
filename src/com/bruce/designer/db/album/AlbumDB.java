@@ -66,6 +66,17 @@ public class AlbumDB {
 		return albumList;
 	}
 	
+	public static int saveLatestAlbums(Context context, List<Album> albumList) {
+		return save(context, TB_ALBUM_LATEST, albumList);
+	}
+	
+	public static int saveRecommendAlbums(Context context, List<Album> albumList) {
+		return save(context, TB_ALBUM_RECOMMEND, albumList);
+	}
+	
+	public  static int saveFollowAlbums(Context context, List<Album> albumList) {
+		return save(context, TB_ALBUM_FOLLOW, albumList);
+	}
 	
 	public static int save(Context context, String tableName, List<Album> albumList) {
 		if(albumList!=null&&albumList.size()>0){

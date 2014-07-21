@@ -12,7 +12,9 @@ import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.VersionCheckResult;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
  * weibo登录
@@ -40,7 +42,7 @@ public class TestLoginApi extends AbstractApi{
 	}
 
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -48,10 +50,11 @@ public class TestLoginApi extends AbstractApi{
 			String userPassportStr = jsonData.optString("userPassport");
 			UserPassport userPassport = JsonUtil.gson.fromJson(userPassportStr, UserPassport.class);
 			dataMap.put("userPassport", userPassport);
+			return ResponseBuilderUtil.buildSuccessResult(dataMap);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	

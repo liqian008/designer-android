@@ -10,6 +10,8 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
  * weibo登录
@@ -47,7 +49,7 @@ public class WeiboLoginApi extends AbstractApi{
 	}
 	
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -62,10 +64,11 @@ public class WeiboLoginApi extends AbstractApi{
 //				dataMap.put("followsCount", followsCount);
 //				dataMap.put("fansCount", fansCount);
 //			}
+			return ResponseBuilderUtil.buildSuccessResult(dataMap);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	

@@ -32,7 +32,6 @@ import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -77,23 +76,29 @@ public class Fragment_Main extends Fragment {
 	/*tab2中最老一条的albumId*/
 	private int tab2AlbumTailId = 0;
 	
+	private int tabAlbumTailIds[] = new int[TAB_NUM];
+	
+	
 	private ViewPager viewPager;
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
 	
-	private ListView listView0;
-	private AlbumListAdapter listView0Adapter;
+//	private PullToRefreshListView[] pullRefreshViews;
+//	private ListView[] ListViews;
+//	private AlbumListAdapter[] listViewAdapters;
+	
 	/*下拉控件*/
 	private PullToRefreshListView pullToRefreshView0;
+	private ListView listView0;
+	private AlbumListAdapter listView0Adapter;
 	
-	
+	private PullToRefreshListView pullToRefreshView1;
 	private ListView listView1;
 	private AlbumListAdapter listView1Adapter;
-	private PullToRefreshListView pullToRefreshView1;
 	
+	private PullToRefreshListView pullToRefreshView2;
 	private ListView listView2;
 	private AlbumListAdapter listView2Adapter;
-	private PullToRefreshListView pullToRefreshView2;
 	
 	private ImageButton btnRefresh;
 	
@@ -159,14 +164,14 @@ public class Fragment_Main extends Fragment {
 		
 		//ViewPager0
 		pullToRefreshView0 = (PullToRefreshListView) tabContentView0.findViewById(R.id.pull_refresh_list);
-		pullToRefreshView0.setMode(Mode.BOTH);
+		pullToRefreshView0.setMode(Mode.PULL_FROM_START);
 		pullToRefreshView0.setOnRefreshListener(tab0RefreshListener);
 		listView0 = pullToRefreshView0.getRefreshableView();
 		listView0Adapter = new AlbumListAdapter(context, null, 0);
 		listView0.setAdapter(listView0Adapter);
 		
 		pullToRefreshView1 = (PullToRefreshListView) tabContentView1.findViewById(R.id.pull_refresh_list);
-		pullToRefreshView1.setMode(Mode.BOTH);
+		pullToRefreshView1.setMode(Mode.PULL_FROM_START);
 		pullToRefreshView1.setOnRefreshListener(tab1RefreshListener);
 		listView1 = pullToRefreshView1.getRefreshableView();
 		listView1Adapter = new AlbumListAdapter(context, null, 0);
@@ -418,13 +423,12 @@ public class Fragment_Main extends Fragment {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				AbstractApi api = null;
-				if(tabIndex==2){
-					api = new FollowAlbumListApi(albumTailId);
-				}else{
+//				if(tabIndex==2){
+//					api = new FollowAlbumListApi(albumTailId);
+//				}else{
 					api = new AlbumListApi(0, albumTailId);
-				}
+//				}
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
@@ -467,14 +471,30 @@ public class Fragment_Main extends Fragment {
 					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
 					if(tab1DataMap!=null){
 						List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
+						Integer albumTailId = (Integer) tab1DataMap.get("albumTailId");
 						if(albumList!=null&&albumList.size()>0){
 							List<Album> oldAlbumList = listView1Adapter.getAlbumList();
 							if(oldAlbumList==null){
 								oldAlbumList = new ArrayList<Album>();
 							}
-							oldAlbumList.addAll(0, albumList);
+							//TODO 判断是首页加载还是瀑布流加载
+							boolean fallloadAppend = false;
+							if(fallloadAppend){//瀑布流方式加载
+								oldAlbumList.addAll(albumList);
+							}else{
+								AlbumDB.saveLatestAlbums(context, albumList);
+								oldAlbumList = null;
+								oldAlbumList = albumList;
+							}
 							listView1Adapter.setAlbumList(oldAlbumList);
 							listView1Adapter.notifyDataSetChanged();
+
+							if(albumTailId!=null&&albumTailId>0){
+								tabAlbumTailIds[1] = albumTailId;
+								pullToRefreshView1.setMode(Mode.BOTH);
+							}else{
+								pullToRefreshView1.setMode(Mode.PULL_FROM_START);
+							}
 						}
 					}
 					SharedPreferenceUtil.putSharePre(context, getRefreshKey(1), System.currentTimeMillis());

@@ -11,7 +11,9 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.VersionCheckResult;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -27,7 +29,7 @@ public class SystemCheckApi extends AbstractApi {
 	}
 	
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -40,10 +42,11 @@ public class SystemCheckApi extends AbstractApi {
 			//用户资料的node
 			boolean needLogin = jsonData.optBoolean("needLogin", true);
 			dataMap.put("needLogin", needLogin);
+			return ResponseBuilderUtil.buildSuccessResult(dataMap);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override

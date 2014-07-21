@@ -12,7 +12,9 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.Comment;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
 public class AlbumCommentApi extends AbstractApi { 
@@ -71,7 +73,7 @@ public class AlbumCommentApi extends AbstractApi {
 //	}
 
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -83,11 +85,12 @@ public class AlbumCommentApi extends AbstractApi {
 			if(commentListStr!=null){
 				List<Comment> commentList = JsonUtil.gson.fromJson(commentListStr, new TypeToken<List<Comment>>() {}.getType());
 				dataMap.put("commentList", commentList);
-			}
-		} catch (JSONException e) {
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
+			} 
+		}catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override

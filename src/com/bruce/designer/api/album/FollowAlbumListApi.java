@@ -10,7 +10,9 @@ import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
 public class FollowAlbumListApi extends AbstractApi{
@@ -30,7 +32,7 @@ public class FollowAlbumListApi extends AbstractApi{
 	}
 
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -41,11 +43,12 @@ public class FollowAlbumListApi extends AbstractApi{
 				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
 				dataMap.put("albumTailId", resTailId);
 				dataMap.put("albumList", albumList);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override

@@ -11,7 +11,9 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserFan;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
 public class UserFansApi extends AbstractApi {
@@ -38,7 +40,7 @@ public class UserFansApi extends AbstractApi {
 
 
 	@Override
-	protected Map<String, Object> processResultData(String dataStr) {
+	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -48,12 +50,13 @@ public class UserFansApi extends AbstractApi {
 				List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr, new TypeToken<List<UserFan>>() {}.getType());
 				if (fanList != null) {
 					dataMap.put("fanList", fanList);
+					return ResponseBuilderUtil.buildSuccessResult(dataMap);
 				}
 			}
-		} catch (JSONException e) {
+		}catch (JSONException e) {
 			e.printStackTrace();
 		}
-		return dataMap;
+		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
 	@Override
