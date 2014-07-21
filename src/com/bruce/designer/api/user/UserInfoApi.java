@@ -29,10 +29,6 @@ public class UserInfoApi extends AbstractApi{
 //		return paramMap;
 //	}
 
-	@Override
-	public RequestMethodEnum getRequestMethod() {
-		return RequestMethodEnum.POST;
-	}
 
 	@Override
 	public String getRequestUri() {

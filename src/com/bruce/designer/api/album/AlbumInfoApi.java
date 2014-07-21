@@ -28,10 +28,6 @@ public class AlbumInfoApi extends AbstractApi{
 //		return paramMap;
 //	}
 
-	@Override
-	public RequestMethodEnum getRequestMethod() {
-		return RequestMethodEnum.GET;
-	}
 
 	@Override
 	public String getRequestUri() {

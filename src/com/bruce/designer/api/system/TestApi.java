@@ -33,11 +33,6 @@ public class TestApi extends AbstractApi {
 //	}
 
 	@Override
-	public RequestMethodEnum getRequestMethod() {
-		return RequestMethodEnum.POST;
-	}
-
-	@Override
 	public String getRequestUri() {
 		return REQUESTS_URI;
 	}

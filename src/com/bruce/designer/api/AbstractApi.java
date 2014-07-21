@@ -35,7 +35,7 @@ public abstract class AbstractApi {
 	}
 	
 	/*抽象方法，统一后可均使用post*/
-	protected RequestMethodEnum getRequestMethod(){
+	protected final RequestMethodEnum getRequestMethod(){
 		return RequestMethodEnum.POST;
 	}
 	

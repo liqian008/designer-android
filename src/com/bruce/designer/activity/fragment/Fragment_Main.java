@@ -29,8 +29,10 @@ import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserProfile;
 import com.bruce.designer.adapter.GridAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
+import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
+import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -410,7 +412,6 @@ public class Fragment_Main extends Fragment {
 		}
 	};
 	
-	
 	private void getAlbums(final int albumTailId, final int tabIndex) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
@@ -418,8 +419,12 @@ public class Fragment_Main extends Fragment {
 			public void run() {
 				Message message;
 //				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
-				
-				AlbumListApi api = new AlbumListApi(0, albumTailId);
+				AbstractApi api = null;
+				if(tabIndex==2){
+					api = new FollowAlbumListApi(albumTailId);
+				}else{
+					api = new AlbumListApi(0, albumTailId);
+				}
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);

@@ -36,10 +36,6 @@ public class RegisterLoginApi extends AbstractApi{
 	public void fillDataMap(Map<String, String> dataMap){
 	}
 
-	@Override
-	public RequestMethodEnum getRequestMethod() {
-		return RequestMethodEnum.POST;
-	}
 
 	@Override
 	public String getRequestUri() {

@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
-import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.util.JsonUtil;
@@ -17,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 
 public class AlbumListApi extends AbstractApi{
 	
-	private static final String REQUESTS_URI = Config.JINWAN_API_ALBUMS;
 
 	private Map<String, String> paramMap = null;
 	
@@ -27,20 +25,13 @@ public class AlbumListApi extends AbstractApi{
 		paramMap.put("albumsTailId", String.valueOf(albumsTailId));
 	}
 	
-//	@Override
-//	public Map<String, String> getParamMap() {
-//		return paramMap;
-//	}
-
 	@Override
-	public RequestMethodEnum getRequestMethod() {
-		return RequestMethodEnum.POST;
+	protected void fillDataMap(Map<String, String> dataMap) {
+		if(paramMap!=null){
+			dataMap.putAll(paramMap);
+		}
 	}
 
-	@Override
-	public String getRequestUri() {
-		return REQUESTS_URI;
-	}
 	
 //	@Override
 //	public JsonResultBean processResponse(String response) {
@@ -91,13 +82,8 @@ public class AlbumListApi extends AbstractApi{
 	}
 
 	@Override
-	protected void fillDataMap(Map<String, String> dataMap) {
-	}
-
-	@Override
 	protected String getApiMethodName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "latestAlbum.cmd";
 	}
 
 }
