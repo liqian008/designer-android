@@ -54,7 +54,7 @@ public class Activity_UserFollows extends BaseActivity {
 		followsListView.setAdapter(followsListAdapter);
 		
 		//获取关注列表
-		getFollows(0);
+		getFollows(userId);
 		//TODO 需要增加下拉刷新
 	}
 	

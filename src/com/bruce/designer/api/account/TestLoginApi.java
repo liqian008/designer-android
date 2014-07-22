@@ -23,10 +23,6 @@ import com.bruce.designer.util.ResponseBuilderUtil;
  */
 public class TestLoginApi extends AbstractApi{
 	
-	private String REQUESTS_URI= Config.JINWAN_API_PREFIX;
-	
-	
-	private Map<String, String> paramMap = null;
 	
 	public TestLoginApi(){
 		super();
@@ -56,7 +52,6 @@ public class TestLoginApi extends AbstractApi{
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
-
 	
 
 }

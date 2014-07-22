@@ -56,7 +56,7 @@ public class Activity_UserFans extends BaseActivity {
 		fansListView.setAdapter(fansListAdapter);
 		
 		//获取关注列表
-		getFans(0);
+		getFans(userId);
 		//TODO 需要增加下拉刷新
 	}
 	

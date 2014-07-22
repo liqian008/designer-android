@@ -59,6 +59,12 @@ public class AlbumDB {
 			album.setCoverLargeImg(cursor.getString(cursor.getColumnIndex("cover_large_img")));
 			album.setCoverMediumImg(cursor.getString(cursor.getColumnIndex("cover_medium_img")));
 			album.setCoverSmallImg(cursor.getString(cursor.getColumnIndex("cover_small_img")));
+			
+			album.setBrowseCount(cursor.getInt(cursor.getColumnIndex("browse_count")));
+			album.setCommentCount(cursor.getInt(cursor.getColumnIndex("comment_count")));
+			album.setLikeCount(cursor.getInt(cursor.getColumnIndex("like_count")));
+			album.setFavoriteCount(cursor.getInt(cursor.getColumnIndex("favorite_count")));
+			
 			album.setCreateTime(cursor.getLong(cursor.getColumnIndex("create_time")));
 			album.setUpdateTime(cursor.getLong(cursor.getColumnIndex("update_time")));
 			albumList.add(album);
@@ -94,6 +100,13 @@ public class AlbumDB {
 		        values.put("cover_large_img", album.getCoverLargeImg());
 		        values.put("cover_medium_img", album.getCoverMediumImg());
 		        values.put("cover_small_img", album.getCoverSmallImg());
+		        
+		        values.put("browse_count", album.getBrowseCount());
+		        values.put("comment_count", album.getCommentCount());
+		        values.put("like_count", album.getLikeCount());
+		        values.put("favorite_count", album.getFavoriteCount());
+		        
+		        
 		        values.put("create_time", album.getCreateTime());
 		        values.put("update_time", album.getUpdateTime());
 			

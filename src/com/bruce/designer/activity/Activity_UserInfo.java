@@ -62,7 +62,7 @@ public class Activity_UserInfo extends BaseActivity {
 		
 		Intent intent = getIntent();
 		//获取userid
-		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		userId = intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);

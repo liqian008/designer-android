@@ -32,36 +32,6 @@ public class AlbumListApi extends AbstractApi{
 			dataMap.putAll(paramMap);
 		}
 	}
-
-	
-//	@Override
-//	public JsonResultBean processResponse(String response) {
-//		JsonResultBean jsonResult = null;
-//		if(response!=null){
-//			JSONObject jsonObject;
-//			try {
-//				jsonObject = new JSONObject(response);
-//				int result = jsonObject.getInt("result");
-//				if(result==1){//成功响应
-//					JSONObject jsonData = jsonObject.getJSONObject("data");
-//					int resTailId = jsonData.getInt("albumTailId");
-//					String albumListStr = jsonData.getString("albumList");
-//					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-//					Map<String, Object> map = new HashMap<String, Object>();
-//					map.put("albumTailId", resTailId);
-//					map.put("albumList", albumList);
-//					jsonResult = new JsonResultBean(result, map, 0, null);
-//				}else{//错误响应
-//					int errorcode = jsonObject.getInt("errorcode");
-//					String message = jsonObject.getString("message");
-//					jsonResult = new JsonResultBean(result, null, errorcode, message);
-//				}
-//			} catch (JSONException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		return jsonResult;
-//	}
 	
 	@Override
 	protected ApiResult processResultData(String dataStr) {
@@ -69,11 +39,13 @@ public class AlbumListApi extends AbstractApi{
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int resTailId = jsonData.getInt("albumTailId");
+			int fromTailId = jsonData.getInt("fromTailId");
+			int newTailId = jsonData.getInt("newTailId");
 			String albumListStr = jsonData.getString("albumList");
 			if(albumListStr!=null){
 				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-				dataMap.put("albumTailId", resTailId);
+				dataMap.put("fromTailId", fromTailId);
+				dataMap.put("newTailId", newTailId);
 				dataMap.put("albumList", albumList);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}

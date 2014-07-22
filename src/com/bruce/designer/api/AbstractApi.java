@@ -47,7 +47,7 @@ public abstract class AbstractApi {
 	protected abstract ApiResult processResultData(String data);
 	
 	
-	public ApiResult processResponse(String response) throws Exception{
+	public final ApiResult processResponse(String response) throws Exception{
 		int errorcode = 0;
 		JSONObject jsonObject = new JSONObject(response);
 		int result = jsonObject.getInt("result");

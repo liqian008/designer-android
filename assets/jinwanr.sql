@@ -9,6 +9,12 @@ CREATE TABLE `tb_album_latest` (
   `cover_large_img` text DEFAULT '',
   `cover_medium_img`text DEFAULT '',
   `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );
@@ -24,6 +30,12 @@ CREATE TABLE `tb_album_recommend` (
   `cover_large_img` text DEFAULT '',
   `cover_medium_img`text DEFAULT '',
   `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );
@@ -38,6 +50,12 @@ CREATE TABLE `tb_album_follow` (
   `cover_large_img` text DEFAULT '',
   `cover_medium_img`text DEFAULT '',
   `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );

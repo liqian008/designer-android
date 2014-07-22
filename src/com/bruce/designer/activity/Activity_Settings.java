@@ -1,10 +1,7 @@
 package com.bruce.designer.activity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;

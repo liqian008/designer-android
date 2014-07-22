@@ -9,8 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
-import com.bruce.designer.api.RequestMethodEnum;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
@@ -19,26 +17,12 @@ import com.google.gson.reflect.TypeToken;
 
 public class AlbumCommentApi extends AbstractApi { 
 
-	private static final String REQUESTS_URI = Config.JINWAN_API_PREFIX
-			+ "/moreComments.json";
-
 	private Map<String, String> paramMap = null;
 
 	public AlbumCommentApi(int albumId, int commentsTailId) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 		paramMap.put("commentsTailId", String.valueOf(commentsTailId));
-	}
-
-//	@Override
-//	public Map<String, String> getParamMap() {
-//		return paramMap;
-//	}
-
-
-	@Override
-	public String getRequestUri() {
-		return REQUESTS_URI;
 	}
 
 //	@Override
@@ -78,8 +62,8 @@ public class AlbumCommentApi extends AbstractApi {
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int resTailId = jsonData.getInt("tailId");
-			dataMap.put("commentTailId", resTailId);
+			int commentTailId = jsonData.getInt("commentTailId");
+			dataMap.put("commentTailId", commentTailId);
 			
 			String commentListStr = jsonData.getString("commentList");
 			if(commentListStr!=null){
@@ -95,12 +79,14 @@ public class AlbumCommentApi extends AbstractApi {
 
 	@Override
 	protected void fillDataMap(Map<String, String> dataMap) {
+		if(paramMap!=null){
+			dataMap.putAll(paramMap);
+		}
 	}
 
 	@Override
 	protected String getApiMethodName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "albumComments.cmd";
 	}
 
 }

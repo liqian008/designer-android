@@ -99,7 +99,7 @@ public class Activity_UserProfile extends BaseActivity {
 		//获取个人资料详情
 		getUserinfo(userId);
 		//获取个人专辑
-		getAlbums(0);
+		getAlbums(userId);
 	}
 	
 	
@@ -205,7 +205,6 @@ public class Activity_UserProfile extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(userId, albumTailId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);

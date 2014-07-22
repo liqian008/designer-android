@@ -16,7 +16,9 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView.FindListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -224,12 +226,13 @@ public class Fragment_Main extends Fragment {
 		switch(currentTab){
 		case 1:
 			//请求db数据
-			List<Album> recommendAlbumList= AlbumDB.queryAllRecommend(context);
-			if(recommendAlbumList!=null&&recommendAlbumList.size()>0){//展示db中数据
-				listView1Adapter.setAlbumList(recommendAlbumList);
+			List<Album> timelineAlbumList= AlbumDB.queryAllLatest(context);
+			
+			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
+				listView1Adapter.setAlbumList(timelineAlbumList);
 				listView1Adapter.notifyDataSetChanged();
-				tab1AlbumHeadId = recommendAlbumList.get(0).getId();
-				tab1AlbumTailId = recommendAlbumList.get(recommendAlbumList.size()-1).getId();
+				tab1AlbumHeadId = timelineAlbumList.get(0).getId();
+				tab1AlbumTailId = timelineAlbumList.get(timelineAlbumList.size()-1).getId();
 			}
 			if(interval > TimeUtil.TIME_UNIT_MINUTE){
 				pullToRefreshView1.setRefreshing(false);
@@ -250,13 +253,12 @@ public class Fragment_Main extends Fragment {
 			break;
 		case 0:
 		default://刷新首个tab
-			List<Album> timelineAlbumList= AlbumDB.queryAllLatest(context);
-			
-			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
-				listView0Adapter.setAlbumList(timelineAlbumList);
+			List<Album> recommendAlbumList= AlbumDB.queryAllRecommend(context);
+			if(recommendAlbumList!=null&&recommendAlbumList.size()>0){//展示db中数据
+				listView0Adapter.setAlbumList(recommendAlbumList);
 				listView0Adapter.notifyDataSetChanged();
-				tab0AlbumHeadId = timelineAlbumList.get(0).getId();
-				tab0AlbumTailId = timelineAlbumList.get(timelineAlbumList.size()-1).getId();
+				tab0AlbumHeadId = recommendAlbumList.get(0).getId();
+				tab0AlbumTailId = recommendAlbumList.get(recommendAlbumList.size()-1).getId();
 			}
 			if(interval > TimeUtil.TIME_UNIT_MINUTE){
 				pullToRefreshView0.setRefreshing(false);
@@ -359,7 +361,12 @@ public class Fragment_Main extends Fragment {
 					commentView.setVisibility(View.GONE); 
 				}
 				
-//				final int albumId = album.getId();
+				//因为折行注释掉
+//				Button commentButton = (Button) albumItemView.findViewById(R.id.btnComment);
+//				commentButton.setText("评论"+String.valueOf(album.getCommentCount()));
+//				Button zanButton = (Button) albumItemView.findViewById(R.id.btnZan);
+//				zanButton.setText("赞"+String.valueOf(album.getLikeCount()));
+				
 				
 				albumItemView.setOnClickListener(new OnSingleClickListener() {
 					@Override
@@ -393,13 +400,13 @@ public class Fragment_Main extends Fragment {
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 			//tab1请求数据
-			getAlbums(tab1AlbumHeadId, HANDLER_FLAG_TAB1);
+			getAlbums(0, HANDLER_FLAG_TAB1);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 			//tab0请求历史数据
-			getAlbums(tab1AlbumTailId, HANDLER_FLAG_TAB1);
+			getAlbums(tabAlbumTailIds[1], HANDLER_FLAG_TAB1);
 		}
 	};
 	
@@ -468,37 +475,41 @@ public class Fragment_Main extends Fragment {
 					SharedPreferenceUtil.putSharePre(context, getRefreshKey(0), System.currentTimeMillis());
 					break;
 				case HANDLER_FLAG_TAB1:
+					//关闭刷新控件
+					pullToRefreshView1.onRefreshComplete();
+					
 					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
 					if(tab1DataMap!=null){
 						List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
-						Integer albumTailId = (Integer) tab1DataMap.get("albumTailId");
+						Integer fromTailId = (Integer) tab1DataMap.get("fromTailId");
+						Integer newTailId = (Integer) tab1DataMap.get("newTailId");
 						if(albumList!=null&&albumList.size()>0){
+							SharedPreferenceUtil.putSharePre(context, getRefreshKey(1), System.currentTimeMillis());
+							if(newTailId!=null&&newTailId>0){//还有可加载的数据
+								tabAlbumTailIds[1] = newTailId;
+								pullToRefreshView1.setMode(Mode.BOTH);
+							}else{
+								tabAlbumTailIds[1] = 0;
+								pullToRefreshView1.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+							}
+							
 							List<Album> oldAlbumList = listView1Adapter.getAlbumList();
 							if(oldAlbumList==null){
 								oldAlbumList = new ArrayList<Album>();
 							}
-							//TODO 判断是首页加载还是瀑布流加载
-							boolean fallloadAppend = false;
-							if(fallloadAppend){//瀑布流方式加载
+							//判断加载位置，以确定是list增量还是覆盖
+							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
 								oldAlbumList.addAll(albumList);
-							}else{
+							}else{//下拉加载，需覆盖原数据
 								AlbumDB.saveLatestAlbums(context, albumList);
 								oldAlbumList = null;
-								oldAlbumList = albumList;
+								oldAlbumList = albumList; 
 							}
 							listView1Adapter.setAlbumList(oldAlbumList);
 							listView1Adapter.notifyDataSetChanged();
-
-							if(albumTailId!=null&&albumTailId>0){
-								tabAlbumTailIds[1] = albumTailId;
-								pullToRefreshView1.setMode(Mode.BOTH);
-							}else{
-								pullToRefreshView1.setMode(Mode.PULL_FROM_START);
-							}
 						}
 					}
-					SharedPreferenceUtil.putSharePre(context, getRefreshKey(1), System.currentTimeMillis());
-					pullToRefreshView1.onRefreshComplete();
 					break;
 				case HANDLER_FLAG_TAB2:
 					Map<String, Object> tab2DataMap = (Map<String, Object>) msg.obj;
