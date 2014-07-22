@@ -72,16 +72,14 @@ public class AlbumDB {
 		return albumList;
 	}
 	
-	public static int saveLatestAlbums(Context context, List<Album> albumList) {
-		return save(context, TB_ALBUM_LATEST, albumList);
-	}
 	
-	public static int saveRecommendAlbums(Context context, List<Album> albumList) {
-		return save(context, TB_ALBUM_RECOMMEND, albumList);
-	}
-	
-	public  static int saveFollowAlbums(Context context, List<Album> albumList) {
-		return save(context, TB_ALBUM_FOLLOW, albumList);
+	public static int saveAlbumsByTab(Context context, List<Album> albumList, int tabIndex) {
+		switch(tabIndex){
+			case 0: return save(context, TB_ALBUM_LATEST, albumList);
+			case 1:	return save(context, TB_ALBUM_RECOMMEND, albumList);
+			case 2:	return save(context, TB_ALBUM_FOLLOW, albumList);
+			default: return 0;
+		}
 	}
 	
 	public static int save(Context context, String tableName, List<Album> albumList) {

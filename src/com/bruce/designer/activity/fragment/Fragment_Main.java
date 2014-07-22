@@ -16,9 +16,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView.FindListener;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -34,6 +32,7 @@ import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
+import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -59,48 +58,21 @@ public class Fragment_Main extends Fragment {
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
 //	private static final int HANDLER_FLAG_TAB1_ERROR = 11;
 	
+	/* tab个数*/
 	private static final int TAB_NUM = 3;
-	
+	/* 当前tab*/
 	private int currentTab = 0;
-	
-	/*tab0中最新一条的albumId*/
-	private int tab0AlbumHeadId = 0;
-	/*tab0中最老一条的albumId*/
-	private int tab0AlbumTailId = 0;
-	
-	/*tab1中最新一条的albumId*/
-	private int tab1AlbumHeadId = 0;
-	/*tab1中最老一条的albumId*/
-	private int tab1AlbumTailId = 0;
-	
-	/*tab2中最新一条的albumId*/
-	private int tab2AlbumHeadId = 0;
-	/*tab2中最老一条的albumId*/
-	private int tab2AlbumTailId = 0;
-	
-	private int tabAlbumTailIds[] = new int[TAB_NUM];
-	
+	/* 各tab的tailId*/
+	private int[] tabAlbumTailIds = new int[TAB_NUM];
 	
 	private ViewPager viewPager;
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
 	
-//	private PullToRefreshListView[] pullRefreshViews;
-//	private ListView[] ListViews;
-//	private AlbumListAdapter[] listViewAdapters;
-	
 	/*下拉控件*/
-	private PullToRefreshListView pullToRefreshView0;
-	private ListView listView0;
-	private AlbumListAdapter listView0Adapter;
-	
-	private PullToRefreshListView pullToRefreshView1;
-	private ListView listView1;
-	private AlbumListAdapter listView1Adapter;
-	
-	private PullToRefreshListView pullToRefreshView2;
-	private ListView listView2;
-	private AlbumListAdapter listView2Adapter;
+	private PullToRefreshListView[] pullRefreshViews = new PullToRefreshListView[TAB_NUM];
+	private ListView[] listViews = new ListView[TAB_NUM];
+	private AlbumListAdapter[] listViewAdapters = new AlbumListAdapter[TAB_NUM];
 	
 	private ImageButton btnRefresh;
 	
@@ -151,40 +123,24 @@ public class Fragment_Main extends Fragment {
 		viewPager = (ViewPager) view.findViewById(R.id.viewPager);
 		List<View> pagerViews = new ArrayList<View>();
 		//初始化tab页的view
-		View tabContentView0 = inflater.inflate(R.layout.albums_listview, null);
-		View tabContentView1 = inflater.inflate(R.layout.albums_listview, null);
-		View tabContentView2 = inflater.inflate(R.layout.albums_listview, null);
-		
-		//将views加入viewPager
-		pagerViews.add(tabContentView0);
-		pagerViews.add(tabContentView1);
-		pagerViews.add(tabContentView2);
+		for(int i=0;i<TAB_NUM; i++){
+			View pageView = inflater.inflate(R.layout.albums_listview, null);
+			
+			pullRefreshViews[i] = (PullToRefreshListView) pageView.findViewById(R.id.pull_refresh_list);
+			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
+			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
+			listViews[i] = pullRefreshViews[i].getRefreshableView();
+			listViewAdapters[i] = new AlbumListAdapter(context, null, 0);
+			listViews[i].setAdapter(listViewAdapters[i]);
+			
+			//将views加入viewPager
+			pagerViews.add(pageView);
+		}
 		//viewPager的适配器
 		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(context, pagerViews);
 		viewPager.setAdapter(viewPagerAdapter);
 		viewPager.setOnPageChangeListener(viewPagerListener);
 		
-		//ViewPager0
-		pullToRefreshView0 = (PullToRefreshListView) tabContentView0.findViewById(R.id.pull_refresh_list);
-		pullToRefreshView0.setMode(Mode.PULL_FROM_START);
-		pullToRefreshView0.setOnRefreshListener(tab0RefreshListener);
-		listView0 = pullToRefreshView0.getRefreshableView();
-		listView0Adapter = new AlbumListAdapter(context, null, 0);
-		listView0.setAdapter(listView0Adapter);
-		
-		pullToRefreshView1 = (PullToRefreshListView) tabContentView1.findViewById(R.id.pull_refresh_list);
-		pullToRefreshView1.setMode(Mode.PULL_FROM_START);
-		pullToRefreshView1.setOnRefreshListener(tab1RefreshListener);
-		listView1 = pullToRefreshView1.getRefreshableView();
-		listView1Adapter = new AlbumListAdapter(context, null, 0);
-		listView1.setAdapter(listView1Adapter);
-		
-		pullToRefreshView2 = (PullToRefreshListView) tabContentView2.findViewById(R.id.pull_refresh_list);
-		pullToRefreshView2.setMode(Mode.BOTH);
-		pullToRefreshView2.setOnRefreshListener(tab2RefreshListener);
-		listView2 = pullToRefreshView2.getRefreshableView();
-		listView2Adapter = new AlbumListAdapter(context, null, 0);
-		listView2.setAdapter(listView2Adapter);
 	}
 	
 	
@@ -209,8 +165,7 @@ public class Fragment_Main extends Fragment {
 			tabIndex = 0;
 		}
 		for(View tabIndicator: tabIndicators){
-			//全部隐藏
-			tabIndicator.setVisibility(View.GONE);
+			tabIndicator.setVisibility(View.GONE);//全部隐藏
 		}
 		currentTab = tabIndex;
 		//显示
@@ -219,55 +174,28 @@ public class Fragment_Main extends Fragment {
 		
 		//判断tab的上次刷新时间
 		long currentTime = System.currentTimeMillis();
-		String tabRefreshKey = getRefreshKey(tabIndex);
+		String tabRefreshKey = getRefreshKey(currentTab);
 		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
 		long interval = currentTime - lastRefreshTime;
 		//相应page上请求数据
-		switch(currentTab){
-		case 1:
-			//请求db数据
-			List<Album> timelineAlbumList= AlbumDB.queryAllLatest(context);
-			
-			if(timelineAlbumList!=null&&timelineAlbumList.size()>0){//展示db中数据
-				listView1Adapter.setAlbumList(timelineAlbumList);
-				listView1Adapter.notifyDataSetChanged();
-				tab1AlbumHeadId = timelineAlbumList.get(0).getId();
-				tab1AlbumTailId = timelineAlbumList.get(timelineAlbumList.size()-1).getId();
-			}
+		List<Album> albumList = null;
+		if(currentTab==1){
+			albumList= AlbumDB.queryAllLatest(context);//请求最新数据
+		}else if(currentTab==1){
+			albumList= AlbumDB.queryAllFollow(context);//请求关注数据
+		}else{
+			albumList= AlbumDB.queryAllRecommend(context);//请求系统推荐数据
+		}
+		if(albumList!=null&&albumList.size()>0){
+			listViewAdapters[currentTab].setAlbumList(albumList);
+			listViewAdapters[currentTab].notifyDataSetChanged();
 			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-				pullToRefreshView1.setRefreshing(false);
+				pullRefreshViews[currentTab].setRefreshing(false);
 			}
-			break;
-		case 2:
-			//请求db数据
-			List<Album> tab2AlbumList= AlbumDB.queryAllFollow(context);
-			if(tab2AlbumList!=null&&tab2AlbumList.size()>0){//展示db中数据
-				listView2Adapter.setAlbumList(tab2AlbumList);
-				listView2Adapter.notifyDataSetChanged();
-				tab2AlbumHeadId = tab2AlbumList.get(0).getId();
-				tab2AlbumTailId = tab2AlbumList.get(tab2AlbumList.size()-2).getId();
-			}
-			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-				pullToRefreshView2.setRefreshing(false);
-			}
-			break;
-		case 0:
-		default://刷新首个tab
-			List<Album> recommendAlbumList= AlbumDB.queryAllRecommend(context);
-			if(recommendAlbumList!=null&&recommendAlbumList.size()>0){//展示db中数据
-				listView0Adapter.setAlbumList(recommendAlbumList);
-				listView0Adapter.notifyDataSetChanged();
-				tab0AlbumHeadId = recommendAlbumList.get(0).getId();
-				tab0AlbumTailId = recommendAlbumList.get(recommendAlbumList.size()-1).getId();
-			}
-			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-				pullToRefreshView0.setRefreshing(false);
-			}
-			break;	
 		}
 	}
 	
-
+	
 	class AlbumListAdapter extends BaseAdapter {
 		private List<Album> albumList;
 		private Context context;
@@ -381,48 +309,33 @@ public class Fragment_Main extends Fragment {
 			return null;
 		}
 	}
-
-	OnRefreshListener2<ListView> tab0RefreshListener = new OnRefreshListener2<ListView>() {
-		@Override
-		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab0请求新数据
-			getAlbums(tab0AlbumHeadId, HANDLER_FLAG_TAB0);
-		}
-
-		@Override
-		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab0请求历史数据
-			getAlbums(tab0AlbumTailId, HANDLER_FLAG_TAB0);
-		}
-	};
 	
-	OnRefreshListener2<ListView> tab1RefreshListener = new OnRefreshListener2<ListView>() {
+	/**
+	 * 下拉刷新listener
+	 * @author liqian
+	 *
+	 */
+	class TabedRefreshListener implements OnRefreshListener2<ListView>{
+		
+		private int tabIndex;
+
+		public TabedRefreshListener(int tabIndex){
+			this.tabIndex = tabIndex;
+		}
+
 		@Override
 		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab1请求数据
-			getAlbums(0, HANDLER_FLAG_TAB1);
+			//tab下拉请求新数据
+			getAlbums(0, tabIndex);
 		}
 
 		@Override
 		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab0请求历史数据
-			getAlbums(tabAlbumTailIds[1], HANDLER_FLAG_TAB1);
+			//tab上拉请求增量数据
+			getAlbums(tabAlbumTailIds[tabIndex], tabIndex);
 		}
-	};
+	}
 	
-	OnRefreshListener2<ListView> tab2RefreshListener = new OnRefreshListener2<ListView>() {
-		@Override
-		public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab2请求数据
-			getAlbums(tab2AlbumHeadId, HANDLER_FLAG_TAB2);
-		}
-
-		@Override
-		public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-			//tab0请求历史数据
-			getAlbums(tab2AlbumTailId, HANDLER_FLAG_TAB2);
-		}
-	};
 	
 	private void getAlbums(final int albumTailId, final int tabIndex) {
 		//启动线程获取数据
@@ -431,11 +344,11 @@ public class Fragment_Main extends Fragment {
 			public void run() {
 				Message message;
 				AbstractApi api = null;
-//				if(tabIndex==2){
-//					api = new FollowAlbumListApi(albumTailId);
-//				}else{
+				if(tabIndex==2){
+					api = new FollowAlbumListApi(albumTailId);
+				}else{
 					api = new AlbumListApi(0, albumTailId);
-//				}
+				}
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
@@ -453,8 +366,10 @@ public class Fragment_Main extends Fragment {
 	private Handler tabDataHandler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
-			switch(msg.what){
+			int what = msg.what;
+			switch(what){
 				case HANDLER_FLAG_TAB0:
+					pullRefreshViews[0].onRefreshComplete();
 					Map<String, Object> tab0DataMap = (Map<String, Object>) msg.obj;
 					if(tab0DataMap!=null){
 						List<Album> albumList = (List<Album>) tab0DataMap.get("albumList");
@@ -462,38 +377,39 @@ public class Fragment_Main extends Fragment {
 							//save to db
 //							AlbumDB.save(context, albumList);
 							
-							List<Album> oldAlbumList = listView0Adapter.getAlbumList();
+							List<Album> oldAlbumList = listViewAdapters[0].getAlbumList();
 							if(oldAlbumList==null){
 								oldAlbumList = new ArrayList<Album>();
 							}
 							oldAlbumList.addAll(0, albumList);
-							listView0Adapter.setAlbumList(oldAlbumList);
-							listView0Adapter.notifyDataSetChanged();
+							listViewAdapters[0].setAlbumList(oldAlbumList);
+							listViewAdapters[0].notifyDataSetChanged();
 						}
 					}
-					pullToRefreshView0.onRefreshComplete();
 					SharedPreferenceUtil.putSharePre(context, getRefreshKey(0), System.currentTimeMillis());
 					break;
 				case HANDLER_FLAG_TAB1:
+				case HANDLER_FLAG_TAB2:
+					int tabIndex = what;
 					//关闭刷新控件
-					pullToRefreshView1.onRefreshComplete();
+					pullRefreshViews[tabIndex].onRefreshComplete();
 					
-					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
-					if(tab1DataMap!=null){
-						List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
-						Integer fromTailId = (Integer) tab1DataMap.get("fromTailId");
-						Integer newTailId = (Integer) tab1DataMap.get("newTailId");
+					Map<String, Object> tabedDataMap = (Map<String, Object>) msg.obj;
+					if(tabedDataMap!=null){
+						List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
+						Integer fromTailId = (Integer) tabedDataMap.get("fromTailId");
+						Integer newTailId = (Integer) tabedDataMap.get("newTailId");
 						if(albumList!=null&&albumList.size()>0){
-							SharedPreferenceUtil.putSharePre(context, getRefreshKey(1), System.currentTimeMillis());
+							SharedPreferenceUtil.putSharePre(context, getRefreshKey(tabIndex), System.currentTimeMillis());
 							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								tabAlbumTailIds[1] = newTailId;
-								pullToRefreshView1.setMode(Mode.BOTH);
+								tabAlbumTailIds[tabIndex] = newTailId;
+								pullRefreshViews[tabIndex].setMode(Mode.BOTH);
 							}else{
-								tabAlbumTailIds[1] = 0;
-								pullToRefreshView1.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+								tabAlbumTailIds[tabIndex] = 0;
+								pullRefreshViews[tabIndex].setMode(Mode.PULL_FROM_START);//禁用上拉刷新
 							}
 							
-							List<Album> oldAlbumList = listView1Adapter.getAlbumList();
+							List<Album> oldAlbumList = listViewAdapters[tabIndex].getAlbumList();
 							if(oldAlbumList==null){
 								oldAlbumList = new ArrayList<Album>();
 							}
@@ -502,32 +418,15 @@ public class Fragment_Main extends Fragment {
 							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
 								oldAlbumList.addAll(albumList);
 							}else{//下拉加载，需覆盖原数据
-								AlbumDB.saveLatestAlbums(context, albumList);
+								AlbumDB.saveAlbumsByTab(context, albumList, tabIndex);
 								oldAlbumList = null;
 								oldAlbumList = albumList; 
 							}
-							listView1Adapter.setAlbumList(oldAlbumList);
-							listView1Adapter.notifyDataSetChanged();
+							listViewAdapters[tabIndex].setAlbumList(oldAlbumList);
+							listViewAdapters[tabIndex].notifyDataSetChanged();
 						}
 					}
 					break;
-				case HANDLER_FLAG_TAB2:
-					Map<String, Object> tab2DataMap = (Map<String, Object>) msg.obj;
-					if(tab2DataMap!=null){
-						List<Album> albumList = (List<Album>) tab2DataMap.get("albumList");
-						if(albumList!=null&&albumList.size()>0){
-							List<Album> oldAlbumList = listView2Adapter.getAlbumList();
-							if(oldAlbumList==null){
-								oldAlbumList = new ArrayList<Album>();
-							}
-							oldAlbumList.addAll(0, albumList);
-							listView2Adapter.setAlbumList(oldAlbumList);
-							listView2Adapter.notifyDataSetChanged();
-						}
-					}
-					SharedPreferenceUtil.putSharePre(context, getRefreshKey(2), System.currentTimeMillis());
-					pullToRefreshView2.onRefreshComplete();
-					break;	
 				default:
 					break;
 			}
@@ -544,13 +443,9 @@ public class Fragment_Main extends Fragment {
 			case R.id.btnRefresh://刷新按钮
 				switch(currentTab){
 					case 0:
-						pullToRefreshView0.setRefreshing(false);
-						break;
 					case 1:
-						pullToRefreshView1.setRefreshing(false);
-						break;
 					case 2:
-						pullToRefreshView2.setRefreshing(false);
+						pullRefreshViews[currentTab].setRefreshing(false);
 						break;
 				}
 				break;

@@ -37,11 +37,13 @@ public class FollowAlbumListApi extends AbstractApi{
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int resTailId = jsonData.getInt("albumTailId");
+			int fromTailId = jsonData.getInt("fromTailId");
+			int newTailId = jsonData.getInt("newTailId");
 			String albumListStr = jsonData.getString("albumList");
 			if(albumListStr!=null){
 				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-				dataMap.put("albumTailId", resTailId);
+				dataMap.put("fromTailId", fromTailId);
+				dataMap.put("newTailId", newTailId);
 				dataMap.put("albumList", albumList);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
