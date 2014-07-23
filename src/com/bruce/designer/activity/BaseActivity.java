@@ -1,12 +1,11 @@
 package com.bruce.designer.activity;
 
-import com.bruce.designer.AppManager;
-
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
+
+import com.bruce.designer.AppManager;
 
 public class BaseActivity extends FragmentActivity {
 

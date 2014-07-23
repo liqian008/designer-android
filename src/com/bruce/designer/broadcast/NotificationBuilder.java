@@ -12,7 +12,6 @@ import android.content.Intent;
  * 通知栏
  * @author liqian
  */
-@SuppressWarnings("deprecation")
 public class NotificationBuilder {
 	
 	/**
@@ -21,6 +20,7 @@ public class NotificationBuilder {
 	 * @param context 上下文
 	 * @param content 内容
 	 */
+	@SuppressWarnings("deprecation")
 	public static void createNotification(Context context, String content) {
 		NotificationManager notificationManager = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);

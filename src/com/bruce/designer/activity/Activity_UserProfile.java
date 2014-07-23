@@ -11,16 +11,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiManager;
@@ -29,11 +27,13 @@ import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.UniversalImageUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 
@@ -41,6 +41,9 @@ import com.bruce.designer.util.UiUtil;
  *
  */
 public class Activity_UserProfile extends BaseActivity {
+	
+	private static final int HANDLER_FLAG_USERINFO = 1;
+	private static final int HANDLER_FLAG_SLIDE = 2;
 	
 	private View titlebarView;
 
@@ -56,31 +59,68 @@ public class Activity_UserProfile extends BaseActivity {
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
-	private int userId;
+	private int queryUserId;
 
 	private AlbumListAdapter albumListAdapter;
 
 	public AlbumSlidesAdapter slideAdapter;
+	
+	
+	private Handler handler = new Handler(){
+		@SuppressWarnings("unchecked")
+		public void handleMessage(Message msg) {
+			switch(msg.what){
+				case HANDLER_FLAG_USERINFO:
+					Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
+					if(userinfoDataMap!=null){
+						User userinfo = (User) userinfoDataMap.get("userinfo");
+						int fansCount = (Integer) userinfoDataMap.get("fansCount");
+						int followsCount = (Integer) userinfoDataMap.get("followsCount");
+						if(userinfo!=null&&userinfo.getId()>0){
+//							designerNameView.setText(userinfo.getNickname());
+							titleView.setText(userinfo.getNickname());
+							fansNumView.setText(String.valueOf(fansCount));
+							followsNumView.setText(String.valueOf(followsCount));
+						}
+					}
+					break;
+				case HANDLER_FLAG_SLIDE:
+					Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
+					if(albumsDataMap!=null){
+						List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
+						if(albumList!=null&&albumList.size()>0){
+							albumListAdapter.setAlbumList(albumList);
+							albumListAdapter.notifyDataSetChanged();
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+	};
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_info);
 		
-		
 		Intent intent = getIntent();
 		//获取userid
-		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("设计师");
+		titleView.setText(authorInfo.getDesignerNickname());
 		
 		avatarView = (ImageView) findViewById(R.id.avatar);
-//		ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/default.jpg", avatarView);
+		//显示头像
+		ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 		
 		designerNameView = (TextView) findViewById(R.id.txtUsername);
 		
@@ -97,9 +137,9 @@ public class Activity_UserProfile extends BaseActivity {
 		albumListView.setAdapter(albumListAdapter);
 		
 		//获取个人资料详情
-		getUserinfo(userId);
+		getUserinfo(queryUserId);
 		//获取个人专辑
-		getAlbums(userId);
+		getAlbums(queryUserId);
 	}
 	
 	
@@ -183,21 +223,21 @@ public class Activity_UserProfile extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getUserinfo(userId);
 				
 				UserInfoApi api = new UserInfoApi(userId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(context, api);
 				
 				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(0);
-					message.obj = jsonResult.getData();
+				if(apiResult!=null&&apiResult.getResult()==1){
+					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
+					message.obj = apiResult.getData();
 					message.sendToTarget();
 				}
 			}
 		});
 		thread.start();
 	}
+	
 	
 	private void getAlbums(final int albumTailId) {
 		//启动线程获取数据
@@ -206,11 +246,11 @@ public class Activity_UserProfile extends BaseActivity {
 			public void run() {
 				Message message;
 				
-				AlbumListApi api = new AlbumListApi(userId, albumTailId);
+				AlbumListApi api = new AlbumListApi(queryUserId, albumTailId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(1);
+					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}
@@ -219,40 +259,6 @@ public class Activity_UserProfile extends BaseActivity {
 		thread.start();
 	}
 	
-	
-	private Handler handler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			switch(msg.what){
-				case 0:
-					Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
-					if(userinfoDataMap!=null){
-						User userinfo = (User) userinfoDataMap.get("userinfo");
-						int fansCount = (Integer) userinfoDataMap.get("fansCount");
-						int followsCount = (Integer) userinfoDataMap.get("followsCount");
-						if(userinfo!=null&&userinfo.getId()>0){
-//							designerNameView.setText(userinfo.getNickname());
-							titleView.setText(userinfo.getNickname());
-							fansNumView.setText(String.valueOf(fansCount));
-							followsNumView.setText(String.valueOf(followsCount));
-						}
-					}
-					break;
-				case 1:
-					Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
-					if(albumsDataMap!=null){
-						List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
-						if(albumList!=null&&albumList.size()>0){
-							albumListAdapter.setAlbumList(albumList);
-							albumListAdapter.notifyDataSetChanged();
-						}
-					}
-					break;
-				default:
-					break;
-			}
-		}
-	};
 	
 	
 	private OnClickListener listener = new OnSingleClickListener() {
@@ -265,12 +271,12 @@ public class Activity_UserProfile extends BaseActivity {
 				break;
 			case R.id.followsContainer:
 				Intent followsIntent = new Intent(context, Activity_UserFollows.class);
-				followsIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
+				followsIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
 				context.startActivity(followsIntent);
 				break;
 			case R.id.fansContainer:
 				Intent fansIntent = new Intent(context, Activity_UserFans.class);
-				fansIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
+				fansIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
 				context.startActivity(fansIntent);
 				break;	
 			default:

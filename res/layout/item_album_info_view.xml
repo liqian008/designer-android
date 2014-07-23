@@ -32,36 +32,43 @@
             android:layout_alignParentTop="true"
             android:layout_marginBottom="10.0dip"
             android:layout_marginRight="8.0dip"
-            android:layout_toLeftOf="@+id/btnFollow"
+            android:layout_toLeftOf="@+id/btnContainer"
             android:gravity="right|center"
-            android:text=""
+            android:text="发布时间"
             android:textColor="#ff999999"
             android:textSize="13.0sp" />
-
-        <Button
-            android:id="@+id/btnFollow"
+		
+        <RelativeLayout
+            android:id="@+id/btnContainer"
             android:layout_width="60.0dip"
             android:layout_height="28.0dip"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="5.0dip"
-            android:background="@drawable/button_green_bg"
-            android:text="关注"
-            android:textColor="#ffffffff"
-            android:textSize="12.0sp" />
+            android:layout_marginTop="5.0dip" >
 
-        <Button
-            android:id="@+id/btnFollowed"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="5.0dip"
-            android:background="@drawable/button_grey_bg"
-            android:text="已关注"
-            android:textColor="#ff999999"
-            android:textSize="12.0sp"
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/btnFollow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="关注"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp" 
+                android:visibility="gone" 
+                />
+
+            <Button
+                android:id="@+id/btnUnfollow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_grey_bg"
+                android:text="已关注"
+                android:textColor="#ff999999"
+                android:textSize="12.0sp"
+                android:visibility="gone" 
+               />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/txtUsername"
@@ -84,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/txtUsername"
             android:layout_marginTop="20.0dip"
-            android:layout_toLeftOf="@+id/btnFollow"
+            android:layout_toLeftOf="@+id/btnContainer"
             android:visibility="gone" >
 
             <ImageView

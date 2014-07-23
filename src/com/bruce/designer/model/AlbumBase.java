@@ -20,6 +20,8 @@ public class AlbumBase {
 
 	private List<AlbumSlide> slideList;
 
+	private AlbumAuthorInfo authorInfo;
+	
 	public long getBrowseCount() {
 		return browseCount;
 	}
@@ -84,4 +86,12 @@ public class AlbumBase {
 		this.slideList = slideList;
 	}
 
+	public AlbumAuthorInfo getAuthorInfo() {
+		return authorInfo;
+	}
+
+	public void setAuthorInfo(AlbumAuthorInfo authorInfo) {
+		this.authorInfo = authorInfo;
+	}
+	
 }

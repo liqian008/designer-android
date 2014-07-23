@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -26,11 +27,14 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.UniversalImageUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_AlbumInfo extends BaseActivity {
 	
@@ -41,12 +45,15 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private View titlebarView;
 	private TextView titleView;
 	
-	private ImageView avatarView;
+	private ImageView designerAvatarView;
 	private TextView designerNameView;
 	private TextView pubtimeView;
 	private TextView albumTitleView;
 	private TextView albumContentView;
 //	private ImageView coverView;
+	
+	private Button followBtn;
+	private Button unfollowBtn;
 	
 	private ListView commentListView;
 	private AlbumCommentsAdapter commentsAdapter;
@@ -58,17 +65,6 @@ public class Activity_AlbumInfo extends BaseActivity {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			switch(msg.what){
-				case HANDLER_FLAG_INFO:
-					Album album = (Album) msg.obj;
-					if(album!=null){
-//						ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/default.jpg", avatarView);
-//						ImageLoader.loadImage(album.getCoverLargeImg(), coverView);
-						designerNameView.setText("大树珠宝");
-						pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
-						albumTitleView.setText(album.getTitle());
-						albumContentView.setText(album.getRemark());
-					}
-					break;
 				case HANDLER_FLAG_SLIDE:
 					Map<String, Object> albumDataMap = (Map<String, Object>) msg.obj;
 					if(albumDataMap!=null){
@@ -101,6 +97,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 			}
 		};
 	};
+	 
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,7 +115,10 @@ public class Activity_AlbumInfo extends BaseActivity {
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("作品集");
 		
-		avatarView = (ImageView) findViewById(R.id.avatar);
+		designerAvatarView = (ImageView) findViewById(R.id.avatar);
+		designerNameView = (TextView) findViewById(R.id.txtUsername);
+		followBtn = (Button) findViewById(R.id.btnFollow);
+		unfollowBtn = (Button) findViewById(R.id.btnUnfollow);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)findViewById(R.id.albumSlideImages);
@@ -126,7 +126,6 @@ public class Activity_AlbumInfo extends BaseActivity {
 		gridView.setAdapter(slideAdapter);
 		
 		
-		designerNameView = (TextView) findViewById(R.id.txtUsername);
 		pubtimeView = (TextView) findViewById(R.id.txtTime);
 		albumTitleView = (TextView) findViewById(R.id.txtSticker);
 		albumContentView = (TextView) findViewById(R.id.txtContent);
@@ -139,12 +138,25 @@ public class Activity_AlbumInfo extends BaseActivity {
 		Intent intent = getIntent();
 		Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
 		albumId = album.getId();
-		//读取上个activity传入的albumId值 
+		//读取上个activity传入的albumId值
 		if(album!=null&&albumId!=null){
-			//UI线程展示
-			Message message = handler.obtainMessage(HANDLER_FLAG_INFO);
-			message.obj = album;
-			message.sendToTarget();
+			AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
+			if(authorInfo!=null){
+				//显示头像
+				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+				designerNameView.setText(authorInfo.getDesignerNickname());
+				
+				if(authorInfo.isFollowed()){
+					followBtn.setVisibility(View.GONE);
+					unfollowBtn.setVisibility(View.VISIBLE);
+				}else{
+					followBtn.setVisibility(View.VISIBLE);
+					unfollowBtn.setVisibility(View.GONE);
+				}
+			}
+			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
+			albumTitleView.setText(album.getTitle());
+			albumContentView.setText(album.getRemark());
 			
 			//获取db中的图片列表
 			List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);

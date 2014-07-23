@@ -23,7 +23,7 @@ public class AlbumSlideDB {
 			SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
 	
 			// 这里是把SQLite里面的数据进行排序，依据ID由大到小排序，这样可以保证ListView展示在最上面的一条 数据是最新的一条
-			Cursor cursor = db.query(TB_ALBUM_SLIDE, null, "album_id=?", new String[]{String.valueOf(albumId)}, null, null, "id desc");
+			Cursor cursor = db.query(TB_ALBUM_SLIDE, null, "album_id=?", new String[]{String.valueOf(albumId)}, null, null, "is_cover desc, id asc");
 	
 			while (cursor.moveToNext()) {
 				AlbumSlide albumSlide = new AlbumSlide();
@@ -32,6 +32,7 @@ public class AlbumSlideDB {
 				albumSlide.setRemark(cursor.getString(cursor.getColumnIndex("remark")));
 				albumSlide.setAlbumId(cursor.getInt(cursor.getColumnIndex("album_id")));
 				albumSlide.setUserId(cursor.getInt(cursor.getColumnIndex("user_id")));
+				albumSlide.setIsCover(cursor.getShort(cursor.getColumnIndex("is_cover")));
 				albumSlide.setSlideLargeImg(cursor.getString(cursor.getColumnIndex("slide_large_img")));
 				albumSlide.setSlideMediumImg(cursor.getString(cursor.getColumnIndex("slide_medium_img")));
 				albumSlide.setSlideSmallImg(cursor.getString(cursor.getColumnIndex("slide_small_img")));
@@ -56,6 +57,7 @@ public class AlbumSlideDB {
 		        values.put("remark", albumSlide.getRemark());
 		        values.put("album_id", albumSlide.getAlbumId());
 		        values.put("user_id", albumSlide.getUserId());
+		        values.put("is_cover", albumSlide.getIsCover());
 		        values.put("slide_large_img", albumSlide.getSlideLargeImg());
 		        values.put("slide_medium_img", albumSlide.getSlideMediumImg());
 		        values.put("slide_small_img", albumSlide.getSlideSmallImg());

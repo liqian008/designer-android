@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.ResponseBuilderUtil;
 
 public abstract class AbstractApi {
 	
@@ -52,14 +53,12 @@ public abstract class AbstractApi {
 		JSONObject jsonObject = new JSONObject(response);
 		int result = jsonObject.getInt("result");
 		if(result==1){//成功响应
-			String dataStr = jsonObject.getString("data");
+			String dataStr = jsonObject.optString("data", null);
 			//交由子类处理业务数据
-			Map<String, Object> dataMap = null;//
 			if(dataStr!=null){
-//				dataMap = processResultData(dataStr);
 				return processResultData(dataStr);
 			}
-			return new ApiResult(result, dataMap, errorcode, null);
+			return ResponseBuilderUtil.buildSuccessResult();
 		}else{//错误响应
 			errorcode = jsonObject.getInt("errorcode");
 			String message = jsonObject.getString("message");

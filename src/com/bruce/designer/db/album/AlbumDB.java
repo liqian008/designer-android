@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.bruce.designer.db.DBHelper;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumAuthorInfo;
 
 public class AlbumDB {
 	
@@ -65,6 +66,14 @@ public class AlbumDB {
 			album.setLikeCount(cursor.getInt(cursor.getColumnIndex("like_count")));
 			album.setFavoriteCount(cursor.getInt(cursor.getColumnIndex("favorite_count")));
 			
+			
+			String designerAvatar = cursor.getString(cursor.getColumnIndex("designer_avatar"));
+			String designerNickname = cursor.getString(cursor.getColumnIndex("designer_nickname"));
+			
+			boolean isFollowed = (cursor.getInt(cursor.getColumnIndex("designer_follow_status"))==1)?true:false;
+			AlbumAuthorInfo authorInfo = new AlbumAuthorInfo(designerAvatar, designerNickname, isFollowed);
+			album.setAuthorInfo(authorInfo);
+			
 			album.setCreateTime(cursor.getLong(cursor.getColumnIndex("create_time")));
 			album.setUpdateTime(cursor.getLong(cursor.getColumnIndex("update_time")));
 			albumList.add(album);
@@ -104,6 +113,14 @@ public class AlbumDB {
 		        values.put("like_count", album.getLikeCount());
 		        values.put("favorite_count", album.getFavoriteCount());
 		        
+		        AlbumAuthorInfo authorInfo = album.getAuthorInfo();
+		        if(authorInfo!=null){
+		        	values.put("designer_avatar", album.getAuthorInfo().getDesignerAvatar());
+		        	values.put("designer_nickname", album.getAuthorInfo().getDesignerNickname());
+		        	//关注状态
+		        	int followStatus = album.getAuthorInfo().isFollowed()?1:0;
+		        	values.put("designer_follow_status", followStatus);
+		        }
 		        
 		        values.put("create_time", album.getCreateTime());
 		        values.put("update_time", album.getUpdateTime());

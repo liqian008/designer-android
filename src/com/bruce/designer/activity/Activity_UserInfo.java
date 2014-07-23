@@ -174,15 +174,14 @@ public class Activity_UserInfo extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getUserinfo(userId);
+//				JsonResultBean apiResult = ApiUtil.getUserinfo(userId);
 				
 				UserInfoApi api = new UserInfoApi(userId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(context, api);
 				
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(0);
-					message.obj = jsonResult.getData();
+					message.obj = apiResult.getData();
 					message.sendToTarget();
 				}
 			}
@@ -196,14 +195,14 @@ public class Activity_UserInfo extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getAlbumList(0, albumTailId);
+//				JsonResultBean apiResult = ApiUtil.getAlbumList(0, albumTailId);
 				
 				AlbumListApi api = new AlbumListApi(userId, albumTailId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(context, api);
 				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(1);
-					message.obj = jsonResult.getData();
+					message.obj = apiResult.getData();
 					message.sendToTarget();
 				}
 			}

@@ -15,6 +15,10 @@ CREATE TABLE `tb_album_latest` (
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
 
+
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
+
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );
@@ -36,6 +40,9 @@ CREATE TABLE `tb_album_recommend` (
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
 
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
+
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );
@@ -55,6 +62,9 @@ CREATE TABLE `tb_album_follow` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL

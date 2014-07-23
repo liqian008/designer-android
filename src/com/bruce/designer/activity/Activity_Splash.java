@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 
 import com.bruce.designer.AppManager;
@@ -93,6 +94,7 @@ public class Activity_Splash extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.context = Activity_Splash.this;
 		setContentView(R.layout.activity_splash);
 

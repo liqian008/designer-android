@@ -13,10 +13,12 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -33,10 +35,13 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.album.FollowAlbumListApi;
+import com.bruce.designer.api.user.FollowUserApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
@@ -53,6 +58,9 @@ public class Fragment_Main extends Fragment {
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
 	private static final int HANDLER_FLAG_TAB2 = 2;
+	
+	private static final int HANDLER_FLAG_FOLLOW = 100;
+	private static final int HANDLER_FLAG_UNFOLLOW = 101;
 	
 	private static final int HANDLER_FLAG_ERROR = -1;
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
@@ -256,32 +264,98 @@ public class Fragment_Main extends Fragment {
 					ImageLoader.getInstance().displayImage(album.getCoverMediumImg(), coverView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
 				}
 				
+				//发布时间
+				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
+				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
+				
+				final AlbumAuthorInfo authorInfo = album.getAuthorInfo();
+				
 				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
 				designerView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
 						Intent intent = new Intent(context, Activity_UserProfile.class);
 						intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, album.getUserId());
+						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO, authorInfo);
 						context.startActivity(intent);
 					}
 				});
 				
-				
+				//设计师头像
 				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
-//				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
-				ImageLoader.getInstance().displayImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				
+				//设计师姓名
 				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
-				usernameView.setText("大树珠宝");
+				//关注按钮
+				final Button followBtn = (Button) albumItemView.findViewById(R.id.btnFollow);
+				//取消关注按钮
+				final Button unfollowBtn = (Button) albumItemView.findViewById(R.id.btnUnfollow);
 				
-				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
-				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
+				if(authorInfo==null){
+					followBtn.setVisibility(View.GONE);
+					unfollowBtn.setVisibility(View.GONE);
+				}else{
+					//显示头像
+					ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+					//显示昵称
+					usernameView.setText(authorInfo.getDesignerNickname());
+					
+					if(authorInfo.isFollowed()){
+						followBtn.setVisibility(View.GONE);
+						unfollowBtn.setVisibility(View.VISIBLE);
+					}else{
+						unfollowBtn.setVisibility(View.GONE);
+						followBtn.setVisibility(View.VISIBLE);
+					}
+				}
 				
+				//关注事件
+				followBtn.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						unfollowBtn.setVisibility(View.VISIBLE);
+						followBtn.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								FollowUserApi api = new FollowUserApi(album.getUserId(), 0);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								//TODO 切换关注按钮，修改db中的关注状态
+								if(apiResult!=null&&apiResult.getResult()==1){
+									tabDataHandler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
+				//取消关注事件
+				unfollowBtn.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						followBtn.setVisibility(View.VISIBLE);
+						unfollowBtn.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								FollowUserApi api = new FollowUserApi(album.getUserId(), 1);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								//TODO 切换关注按钮，修改db中的关注状态
+								if(apiResult!=null&&apiResult.getResult()==1){
+									tabDataHandler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
+				
+				
+				
+				//专辑title
 				TextView titleView = (TextView) albumItemView.findViewById(R.id.txtSticker);
 				titleView.setText(album.getTitle());
+				//专辑描述
 				TextView contentView = (TextView) albumItemView.findViewById(R.id.txtContent);
 				contentView.setText(album.getRemark());
-				
+				//评论数量
 				TextView commentView = (TextView) albumItemView.findViewById(R.id.txtComment);
 				if(album.getCommentCount()>0){
 					commentView.setText("查看全部"+album.getCommentCount()+"条评论");
@@ -289,18 +363,13 @@ public class Fragment_Main extends Fragment {
 					commentView.setVisibility(View.GONE); 
 				}
 				
-				//因为折行注释掉
-//				Button commentButton = (Button) albumItemView.findViewById(R.id.btnComment);
-//				commentButton.setText("评论"+String.valueOf(album.getCommentCount()));
-//				Button zanButton = (Button) albumItemView.findViewById(R.id.btnZan);
-//				zanButton.setText("赞"+String.valueOf(album.getLikeCount()));
-				
-				
 				albumItemView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
 						Intent intent = new Intent(context, Activity_AlbumInfo.class);
 						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
+//						System.out.println("========="+album.getAuthorInfo());
+						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO, authorInfo);
 						context.startActivity(intent);
 					}
 				});
@@ -426,6 +495,14 @@ public class Fragment_Main extends Fragment {
 							listViewAdapters[tabIndex].notifyDataSetChanged();
 						}
 					}
+					break;
+				case HANDLER_FLAG_FOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "成功关注");
+					break;
+				case HANDLER_FLAG_UNFOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "取消关注成功");
 					break;
 				default:
 					break;
