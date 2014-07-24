@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.bruce.designer"
     android:versionCode="1"
-    android:versionName="1.0.0" >
+    android:versionName="1.1.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -96,7 +96,10 @@
             android:name="com.bruce.designer.activity.Activity_Test"
             android:screenOrientation="portrait" >
         </activity>
-        
+        <activity
+            android:name="com.bruce.designer.activity.Activity_ImageBrowser"
+            android:screenOrientation="portrait" >
+        </activity>
         
         <receiver android:name="com.bruce.designer.broadcast.DesignerReceiver" >
             <intent-filter>

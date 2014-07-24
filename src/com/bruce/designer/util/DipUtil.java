@@ -7,7 +7,17 @@ import android.util.DisplayMetrics;
  * @author dingwei.chen
  * */
 public class DipUtil {
+	
+	private static DisplayMetrics sDisplay = null;
 
+	public static DisplayMetrics getDisplayMetrics(Activity activity) {
+		if (sDisplay == null) {
+			sDisplay = new DisplayMetrics();
+			activity.getWindowManager().getDefaultDisplay().getMetrics(sDisplay);
+		}
+		return sDisplay;
+	}
+	
 	public static int getScreenWidth(Activity activity) {
 		int fullWidth = getDisplayMetrics(activity).widthPixels;
 		LogUtil.d("==========fullWidth========"+fullWidth);
@@ -28,15 +38,7 @@ public class DipUtil {
 		return result;
 	}
 
-	static DisplayMetrics sDisplay = null;
-
-	public static DisplayMetrics getDisplayMetrics(Activity activity) {
-		if (sDisplay == null) {
-			sDisplay = new DisplayMetrics();
-			activity.getWindowManager().getDefaultDisplay().getMetrics(sDisplay);
-		}
-		return sDisplay;
-	}
+	
 
 	public static float getDensity(Activity activity) {
 		float density = getDisplayMetrics(activity).density;

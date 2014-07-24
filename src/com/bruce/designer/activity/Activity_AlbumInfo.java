@@ -34,6 +34,8 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_AlbumInfo extends BaseActivity {
@@ -130,6 +132,9 @@ public class Activity_AlbumInfo extends BaseActivity {
 		albumTitleView = (TextView) findViewById(R.id.txtSticker);
 		albumContentView = (TextView) findViewById(R.id.txtContent);
 		
+//		PullToRefreshListView pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+//		pullRefreshView.setMode(Mode.BOTH);
+//		commentListView = pullRefreshView.getRefreshableView();
 		commentListView =(ListView) findViewById(R.id.commentList);
 		commentsAdapter = new AlbumCommentsAdapter(context, null);
 		commentListView.setAdapter(commentsAdapter);
@@ -179,8 +184,8 @@ public class Activity_AlbumInfo extends BaseActivity {
 			getAlbumComments(album.getId(), 0);
 		}
 	}
+		
 	
-
 	private void getAlbumInfo(final int albumId) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
@@ -274,7 +279,9 @@ public class Activity_AlbumInfo extends BaseActivity {
 				View commentItemView = LayoutInflater.from(context).inflate(R.layout.comment_item_view, null);
 				
 				ImageView avatarView = (ImageView) commentItemView.findViewById(R.id.avatar);
-//				ImageLoader.loadImage("http://img.jinwanr.com.cn/staticFile/avatar/100/100009.jpg", avatarView);
+				if(comment.getUserHeadImg()!=null){
+					ImageLoader.getInstance().displayImage(comment.getUserHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+				}
 				
 				TextView commentUsernameView = (TextView) commentItemView.findViewById(R.id.commentUserame);
 				commentUsernameView.setText(comment.getNickname());

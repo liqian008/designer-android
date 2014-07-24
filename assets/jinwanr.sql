@@ -18,6 +18,7 @@ CREATE TABLE `tb_album_latest` (
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 0,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -42,6 +43,7 @@ CREATE TABLE `tb_album_recommend` (
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 0,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -65,6 +67,7 @@ CREATE TABLE `tb_album_follow` (
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 1,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL

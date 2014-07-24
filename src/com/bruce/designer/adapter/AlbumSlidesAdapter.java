@@ -1,5 +1,6 @@
 package com.bruce.designer.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -13,6 +14,8 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.bruce.designer.activity.Activity_ImageBrowser;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.util.DipUtil;
 import com.bruce.designer.util.LogUtil;
@@ -24,9 +27,23 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 		private List<AlbumSlide> slideList;
 		private Context context;
 		
+		private ArrayList<String> slideUrlList;
+		
 		public AlbumSlidesAdapter(Context context, List<AlbumSlide> slideList) {
 			this.context = context;
 			this.slideList = slideList;
+			slideUrlList = getSlideImageUrlList(slideList);
+		}
+
+		private ArrayList<String> getSlideImageUrlList(List<AlbumSlide> slideList) {
+			ArrayList<String> urlList = null;
+			if(slideList!=null&&slideList.size()>0){
+				urlList = new ArrayList<String>();
+				for(AlbumSlide slide: slideList){
+					urlList.add(slide.getSlideLargeImg());
+				}
+			}
+			return urlList;
 		}
 		
 		@Override
@@ -74,7 +91,7 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 				int rightWidth = position%3==2?0:pxFromDp;
 				
 				params.setMargins(leftWidth, 0, rightWidth, pxFromDp);//边距
-	            params.gravity = Gravity.TOP;
+	            params.gravity = Gravity.CENTER;
 	            ImageView itemImageView = new ImageView(context);
 	            itemImageView.setScaleType(ScaleType.CENTER_CROP);
 	            layout.addView(itemImageView, params);
@@ -82,6 +99,16 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 	            ImageLoader.getInstance().displayImage(albumSlide.getSlideSmallImg(), itemImageView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION );
 	            //TODO 此种方式构造的item列表的尺寸会有些许误差，待修复
 	            layout.setLayoutParams(new GridView.LayoutParams(itemWidth, itemWidth));
+	            
+	            layout.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						if(slideUrlList!=null&&slideUrlList.size()>0){
+							Activity_ImageBrowser.show(context, slideUrlList);
+						}
+					}
+				});
+	            
 				return layout;
 			}
 			return null;
@@ -89,6 +116,7 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 
 		public void setSlideList(List<AlbumSlide> slideList) {
 			this.slideList = slideList;
+			slideUrlList = getSlideImageUrlList(slideList);
 		}
 		
 	}

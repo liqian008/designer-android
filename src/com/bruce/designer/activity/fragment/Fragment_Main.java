@@ -189,7 +189,7 @@ public class Fragment_Main extends Fragment {
 		List<Album> albumList = null;
 		if(currentTab==1){
 			albumList= AlbumDB.queryAllLatest(context);//请求最新数据
-		}else if(currentTab==1){
+		}else if(currentTab==2){
 			albumList= AlbumDB.queryAllFollow(context);//请求关注数据
 		}else{
 			albumList= AlbumDB.queryAllRecommend(context);//请求系统推荐数据

@@ -23,6 +23,8 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 
 public class Activity_UserFollows extends BaseActivity {
 	
@@ -49,7 +51,10 @@ public class Activity_UserFollows extends BaseActivity {
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("TA的关注");
 		
-		ListView followsListView = (ListView)findViewById(R.id.userFollows);
+		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		ListView followsListView = pullRefresh.getRefreshableView();
+		pullRefresh.setMode(Mode.BOTH);
+//		ListView followsListView = (ListView)findViewById(R.id.userFollows);
 		followsListAdapter = new FollowsListAdapter(context, null);
 		followsListView.setAdapter(followsListAdapter);
 		

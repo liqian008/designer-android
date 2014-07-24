@@ -10,21 +10,21 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.ApiUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 
 public class Activity_UserFans extends BaseActivity {
 	
@@ -51,7 +51,10 @@ public class Activity_UserFans extends BaseActivity {
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("TA的粉丝");
 		
-		ListView fansListView = (ListView)findViewById(R.id.userFans);
+		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		ListView fansListView = pullRefresh.getRefreshableView();
+		pullRefresh.setMode(Mode.BOTH);
+//		ListView fansListView = (ListView)findViewById(R.id.userFans);
 		fansListAdapter = new FansListAdapter(context, null);
 		fansListView.setAdapter(fansListAdapter);
 		
