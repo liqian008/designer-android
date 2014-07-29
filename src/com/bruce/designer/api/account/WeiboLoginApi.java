@@ -10,7 +10,9 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
@@ -20,20 +22,19 @@ import com.bruce.designer.util.ResponseBuilderUtil;
  */
 public class WeiboLoginApi extends AbstractApi{
 	
-	private String REQUESTS_URI= Config.JINWAN_API_PREFIX;
-	
-	
 	private Map<String, String> paramMap = null;
 	
-	public WeiboLoginApi(String wbUid, String accessToken){
+	public WeiboLoginApi(String wbUid, String accessToken, String refreshToken, long expiresTime){
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("wbUid", String.valueOf(wbUid));
-		paramMap.put("wbAccessToken", accessToken);
+		paramMap.put("weiboUid", String.valueOf(wbUid));
+		paramMap.put("weiboAccessToken", accessToken);
+		paramMap.put("weiboRefreshToken", refreshToken);
+		paramMap.put("weiboExpireIn", String.valueOf(expiresTime));
 	}
 	
 	@Override
 	protected String getApiMethodName() {
-		return "wbLogin.cmd";
+		return "weiboLogin.cmd";
 	}
 	
 	@Override
@@ -44,26 +45,14 @@ public class WeiboLoginApi extends AbstractApi{
 	}
 
 	@Override
-	public String getRequestUri() {
-		return REQUESTS_URI;
-	}
-	
-	@Override
 	protected ApiResult processResultData(String dataStr) {
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-//			int followsCount = jsonData.getInt("followsCount");
-//			int fansCount = jsonData.getInt("fansCount");
-//			
-//			String userinfoStr = jsonData.getString("userinfo");
-//			User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
-//			if(userinfo!=null){
-//				dataMap.put("userinfo", userinfo);
-//				dataMap.put("followsCount", followsCount);
-//				dataMap.put("fansCount", fansCount);
-//			}
+			String userPassportStr = jsonData.optString("userPassport");
+			UserPassport userPassport = JsonUtil.gson.fromJson(userPassportStr, UserPassport.class);
+			dataMap.put("userPassport", userPassport);
 			return ResponseBuilderUtil.buildSuccessResult(dataMap);
 		} catch (JSONException e) {
 			e.printStackTrace();

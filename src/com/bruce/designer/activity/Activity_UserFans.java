@@ -53,11 +53,12 @@ public class Activity_UserFans extends BaseActivity {
 		
 		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		ListView fansListView = pullRefresh.getRefreshableView();
-		pullRefresh.setMode(Mode.BOTH);
+		pullRefresh.setMode(Mode.PULL_FROM_START);
 //		ListView fansListView = (ListView)findViewById(R.id.userFans);
 		fansListAdapter = new FansListAdapter(context, null);
 		fansListView.setAdapter(fansListAdapter);
 		
+		pullRefresh.setRefreshing(true);
 		//获取关注列表
 		getFans(userId);
 		//TODO 需要增加下拉刷新

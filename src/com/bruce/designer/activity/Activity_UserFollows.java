@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -53,11 +54,12 @@ public class Activity_UserFollows extends BaseActivity {
 		
 		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		ListView followsListView = pullRefresh.getRefreshableView();
-		pullRefresh.setMode(Mode.BOTH);
+		pullRefresh.setMode(Mode.PULL_FROM_START);
 //		ListView followsListView = (ListView)findViewById(R.id.userFollows);
 		followsListAdapter = new FollowsListAdapter(context, null);
 		followsListView.setAdapter(followsListAdapter);
 		
+		pullRefresh.setRefreshing(true);
 		//获取关注列表
 		getFollows(userId);
 		//TODO 需要增加下拉刷新
@@ -113,6 +115,10 @@ public class Activity_UserFollows extends BaseActivity {
 				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
 				usernameView.setText(user.getFollowUser().getNickname());
 				
+//				Button btnFollow = (Button) friendItemView.findViewById(R.id.btnFollow);
+//				btnFollow.setVisibility(View.GONE);
+//				Button btnUnfollow = (Button) friendItemView.findViewById(R.id.btnUnfollow);
+//				btnUnfollow.setVisibility(View.INVISIBLE);
 				return friendItemView;
 			}
 			return null;

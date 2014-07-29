@@ -36,7 +36,7 @@ import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
- * 
+ * 任何用户的个人资料页面
  * @author liqian
  *
  */
@@ -139,7 +139,7 @@ public class Activity_UserProfile extends BaseActivity {
 		//获取个人资料详情
 		getUserinfo(queryUserId);
 		//获取个人专辑
-		getAlbums(queryUserId);
+		getAlbums(queryUserId, 0);
 	}
 	
 	
@@ -191,7 +191,7 @@ public class Activity_UserProfile extends BaseActivity {
 				
 				/*构造slide数据*/
 				GridView gridView = (GridView) albumItemView.findViewById(R.id.albumSlideImages);
-				List<AlbumSlide> slideList = buildSlideList(album);
+				List<AlbumSlide> slideList = album.getSlideList();
 				slideAdapter = new AlbumSlidesAdapter(context, slideList);
 				gridView.setAdapter(slideAdapter);
 
@@ -207,15 +207,15 @@ public class Activity_UserProfile extends BaseActivity {
 		}
 	}
 	
-	private List<AlbumSlide> buildSlideList(Album album) {
-		List<AlbumSlide> slideList = new ArrayList<AlbumSlide>();
-		for(int i=0;i<3;i++){
-			AlbumSlide slide = new AlbumSlide();
-			slide.setSlideSmallImg(album.getCoverSmallImg());
-			slideList.add(slide);
-		}
-		return slideList;
-	}
+//	private List<AlbumSlide> buildSlideList(Album album) {
+//		List<AlbumSlide> slideList = album.getSlideList();
+//		if(slideList!=null){
+//			for(AlbumSlide albumSlide: slideList){
+//				albumSlide.setSlideSmallImg(album.getCoverSmallImg());
+//			}
+//		}
+//		return slideList;
+//	}
 	
 	private void getUserinfo(final int userId) {
 		//启动线程获取数据
@@ -239,7 +239,7 @@ public class Activity_UserProfile extends BaseActivity {
 	}
 	
 	
-	private void getAlbums(final int albumTailId) {
+	private void getAlbums(final int queryUserId, final int albumTailId) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override

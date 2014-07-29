@@ -82,17 +82,18 @@ public class Activity_Login extends BaseActivity{
             if (mAccessToken.isSessionValid()) {
             	String uid = mAccessToken.getUid();
             	String accessToken = mAccessToken.getToken();
-            	short thirdpartyTypeWb = 1;
+            	String refreshToken = mAccessToken.getRefreshToken();
+            	long expiresTime = mAccessToken.getExpiresTime();
             	
             	LogUtil.d("=============="+mAccessToken.getUid()+"========"+ mAccessToken.getToken());
                 // 显示 Token
-            	Toast.makeText(context,  mAccessToken.getUid()+"========"+ mAccessToken.getToken(), Toast.LENGTH_LONG).show();
-                Toast.makeText(context, R.string.weibosdk_demo_toast_auth_success, Toast.LENGTH_SHORT).show();
+//            	Toast.makeText(context,  mAccessToken.getUid()+"========"+ mAccessToken.getToken(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(context, R.string.weibosdk_demo_toast_auth_success, Toast.LENGTH_SHORT).show();
                 
-                Activity_Login_Bind.show(context);
-                finish();
-                //TODO 向服务器提交token
-                weiboLogin(uid, accessToken);
+//                Activity_Login_Bind.show(context);
+//                finish();
+                //向服务器提交，验证token
+                weiboLogin(uid, accessToken, refreshToken, expiresTime);
             } else {
                 // 以下几种情况，您会收到 Code：
                 // 1. 当您未在平台上注册的应用程序的包名与签名时；
@@ -137,23 +138,29 @@ public class Activity_Login extends BaseActivity{
     /**
      * 根据用户的accessToken换取用户资料
      * @param accessToken
+     * @param expiresTime 
+     * @param refreshToken 
      * @param thirdpartyType
      */
-    private void weiboLogin(final String uid, final String accessToken) {
+    private void weiboLogin(final String uid, final String accessToken, final String refreshToken, final long expiresTime) {
 		//启动线程获取用户数据
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken, refreshToken, expiresTime);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
 					//weibo登录成功，两种情况
 					boolean result = true;
 					if(result){//直接返回用户ticket信息
-						UserPassport userPassport = new UserPassport(1, "");
-//						oAuthLoginListener.loginComplete(userPassport);
+						Message message = loginHandler.obtainMessage(HANDLER_TEST_LOGIN_SUCCEED);
+						message.obj = apiResult.getData();
+						message.sendToTarget();
+						
+						//跳转至主屏界面
+						Activity_Main.show(context);
+						finish();
 					}else{//第一次登录，需要完善用户资料
-//						oAuthLoginListener.needComplete();
 					}
 				}else{//发送失败消息
 //					oAuthLoginListener.loginFailed();
