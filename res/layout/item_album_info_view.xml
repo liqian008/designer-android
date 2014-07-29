@@ -17,6 +17,7 @@
 	-->
 
     <RelativeLayout
+        android:id="@+id/designerContainer"
         android:layout_width="fill_parent"
         android:layout_height="47.0dip"
         android:layout_marginLeft="10.0dip"
@@ -46,7 +47,18 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="5.0dip" >
-
+			
+            <Button
+                android:id="@+id/btnUserProfile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="个人主页"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp"
+               />
+            
+            <!-- 
             <Button
                 android:id="@+id/btnFollow"
                 android:layout_width="match_parent"
@@ -66,8 +78,9 @@
                 android:text="已关注"
                 android:textColor="#ff999999"
                 android:textSize="12.0sp"
-                android:visibility="gone" 
+                android:visibility="gone"
                />
+               -->
         </RelativeLayout>
 
         <TextView

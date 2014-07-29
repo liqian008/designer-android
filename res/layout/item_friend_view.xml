@@ -6,6 +6,7 @@
     android:orientation="vertical" >
 
     <RelativeLayout
+        android:id="@+id/friendContainer"
         android:layout_width="fill_parent"
         android:layout_height="70.0dip"
         android:orientation="horizontal" >

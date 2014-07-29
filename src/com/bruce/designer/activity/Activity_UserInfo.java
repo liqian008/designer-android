@@ -83,9 +83,9 @@ public class Activity_UserInfo extends BaseActivity {
 		followsNumView = (TextView) findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
 		
-		ListView albumListView = (ListView)findViewById(R.id.designerAlbums);
-		albumListAdapter = new AlbumListAdapter(context, null);
-		albumListView.setAdapter(albumListAdapter);
+//		ListView albumListView = (ListView)findViewById(R.id.designerAlbums);
+//		albumListAdapter = new AlbumListAdapter(context, null);
+//		albumListView.setAdapter(albumListAdapter);
 		
 		//获取个人资料详情
 		getUserinfo(userId);

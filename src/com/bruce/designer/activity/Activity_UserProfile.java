@@ -21,10 +21,12 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
+import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
@@ -33,6 +35,10 @@ import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
@@ -40,7 +46,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  * @author liqian
  *
  */
-public class Activity_UserProfile extends BaseActivity {
+public class Activity_UserProfile extends BaseActivity implements OnRefreshListener2<ListView>{
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
@@ -50,8 +56,6 @@ public class Activity_UserProfile extends BaseActivity {
 	private TextView titleView;
 	/*设计师头像*/
 	private ImageView avatarView;
-	/*设计师名称*/
-	private TextView designerNameView;
 	
 	private View followsView;
 	private View fansView;
@@ -61,9 +65,25 @@ public class Activity_UserProfile extends BaseActivity {
 	
 	private int queryUserId;
 
-	private AlbumListAdapter albumListAdapter;
+	private DesignerAlbumsAdapter albumListAdapter;
 
 	public AlbumSlidesAdapter slideAdapter;
+	
+	private PullToRefreshListView pullRefreshView;
+	
+	private int albumTailId = 0;
+	
+	
+	public static void show(Context context, int userId, String nickname, String avatar, boolean isDesigner, boolean hasFollowed){
+		Intent intent = new Intent(context, Activity_UserProfile.class);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME, nickname);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR, avatar);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, isDesigner);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, hasFollowed);
+		
+		context.startActivity(intent);
+	}
 	
 	
 	private Handler handler = new Handler(){
@@ -77,7 +97,6 @@ public class Activity_UserProfile extends BaseActivity {
 						int fansCount = (Integer) userinfoDataMap.get("fansCount");
 						int followsCount = (Integer) userinfoDataMap.get("followsCount");
 						if(userinfo!=null&&userinfo.getId()>0){
-//							designerNameView.setText(userinfo.getNickname());
 							titleView.setText(userinfo.getNickname());
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
@@ -85,11 +104,33 @@ public class Activity_UserProfile extends BaseActivity {
 					}
 					break;
 				case HANDLER_FLAG_SLIDE:
+					pullRefreshView.onRefreshComplete();
 					Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
 					if(albumsDataMap!=null){
 						List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
+						Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");
+						Integer newTailId = (Integer) albumsDataMap.get("newTailId");
 						if(albumList!=null&&albumList.size()>0){
-							albumListAdapter.setAlbumList(albumList);
+							
+							if(newTailId!=null&&newTailId>0){//还有可加载的数据
+								albumTailId = newTailId;
+							}else{
+								albumTailId = 0;
+								pullRefreshView.setMode(Mode.DISABLED);//禁用上拉刷新
+							}
+							List<Album> oldAlbumList = albumListAdapter.getAlbumList();
+							if(oldAlbumList==null){
+								oldAlbumList = new ArrayList<Album>();
+							}
+							//判断加载位置，以确定是list增量还是覆盖
+							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+								oldAlbumList.addAll(albumList);
+							}else{//下拉加载，需覆盖原数据
+								oldAlbumList = null;
+								oldAlbumList = albumList; 
+							}
+							albumListAdapter.setAlbumList(oldAlbumList);
 							albumListAdapter.notifyDataSetChanged();
 						}
 					}
@@ -109,32 +150,45 @@ public class Activity_UserProfile extends BaseActivity {
 		Intent intent = getIntent();
 		//获取userid
 		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
-		AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
+//		AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
+		
+		String userNickname = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME);
+		String userAvatar = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR);
+		boolean isDesigner = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, false);
+		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
+		
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText(authorInfo.getDesignerNickname());
+		titleView.setText(userNickname);
 		
-		avatarView = (ImageView) findViewById(R.id.avatar);
+		
+		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		pullRefreshView.setMode(Mode.PULL_FROM_END);
+		pullRefreshView.setOnRefreshListener(this);
+		ListView albumListView = pullRefreshView.getRefreshableView();
+		albumListAdapter = new DesignerAlbumsAdapter(context, null);
+		albumListView.setAdapter(albumListAdapter);
+		
+		//把个人资料的layout作为listview的header
+		LayoutInflater layoutInflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		View headerView = layoutInflate.inflate(R.layout.user_profile_head, null);
+		albumListView.addHeaderView(headerView);
+		
+		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
 		//显示头像
-		ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+		ImageLoader.getInstance().displayImage(userAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 		
-		designerNameView = (TextView) findViewById(R.id.txtUsername);
-		
-		fansView = (View) findViewById(R.id.fansContainer);
-		fansNumView = (TextView) findViewById(R.id.txtFansNum);
+		fansView = (View) headerView.findViewById(R.id.fansContainer);
+		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
 		fansView.setOnClickListener(listener);
 		
-		followsView = (View) findViewById(R.id.followsContainer);
-		followsNumView = (TextView) findViewById(R.id.txtFollowsNum);
+		followsView = (View) headerView.findViewById(R.id.followsContainer);
+		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
-		
-		ListView albumListView = (ListView)findViewById(R.id.designerAlbums);
-		albumListAdapter = new AlbumListAdapter(context, null);
-		albumListView.setAdapter(albumListAdapter);
 		
 		//获取个人资料详情
 		getUserinfo(queryUserId);
@@ -142,80 +196,6 @@ public class Activity_UserProfile extends BaseActivity {
 		getAlbums(queryUserId, 0);
 	}
 	
-	
-	class AlbumListAdapter extends BaseAdapter {
-
-		private List<Album> albumList;
-		private Context context;
-		
-		public AlbumListAdapter(Context context, List<Album> albumList) {
-			this.context = context;
-			this.albumList = albumList;
-		}
-		
-		public void setAlbumList(List<Album> albumList) {
-			this.albumList = albumList;
-		}
-
-		public List<Album> getAlbumList() {
-			return albumList;
-		}
-
-		@Override
-		public int getCount() {
-			if (albumList != null) {
-				return albumList.size();
-			}
-			return 0;
-		}
-
-		@Override
-		public Album getItem(int position) {
-			if (albumList != null) {
-				return albumList.get(position);
-			}
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			if(getItem(position)!=null){
-				final Album album = getItem(position);
-				View albumItemView = LayoutInflater.from(context).inflate(R.layout.item_designer_album_view, null);
-				
-				/*构造slide数据*/
-				GridView gridView = (GridView) albumItemView.findViewById(R.id.albumSlideImages);
-				List<AlbumSlide> slideList = album.getSlideList();
-				slideAdapter = new AlbumSlidesAdapter(context, slideList);
-				gridView.setAdapter(slideAdapter);
-
-				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
-				usernameView.setText(album.getTitle());
-				
-				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
-				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
-				
-				return albumItemView;
-			}
-			return null;
-		}
-	}
-	
-//	private List<AlbumSlide> buildSlideList(Album album) {
-//		List<AlbumSlide> slideList = album.getSlideList();
-//		if(slideList!=null){
-//			for(AlbumSlide albumSlide: slideList){
-//				albumSlide.setSlideSmallImg(album.getCoverSmallImg());
-//			}
-//		}
-//		return slideList;
-//	}
 	
 	private void getUserinfo(final int userId) {
 		//启动线程获取数据
@@ -284,5 +264,27 @@ public class Activity_UserProfile extends BaseActivity {
 			}
 		}
 	};
+	
+	
+	/**
+	 * 下拉刷新
+	 */
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		//获取个人资料详情
+		getUserinfo(queryUserId);
+		//获取个人专辑
+		getAlbums(queryUserId, 0);
+	}
+	
+	/**
+	 * 上拉刷新
+	 */
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+		//加载更多专辑信息
+		getAlbums(queryUserId, albumTailId);
+	}
+		
 	
 }

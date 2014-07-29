@@ -109,10 +109,26 @@ public class Activity_UserFans extends BaseActivity {
 			//TODO 暂未使用convertView
 			if(getItem(position)!=null){
 				final UserFan user = getItem(position);
+				
+				final int fanUserId = user.getFanId();
+				final String fanNickname = user.getFanUser().getNickname();
+				final boolean isDesigner = true;
+				final boolean hasFollowed = true;
+				
+				
 				View friendItemView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
 				
 				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
 				usernameView.setText(user.getFanUser().getNickname());
+				
+				
+				View friendView = (View) friendItemView.findViewById(R.id.friendContainer);
+				friendView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View view) {
+						Activity_UserProfile.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
+					}
+				});
 				
 				return friendItemView;
 			}

@@ -112,13 +112,29 @@ public class Activity_UserFollows extends BaseActivity {
 				final UserFollow user = getItem(position);
 				View friendItemView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
 				
+				final int followUserId = user.getFollowId();
+				final String followNickname = user.getFollowUser().getNickname();
+				final boolean isDesigner = true;
+				final boolean hasFollowed = true;
+				
 				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
 				usernameView.setText(user.getFollowUser().getNickname());
+				
+				View friendView = (View) friendItemView.findViewById(R.id.friendContainer);
+				friendView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View view) {
+						Activity_UserProfile.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
+					}
+				});
 				
 //				Button btnFollow = (Button) friendItemView.findViewById(R.id.btnFollow);
 //				btnFollow.setVisibility(View.GONE);
 //				Button btnUnfollow = (Button) friendItemView.findViewById(R.id.btnUnfollow);
 //				btnUnfollow.setVisibility(View.INVISIBLE);
+				
+				
+				
 				return friendItemView;
 			}
 			return null;

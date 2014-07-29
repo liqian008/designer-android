@@ -26,6 +26,7 @@ import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
@@ -54,8 +55,8 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private TextView albumContentView;
 //	private ImageView coverView;
 	
-	private Button followBtn;
-	private Button unfollowBtn;
+//	private Button followBtn;
+//	private Button unfollowBtn;
 	
 	private ListView commentListView;
 	private AlbumCommentsAdapter commentsAdapter;
@@ -119,8 +120,9 @@ public class Activity_AlbumInfo extends BaseActivity {
 		
 		designerAvatarView = (ImageView) findViewById(R.id.avatar);
 		designerNameView = (TextView) findViewById(R.id.txtUsername);
-		followBtn = (Button) findViewById(R.id.btnFollow);
-		unfollowBtn = (Button) findViewById(R.id.btnUnfollow);
+		
+//		followBtn = (Button) findViewById(R.id.btnFollow);
+//		unfollowBtn = (Button) findViewById(R.id.btnUnfollow);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)findViewById(R.id.albumSlideImages);
@@ -132,33 +134,40 @@ public class Activity_AlbumInfo extends BaseActivity {
 		albumTitleView = (TextView) findViewById(R.id.txtSticker);
 		albumContentView = (TextView) findViewById(R.id.txtContent);
 		
-//		PullToRefreshListView pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-//		pullRefreshView.setMode(Mode.BOTH);
-//		commentListView = pullRefreshView.getRefreshableView();
 		commentListView =(ListView) findViewById(R.id.commentList);
 		commentsAdapter = new AlbumCommentsAdapter(context, null);
 		commentListView.setAdapter(commentsAdapter);
 		 
 		
 		Intent intent = getIntent();
-		Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
+		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
 		albumId = album.getId();
 		//读取上个activity传入的albumId值
 		if(album!=null&&albumId!=null){
-			AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
+			final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 			if(authorInfo!=null){
+				
+				View designerView = (View) findViewById(R.id.designerContainer);
+				designerView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View view) {
+						Activity_UserProfile.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+					}
+				});
+				
 				//显示头像
 				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				designerNameView.setText(authorInfo.getDesignerNickname());
 				
-				if(authorInfo.isFollowed()){
-					followBtn.setVisibility(View.GONE);
-					unfollowBtn.setVisibility(View.VISIBLE);
-				}else{
-					followBtn.setVisibility(View.VISIBLE);
-					unfollowBtn.setVisibility(View.GONE);
-				}
+//				if(authorInfo.isFollowed()){
+//					followBtn.setVisibility(View.GONE);
+//					unfollowBtn.setVisibility(View.VISIBLE);
+//				}else{
+//					followBtn.setVisibility(View.VISIBLE);
+//					unfollowBtn.setVisibility(View.GONE);
+//				}
 			}
+			
 			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 			albumTitleView.setText(album.getTitle());
 			albumContentView.setText(album.getRemark());

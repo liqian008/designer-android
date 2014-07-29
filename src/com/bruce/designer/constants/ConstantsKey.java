@@ -8,10 +8,17 @@ public interface ConstantsKey {
 	
 	public static final String BUNDLE_ALBUM_AUTHOR_INFO = "bundle_album_author_info";
 
+	/*用户ID*/
 	public static final String BUNDLE_USER_INFO_ID = "bundle_user_info_id";
-
-	public static final String BUNDLE_USER_INFO_NAME = "bundle_user_info_name";
-
+	/*用户昵称*/
+	public static final String BUNDLE_USER_INFO_NICKNAME = "bundle_user_info_nickname";
+	/*用户头像*/
+	public static final String BUNDLE_USER_INFO_AVATAR = "bundle_user_info_avatar";
+	/*用户是否是设计师*/
+	public static final String BUNDLE_USER_INFO_ISDESIGNER = "bundle_user_info_isdesigner";
+	/*用户的关注状态*/
+	public static final String BUNDLE_USER_INFO_HASFOLLOWED = "bundle_user_info_hasfollowed";
+	
 	
 	public static final String BROADCAST_ACTION = "com.bruce.designer";
 

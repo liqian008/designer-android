@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- 主屏页的专辑item布局 -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
@@ -60,13 +63,26 @@
             android:layout_marginTop="5.0dip" >
 
             <Button
+                android:id="@+id/btnUserProfile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="个人主页"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp" 
+                />
+            
+            <!-- 
+            <Button
                 android:id="@+id/btnFollow"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_green_bg"
                 android:text="关注"
                 android:textColor="#ffffffff"
-                android:textSize="12.0sp" />
+                android:textSize="12.0sp" 
+                android:visibility="gone" 
+                />
 
             <Button
                 android:id="@+id/btnUnfollow"
@@ -78,6 +94,7 @@
                 android:textSize="12.0sp"
                 android:visibility="gone" 
                />
+                -->
         </RelativeLayout>
 
         
