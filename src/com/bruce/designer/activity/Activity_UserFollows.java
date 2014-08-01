@@ -10,24 +10,34 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.user.FollowUserApi;
 import com.bruce.designer.api.user.UserFollowsApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class Activity_UserFollows extends BaseActivity {
+public class Activity_UserFollows extends BaseActivity implements OnRefreshListener2<ListView>{
+
+	private static final int HANDLER_FLAG_FOLLOW = 100;
+	private static final int HANDLER_FLAG_UNFOLLOW = 101;
 	
 	private View titlebarView;
 
@@ -55,13 +65,15 @@ public class Activity_UserFollows extends BaseActivity {
 		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		ListView followsListView = pullRefresh.getRefreshableView();
 		pullRefresh.setMode(Mode.PULL_FROM_START);
+		pullRefresh.setOnRefreshListener(this);
+		
 //		ListView followsListView = (ListView)findViewById(R.id.userFollows);
-		followsListAdapter = new FollowsListAdapter(context, null);
+		followsListAdapter = new FollowsListAdapter(context, null, null);
 		followsListView.setAdapter(followsListAdapter);
 		
 		pullRefresh.setRefreshing(true);
 		//获取关注列表
-		getFollows(userId);
+//		getFollows(userId);
 		//TODO 需要增加下拉刷新
 	}
 	
@@ -69,11 +81,13 @@ public class Activity_UserFollows extends BaseActivity {
 	class FollowsListAdapter extends BaseAdapter {
 
 		private List<UserFollow> followUserList;
+		private Map<Integer, Boolean> followUserMap;
 		private Context context;
 		
-		public FollowsListAdapter(Context context, List<UserFollow> followUserList) {
+		public FollowsListAdapter(Context context, List<UserFollow> followUserList, Map<Integer, Boolean> followUserMap) {
 			this.context = context;
 			this.followUserList = followUserList;
+			this.followUserMap = followUserMap;
 		}
 		
 		public List<UserFollow> getFollowUserList() {
@@ -82,6 +96,14 @@ public class Activity_UserFollows extends BaseActivity {
 
 		public void setFollowUserList(List<UserFollow> followUserList) {
 			this.followUserList = followUserList;
+		}
+
+		public Map<Integer, Boolean> getFollowUserMap() {
+			return followUserMap;
+		}
+
+		public void setFollowUserMap(Map<Integer, Boolean> followUserMap) {
+			this.followUserMap = followUserMap;
 		}
 
 		@Override
@@ -120,18 +142,67 @@ public class Activity_UserFollows extends BaseActivity {
 				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
 				usernameView.setText(user.getFollowUser().getNickname());
 				
+				ImageView avatarView = (ImageView) friendItemView.findViewById(R.id.avatar);
+				//显示头像
+				ImageLoader.getInstance().displayImage(user.getFollowUser().getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+				
 				View friendView = (View) friendItemView.findViewById(R.id.friendContainer);
 				friendView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
-						Activity_UserProfile.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
+						Activity_UserHome.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
 					}
 				});
 				
-//				Button btnFollow = (Button) friendItemView.findViewById(R.id.btnFollow);
-//				btnFollow.setVisibility(View.GONE);
-//				Button btnUnfollow = (Button) friendItemView.findViewById(R.id.btnUnfollow);
-//				btnUnfollow.setVisibility(View.INVISIBLE);
+				//构造关注状态
+				final Button btnFollow = (Button) friendItemView.findViewById(R.id.btnFollow);
+				final Button btnUnfollow = (Button) friendItemView.findViewById(R.id.btnUnfollow);
+				if(followUserMap!=null){
+					if(Boolean.TRUE.equals(followUserMap.get(followUserId))){
+						btnFollow.setVisibility(View.GONE);
+						btnUnfollow.setVisibility(View.VISIBLE);
+					}else if(Boolean.FALSE.equals(followUserMap.get(followUserId))){
+						btnFollow.setVisibility(View.VISIBLE);
+						btnUnfollow.setVisibility(View.GONE);
+					}
+				}
+				
+				//关注事件
+				btnFollow.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						btnUnfollow.setVisibility(View.VISIBLE);
+						btnFollow.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								FollowUserApi api = new FollowUserApi(followUserId, 1);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								if(apiResult!=null&&apiResult.getResult()==1){
+									handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
+				//取消关注事件
+				btnUnfollow.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						btnFollow.setVisibility(View.VISIBLE);
+						btnUnfollow.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								FollowUserApi api = new FollowUserApi(followUserId, 0);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								if(apiResult!=null&&apiResult.getResult()==1){
+									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
 				
 				
 				
@@ -174,11 +245,21 @@ public class Activity_UserFollows extends BaseActivity {
 					Map<String, Object> userFollowsDataMap = (Map<String, Object>) msg.obj;
 					if(userFollowsDataMap!=null){
 						List<UserFollow> followList = (List<UserFollow>)  userFollowsDataMap.get("followList");
+						Map<Integer, Boolean> followMap = (Map<Integer, Boolean>)  userFollowsDataMap.get("followMap");
 						if(followList!=null&&followList.size()>0){
 							followsListAdapter.setFollowUserList(followList);
+							followsListAdapter.setFollowUserMap(followMap);
 							followsListAdapter.notifyDataSetChanged();
 						}
 					}
+					break;
+				case HANDLER_FLAG_FOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "成功关注");
+					break;
+				case HANDLER_FLAG_UNFOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "取消关注成功");
 					break;
 				default:
 					break;
@@ -198,4 +279,23 @@ public class Activity_UserFollows extends BaseActivity {
 			}
 		}
 	};
+	
+	
+	/**
+	 * 下拉刷新
+	 */
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		//获取关注列表
+		getFollows(userId);
+	}
+	
+	/**
+	 * 上拉刷新
+	 */
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+		
+	}
+	
 }

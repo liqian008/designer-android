@@ -12,9 +12,7 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,16 +22,15 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
+import com.bruce.designer.api.user.FollowUserApi;
 import com.bruce.designer.api.user.UserInfoApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
-import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.AlbumAuthorInfo;
-import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -42,28 +39,41 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
- * 任何用户的个人资料页面
+ * 用户的主页
  * @author liqian
  *
  */
-public class Activity_UserProfile extends BaseActivity implements OnRefreshListener2<ListView>{
+public class Activity_UserHome extends BaseActivity implements OnRefreshListener2<ListView>{
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
 	
+	private static final int HANDLER_FLAG_FOLLOW = 100;
+	private static final int HANDLER_FLAG_UNFOLLOW = 101;
+	
 	private View titlebarView;
 
 	private TextView titleView;
+	/*用户昵称*/
+	private TextView nicknameView;
 	/*设计师头像*/
 	private ImageView avatarView;
 	
 	private View followsView;
 	private View fansView;
+	/*粉丝个数*/
+	private int fansCount = 0;
+	/*关注人个数*/
+	private int followsCount = 0;
+	
+	private Button btnFollow;
+	private Button btnUnfollow;
 	
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
 	private int queryUserId;
+	private int hostId = 100007;
 
 	private DesignerAlbumsAdapter albumListAdapter;
 
@@ -75,12 +85,12 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 	
 	
 	public static void show(Context context, int userId, String nickname, String avatar, boolean isDesigner, boolean hasFollowed){
-		Intent intent = new Intent(context, Activity_UserProfile.class);
+		Intent intent = new Intent(context, Activity_UserHome.class);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, userId);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME, nickname);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR, avatar);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, isDesigner);
-		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, hasFollowed);
+//		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, hasFollowed);
 		
 		context.startActivity(intent);
 	}
@@ -94,10 +104,24 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 					Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
 					if(userinfoDataMap!=null){
 						User userinfo = (User) userinfoDataMap.get("userinfo");
-						int fansCount = (Integer) userinfoDataMap.get("fansCount");
-						int followsCount = (Integer) userinfoDataMap.get("followsCount");
+						fansCount = (Integer) userinfoDataMap.get("fansCount");
+						followsCount = (Integer) userinfoDataMap.get("followsCount");
+						boolean hasFollowed = (Boolean) userinfoDataMap.get("hasFollowed");
+						
 						if(userinfo!=null&&userinfo.getId()>0){
-							titleView.setText(userinfo.getNickname());
+							//设计师or用户
+							if(userinfo.getDesignerStatus()!=null&&userinfo.getDesignerStatus()==ConstantDesigner.DESIGNER_APPLY_APPROVED){//设计师状态
+								titleView.setText("设计师");
+								if(hasFollowed){
+									btnFollow.setVisibility(View.GONE);
+									btnUnfollow.setVisibility(View.VISIBLE);
+								}else{
+									btnUnfollow.setVisibility(View.GONE);
+									btnFollow.setVisibility(View.VISIBLE);
+								}
+							}else{
+								titleView.setText("用户");
+							}
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
 						}
@@ -135,6 +159,20 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 						}
 					}
 					break;
+				case HANDLER_FLAG_FOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "成功关注");
+					//粉丝数量+1
+					fansCount = fansCount+1;
+					fansNumView.setText(String.valueOf(fansCount));
+					break;
+				case HANDLER_FLAG_UNFOLLOW:
+					//广播
+					NotificationBuilder.createNotification(context, "取消关注成功");
+					//粉丝数量-1
+					if(fansCount>0) fansCount = fansCount-1;
+					fansNumView.setText(String.valueOf(fansCount));
+					break;
 				default:
 					break;
 			}
@@ -148,23 +186,23 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 		setContentView(R.layout.activity_user_info);
 		
 		Intent intent = getIntent();
-		//获取userid
+		//从intent中获取参数
 		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
-//		AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
-		
 		String userNickname = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME);
 		String userAvatar = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR);
 		boolean isDesigner = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, false);
-		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
-		
+//		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText(userNickname);
-		
+		if(isDesigner){
+			titleView.setText("设计师");
+		}else{
+			titleView.setText("用户");
+		}
 		
 		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		pullRefreshView.setMode(Mode.PULL_FROM_END);
@@ -178,9 +216,13 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 		View headerView = layoutInflate.inflate(R.layout.user_profile_head, null);
 		albumListView.addHeaderView(headerView);
 		
+		
 		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
 		//显示头像
 		ImageLoader.getInstance().displayImage(userAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+		//显示昵称
+		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
+		nicknameView.setText(userNickname);
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
@@ -189,6 +231,52 @@ public class Activity_UserProfile extends BaseActivity implements OnRefreshListe
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
+		
+		View snsBtnContainer =  (View) headerView.findViewById(R.id.snsBtnContainer);
+		if(hostId==queryUserId){//查看的用户为自己，需要隐藏交互按钮
+			snsBtnContainer.setVisibility(View.GONE);
+		}else{
+			snsBtnContainer.setVisibility(View.VISIBLE);
+		}
+		
+		btnFollow =  (Button) headerView.findViewById(R.id.btnFollow);
+		btnUnfollow =  (Button) headerView.findViewById(R.id.btnUnfollow);
+		//关注事件
+		btnFollow.setOnClickListener(new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View v) {
+				btnUnfollow.setVisibility(View.VISIBLE);
+				btnFollow.setVisibility(View.GONE);
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						FollowUserApi api = new FollowUserApi(queryUserId, 1);
+						ApiResult apiResult = ApiManager.invoke(context, api);
+						if(apiResult!=null&&apiResult.getResult()==1){
+							handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
+						}
+					}
+				}).start();
+			}
+		});
+		//取消关注事件
+		btnUnfollow.setOnClickListener(new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View v) {
+				btnFollow.setVisibility(View.VISIBLE);
+				btnUnfollow.setVisibility(View.GONE);
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						FollowUserApi api = new FollowUserApi(queryUserId, 0);
+						ApiResult apiResult = ApiManager.invoke(context, api);
+						if(apiResult!=null&&apiResult.getResult()==1){
+							handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
+						}
+					}
+				}).start();
+			}
+		});
 		
 		//获取个人资料详情
 		getUserinfo(queryUserId);

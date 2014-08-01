@@ -32,11 +32,15 @@ import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 
+@Deprecated
 public class Activity_UserInfo extends BaseActivity {
 	
 	private View titlebarView;
 
 	private TextView titleView;
+
+	private TextView usernameView;
+	
 	/*设计师头像*/
 	private ImageView avatarView;
 	/*设计师名称*/
@@ -82,6 +86,8 @@ public class Activity_UserInfo extends BaseActivity {
 		followsView = (View) findViewById(R.id.followsContainer);
 		followsNumView = (TextView) findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
+		
+		
 		
 //		ListView albumListView = (ListView)findViewById(R.id.designerAlbums);
 //		albumListAdapter = new AlbumListAdapter(context, null);

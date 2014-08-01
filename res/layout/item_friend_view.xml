@@ -54,7 +54,7 @@
             android:text="关注"
             android:textColor="#ffffffff"
             android:textSize="12.0sp"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
         <Button
             android:id="@+id/btnUnfollow"

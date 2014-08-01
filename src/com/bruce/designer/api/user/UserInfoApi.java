@@ -30,15 +30,17 @@ public class UserInfoApi extends AbstractApi{
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int followsCount = jsonData.getInt("followsCount");
-			int fansCount = jsonData.getInt("fansCount");
-			
+			int followsCount = jsonData.optInt("followsCount");
+			int fansCount = jsonData.optInt("fansCount");
+			boolean hasFollowed = jsonData.optBoolean("hasFollowed");
 			String userinfoStr = jsonData.getString("userinfo");
+			
 			User userinfo = JsonUtil.gson.fromJson(userinfoStr, User.class);
 			if(userinfo!=null){
 				dataMap.put("userinfo", userinfo);
 				dataMap.put("followsCount", followsCount);
 				dataMap.put("fansCount", fansCount);
+				dataMap.put("hasFollowed", hasFollowed);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
 		} catch (JSONException e) {

@@ -70,7 +70,7 @@ public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<L
 	private PullToRefreshListView pullRefreshView;
 	private DesignerAlbumsAdapter albumListAdapter; 
 	
-	private int hostId= 100007;
+	private int hostId= 100009;
 	
 	private int albumTailId = 0;
 	

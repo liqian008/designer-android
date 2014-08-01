@@ -61,7 +61,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bruce.designer.activity.Activity_UserProfile"
+            android:name="com.bruce.designer.activity.Activity_UserHome"
             android:screenOrientation="portrait" >
         </activity>
         <activity
@@ -89,7 +89,11 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bruce.designer.activity.Activity_Msgbox"
+            android:name="com.bruce.designer.activity.Activity_MessageList"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name="com.bruce.designer.activity.Activity_MessageChat"
             android:screenOrientation="portrait" >
         </activity>
         <activity

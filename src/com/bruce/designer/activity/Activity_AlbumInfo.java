@@ -151,7 +151,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 				designerView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
-						Activity_UserProfile.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 					}
 				});
 				
@@ -285,7 +285,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 			//TODO 暂未使用convertView
 			if(getItem(position)!=null){
 				final Comment comment = getItem(position);
-				View commentItemView = LayoutInflater.from(context).inflate(R.layout.comment_item_view, null);
+				View commentItemView = LayoutInflater.from(context).inflate(R.layout.item_comment_view, null);
 				
 				ImageView avatarView = (ImageView) commentItemView.findViewById(R.id.avatar);
 				if(comment.getUserHeadImg()!=null){

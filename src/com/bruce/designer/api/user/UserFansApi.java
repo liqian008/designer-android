@@ -30,11 +30,14 @@ private Map<String, String> paramMap = null;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			String fanListStr = jsonData.getString("fanList");
+			String fanListStr = jsonData.optString("fanList");
+			String fanMapStr = jsonData.optString("fanMap");
 			if(fanListStr!=null){
 				List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr, new TypeToken<List<UserFan>>() {}.getType());
 				if (fanList != null) {
+					Map<Integer, Boolean> fanMap =  JsonUtil.gson.fromJson(fanMapStr, new TypeToken<Map<Integer,Boolean>>() {}.getType());
 					dataMap.put("fanList", fanList);
+					dataMap.put("fanMap", fanMap);
 					return ResponseBuilderUtil.buildSuccessResult(dataMap);
 				}
 			}

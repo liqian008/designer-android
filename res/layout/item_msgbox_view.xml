@@ -10,10 +10,11 @@
     android:orientation="vertical" >
 
     <RelativeLayout
-        android:id="@+id/avatarContainer"
+        android:id="@+id/messageContainer"
         android:layout_width="fill_parent"
         android:layout_height="70.0dp"
-        android:background="@drawable/button_white_bg" >
+        android:background="@drawable/button_white_bg"
+        >
 
         <RelativeLayout
             android:id="@+id/msgAvatarBox"
@@ -26,7 +27,7 @@
                 android:id="@+id/msgAvatar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/icon_msgbox_sys" />
+                android:src="@drawable/default_avatar" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -34,7 +35,6 @@
             android:layout_height="fill_parent"
             android:layout_marginLeft="10.0dip"
             android:layout_marginRight="10.0dip"
-            android:layout_toLeftOf="@+id/msgDetailImg"
             android:layout_toRightOf="@+id/msgAvatarBox"
             android:paddingLeft="10.0dip"
             android:paddingRight="10.0dip" >
@@ -44,8 +44,18 @@
                 android:layout_width="fill_parent"
                 android:layout_height="35dp"
                 android:gravity="bottom"
-                android:text="系统消息"
-                android:textSize="18.0sp" />
+                android:text=""
+                android:layout_toLeftOf="@+id/msgPubTime"
+                android:textSize="17.0sp" />
+            
+            <TextView
+                android:id="@+id/msgPubTime"
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:gravity="bottom|right"
+                android:text=""
+                android:layout_alignParentRight="true"
+                android:textSize="14.0sp" />
 
             <TextView
                 android:id="@+id/msgContent"
@@ -53,25 +63,90 @@
                 android:layout_below="@+id/msgTitle"
                 android:layout_height="fill_parent"
                 android:gravity="center_vertical"
-                android:text="欢迎您访问金玩儿网"
+                android:text=""
                 android:textSize="13.0sp" 
 				android:singleLine="true"
                 />
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/msgDetailImg"
+    </RelativeLayout>
+    
+    <!-- 我的对话消息 -->
+    <RelativeLayout
+        android:id="@+id/myMessageContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="70.0dp"
+        android:background="@drawable/button_white_bg" 
+     	android:visibility="gone"
+        >
+        
+        <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:background="#fff2f2f2" />
+        
+
+        <RelativeLayout
+            android:id="@+id/myAvatarBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="20.0dip"
-            android:src="@drawable/btn_explore_more" />
+            android:layout_marginRight="10.0dip"
+            android:layout_marginTop="10.0dip" >
+
+            <ImageView
+                android:id="@+id/myAvatar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/default_avatar" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:layout_toLeftOf="@+id/myAvatarBox"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip" >
+
+            <TextView
+                android:id="@+id/myMsgTitle"
+                android:layout_width="fill_parent"
+                android:layout_height="35dp"
+                android:gravity="bottom|right"
+                android:text=""
+                android:layout_toLeftOf="@+id/myMsgPubTime"
+                android:textSize="17.0sp" />
+            
+            <TextView
+                android:id="@+id/myMsgPubTime"
+                android:layout_width="80dp"
+                android:layout_height="35dp"
+                android:gravity="bottom|right"
+                android:text=""
+                android:layout_alignParentRight="true"
+                android:textSize="14.0sp" />
+
+            <TextView
+                android:id="@+id/myMsgContent"
+                android:layout_width="fill_parent"
+                android:layout_below="@+id/myMsgTitle"
+                android:layout_height="fill_parent"
+                android:gravity="center_vertical|right"
+                android:text=""
+                android:textSize="13.0sp" 
+				android:singleLine="true"
+                />
+        </RelativeLayout>
+
     </RelativeLayout>
 
+   <!-- 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="1.0px"
+        android:layout_height="0.8dp"
         android:background="#fff2f2f2" />
+    -->
 
 </LinearLayout>

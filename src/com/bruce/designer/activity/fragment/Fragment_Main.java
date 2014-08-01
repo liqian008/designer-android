@@ -28,7 +28,7 @@ import android.widget.TextView;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_Settings;
-import com.bruce.designer.activity.Activity_UserProfile;
+import com.bruce.designer.activity.Activity_UserHome;
 import com.bruce.designer.adapter.GridAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
@@ -275,7 +275,7 @@ public class Fragment_Main extends Fragment {
 					@Override
 					public void onSingleClick(View view) {
 						//跳转至个人资料页
-						Activity_UserProfile.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 					}
 				});
 				
