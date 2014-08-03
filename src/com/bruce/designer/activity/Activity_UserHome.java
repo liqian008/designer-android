@@ -213,7 +213,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		//把个人资料的layout作为listview的header
 		LayoutInflater layoutInflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View headerView = layoutInflate.inflate(R.layout.user_profile_head, null);
+		View headerView = layoutInflate.inflate(R.layout.user_home_head, null);
 		albumListView.addHeaderView(headerView);
 		
 		

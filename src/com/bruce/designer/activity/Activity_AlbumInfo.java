@@ -8,11 +8,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -23,6 +28,9 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumCommentApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
+import com.bruce.designer.api.album.CommentPostApi;
+import com.bruce.designer.api.user.UserFansApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
@@ -35,15 +43,17 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class Activity_AlbumInfo extends BaseActivity {
+public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListener {
 	
 	private static final int HANDLER_FLAG_INFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
-	private static final int HANDLER_FLAG_COMMENT = 3;
+	private static final int HANDLER_FLAG_COMMENTS = 3;
+	
+	private static final int HANDLER_FLAG_COMMENT_POST = 11;
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -55,14 +65,15 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private TextView albumContentView;
 //	private ImageView coverView;
 	
-//	private Button followBtn;
-//	private Button unfollowBtn;
-	
+	private PullToRefreshListView pullRefresh;
 	private ListView commentListView;
 	private AlbumCommentsAdapter commentsAdapter;
 	private AlbumSlidesAdapter slideAdapter;
+	/*评论框*/
+	private EditText commentInput;
 	
 	private Integer albumId;
+	private Integer designerId;
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -81,7 +92,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 						slideAdapter.notifyDataSetChanged();
 					}
 					break;
-				case HANDLER_FLAG_COMMENT:
+				case HANDLER_FLAG_COMMENTS:
 					Map<String, Object> commentDataMap = (Map<String, Object>) msg.obj;
 					if(commentDataMap!=null){
 						List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
@@ -91,16 +102,23 @@ public class Activity_AlbumInfo extends BaseActivity {
 						
 						commentsAdapter.setCommentList(commentList);
 						commentsAdapter.notifyDataSetChanged();
-						//解决scrollview与list的冲突
-						UiUtil.setListViewHeightBasedOnChildren(commentListView);
 					}
+					break;
+				case HANDLER_FLAG_COMMENT_POST: //评论成功
+					NotificationBuilder.createNotification(context, "评论成功...");
+					commentInput.setText("");//清空评论框内容
+					//隐藏软键盘
+					InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+					inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
+					//重新加载评论列表
+					getAlbumComments(albumId, 0);
 					break;
 				default:
 					break;
 			}
 		};
 	};
-	 
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -118,54 +136,53 @@ public class Activity_AlbumInfo extends BaseActivity {
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("作品集");
 		
-		designerAvatarView = (ImageView) findViewById(R.id.avatar);
-		designerNameView = (TextView) findViewById(R.id.txtUsername);
+		pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		pullRefresh.setMode(Mode.PULL_FROM_END);
+		commentListView = pullRefresh.getRefreshableView();
+		//为listview增加headerView (专辑基础信息)
+		LayoutInflater layoutInflate = LayoutInflater.from(context);
+		View albumInfoView = layoutInflate.inflate(R.layout.item_album_info_head, null);
+		commentListView.addHeaderView(albumInfoView);
+		commentListView.setOnItemClickListener(this);
 		
-//		followBtn = (Button) findViewById(R.id.btnFollow);
-//		unfollowBtn = (Button) findViewById(R.id.btnUnfollow);
+		commentsAdapter = new AlbumCommentsAdapter(context, null);
+		commentListView.setAdapter(commentsAdapter);
+		
+
+		//设计师相关资料
+		designerAvatarView = (ImageView) albumInfoView.findViewById(R.id.avatar);
+		designerNameView = (TextView) albumInfoView.findViewById(R.id.txtUsername);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
-		GridView gridView = (GridView)findViewById(R.id.albumSlideImages);
+		GridView gridView = (GridView)albumInfoView.findViewById(R.id.albumSlideImages);
 		slideAdapter = new AlbumSlidesAdapter(context, null);
 		gridView.setAdapter(slideAdapter);
 		
+		pubtimeView = (TextView) albumInfoView.findViewById(R.id.txtTime);
+		albumTitleView = (TextView) albumInfoView.findViewById(R.id.txtSticker);
+		albumContentView = (TextView) albumInfoView.findViewById(R.id.txtContent);
 		
-		pubtimeView = (TextView) findViewById(R.id.txtTime);
-		albumTitleView = (TextView) findViewById(R.id.txtSticker);
-		albumContentView = (TextView) findViewById(R.id.txtContent);
-		
-		commentListView =(ListView) findViewById(R.id.commentList);
-		commentsAdapter = new AlbumCommentsAdapter(context, null);
-		commentListView.setAdapter(commentsAdapter);
-		 
 		
 		Intent intent = getIntent();
 		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
 		albumId = album.getId();
+		designerId = album.getUserId();
 		//读取上个activity传入的albumId值
 		if(album!=null&&albumId!=null){
 			final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 			if(authorInfo!=null){
 				
-				View designerView = (View) findViewById(R.id.designerContainer);
+				View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
 				designerView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
-						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+						Activity_UserHome.show(context, designerId, authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 					}
 				});
 				
 				//显示头像
 				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				designerNameView.setText(authorInfo.getDesignerNickname());
-				
-//				if(authorInfo.isFollowed()){
-//					followBtn.setVisibility(View.GONE);
-//					unfollowBtn.setVisibility(View.VISIBLE);
-//				}else{
-//					followBtn.setVisibility(View.VISIBLE);
-//					unfollowBtn.setVisibility(View.GONE);
-//				}
 			}
 			
 			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
@@ -187,10 +204,27 @@ public class Activity_AlbumInfo extends BaseActivity {
 				commentsAdapter.setCommentList(commentList);
 				commentsAdapter.notifyDataSetChanged();
 			}
-			//解决scrollview与list的冲突
-			UiUtil.setListViewHeightBasedOnChildren(commentListView);
 			//获取实时评论列表
-			getAlbumComments(album.getId(), 0);
+			getAlbumComments(albumId, 0);
+			
+			commentInput = (EditText) findViewById(R.id.commentInput);
+			Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
+			btnCommentPost.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+//					UiUtil.showShortToast(context, "post comment");
+					
+					//检查内容不为空
+					
+					//启动线程发布评论
+					postComment(designerId, commentInput.getText().toString());			
+					
+				}
+
+				
+			});
+			
+			
 		}
 	}
 		
@@ -230,7 +264,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_COMMENT);
+					message = handler.obtainMessage(HANDLER_FLAG_COMMENTS);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}else{//发送失败消息
@@ -305,79 +339,40 @@ public class Activity_AlbumInfo extends BaseActivity {
 			}
 			return null;
 		}
+		
 	}
 	
 	
-//	class AlbumSlidesAdapter extends BaseAdapter {
-//
-//		private List<AlbumSlide> slideList;
-//		private Context context;
-//		
-//		public AlbumSlidesAdapter(Context context, List<AlbumSlide> slideList) {
-//			this.context = context;
-//			this.slideList = slideList;
-//		}
-//		
-//		@Override
-//		public int getCount() {
-//			if (slideList != null) {
-//				return slideList.size();
-//			}
-//			return 0;
-//		}
-//
-//		@Override
-//		public AlbumSlide getItem(int position) {
-//			if (slideList != null) {
-//				return slideList.get(position);
-//			}
-//			return null;
-//		}
-//
-//		@Override
-//		public long getItemId(int position) {
-//			return position;
-//		}
-//
-//		@Override
-//		public View getView(int position, View convertView, ViewGroup parent) {
-//			//TODO 暂未使用convertView
-//			AlbumSlide albumSlide=  slideList.get(position);
-//			if(albumSlide!=null){
-//				
-//				//计算每个item所需的宽度
-//				int pxFromDp = DipUtil.calcFromDip((Activity)context, 1);
-//				int widthSpace = pxFromDp * 0;//该控件离边距的宽度(margin或padding)
-//				int width = DipUtil.getScreenWidth((Activity)context);
-//				int itemWidth = (width-widthSpace)/3;
-//				
-//				LogUtil.d("======widthSpace======"+widthSpace);
-//				LogUtil.d("======width======"+width);
-//				LogUtil.d("======itemWidth======"+itemWidth);
-//				
-//				FrameLayout layout = new FrameLayout(context);
-//				FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-//						FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
-//				
-//				int leftWidth = position%3==0?0:pxFromDp;
-//				int rightWidth = position%3==2?0:pxFromDp;
-//				
-//				params.setMargins(leftWidth, 0, rightWidth, pxFromDp);//边距
-//	            params.gravity = Gravity.TOP;
-//	            ImageView itemImageView = new ImageView(context);
-//	            itemImageView.setScaleType(ScaleType.CENTER_CROP);
-//	            layout.addView(itemImageView, params);
-//	            ImageLoader.loadImage(albumSlide.getSlideSmallImg(), itemImageView);
-//	            //TODO 此种方式构造的item列表的尺寸会有些许误差，待修复
-//	            layout.setLayoutParams(new GridView.LayoutParams(itemWidth, itemWidth));
-//				return layout;
-//			}
-//			return null;
-//		}
-//
-//		public void setSlideList(List<AlbumSlide> slideList) {
-//			this.slideList = slideList;
-//		}
-//		
-//	}
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View view, int index, long id) {
+		UiUtil.showShortToast(context, "click arg2:"+index+", arg3:"+id);
+		if(id>=0){
+			commentInput.setText("回复xxx: ");
+		}
+		
+	}
+
+	/**
+	 * 发起评论
+	 */
+	private void postComment(final int toId, final String comment) {
+		//启动线程获取数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				CommentPostApi api = new CommentPostApi(albumId, designerId, toId, comment);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
+				
+				if(jsonResult!=null&&jsonResult.getResult()==1){
+					message = handler.obtainMessage(HANDLER_FLAG_COMMENT_POST);
+					message.obj = jsonResult.getData();
+					message.sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
+	
+	
 }

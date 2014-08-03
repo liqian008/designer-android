@@ -6,13 +6,14 @@
 
     <include layout="@layout/titlebar" />
     
+    <!-- 不提倡使用scrollView，继而改用listview的方式
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >
-    
+    </ScrollView>
+    -->
     <include layout="@layout/item_album_info_view" />
     
-	</ScrollView>
     
 </LinearLayout>

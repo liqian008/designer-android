@@ -100,11 +100,12 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 	            //TODO 此种方式构造的item列表的尺寸会有些许误差，待修复
 	            layout.setLayoutParams(new GridView.LayoutParams(itemWidth, itemWidth));
 	            
+	            final int slideIndex = position;
 	            layout.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
 						if(slideUrlList!=null&&slideUrlList.size()>0){
-							Activity_ImageBrowser.show(context, slideUrlList);
+							Activity_ImageBrowser.show(context, slideIndex, slideUrlList);
 						}
 					}
 				});

@@ -2,301 +2,63 @@
 
 <!-- 专辑详情页中的ui布局 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="fill_parent"
     android:background="@color/white"
-    android:orientation="vertical"
-    android:paddingBottom="20.0dip" >
-	
-    <!-- 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="1px"
-        android:background="@color/grey_button_normal_color" />
-	-->
+    android:orientation="vertical" >
 
-    <RelativeLayout
-        android:id="@+id/designerContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="47.0dip"
-        android:layout_marginLeft="10.0dip"
-        android:layout_marginRight="10.0dip"
-        android:layout_marginTop="10.0dip" >
-
-        <include layout="@layout/avatar" />
-
-        <TextView
-            android:id="@+id/txtTime"
-            android:layout_width="70.0dip"
-            android:layout_height="fill_parent"
-            android:layout_alignParentTop="true"
-            android:layout_marginBottom="10.0dip"
-            android:layout_marginRight="8.0dip"
-            android:layout_toLeftOf="@+id/btnContainer"
-            android:gravity="right|center"
-            android:text="发布时间"
-            android:textColor="#ff999999"
-            android:textSize="13.0sp" />
-		
-        <RelativeLayout
-            android:id="@+id/btnContainer"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="5.0dip" >	
-			
-           	<!-- 
-            <Button
-                android:id="@+id/btnShare"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/button_green_bg"
-                android:paddingLeft="10.0dip"
-	            android:paddingRight="10.0dip"
-                android:text="分享"
-                android:textColor="#ffffffff"
-	            android:drawableLeft="@drawable/btn_share"
-                android:textSize="12.0sp" 
-                />
-			-->            
-            <Button
-                android:id="@+id/btnUserHome"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/btn_grey_bg"
-                android:text="个人主页"
-                android:textColor="@color/txt_zan_color"
-                android:textSize="12.0sp" 
-                />
-            <!-- 
-            <Button
-                android:id="@+id/btnFollow"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/button_green_bg"
-                android:text="关注"
-                android:textColor="#ffffffff"
-                android:textSize="12.0sp" 
-                android:visibility="gone" 
-                />
-
-            <Button
-                android:id="@+id/btnUnfollow"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/button_grey_bg"
-                android:text="已关注"
-                android:textColor="#ff999999"
-                android:textSize="12.0sp"
-                android:visibility="gone"
-               />
-               -->
-        </RelativeLayout>
-
-        <TextView
-            android:id="@+id/txtUsername"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="48.0dip"
-            android:layout_marginRight="10.0dip"
-            android:layout_marginTop="8.0dip"
-            android:layout_toLeftOf="@+id/txtTime"
-            android:gravity="center_vertical"
-            android:singleLine="true"
-            android:text=""
-            android:textColor="#ff252525"
-            android:textSize="16.0sp"
-            android:textStyle="normal" />
-
-        <RelativeLayout
-            android:id="@+id/viewEditor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/txtUsername"
-            android:layout_marginTop="20.0dip"
-            android:layout_toLeftOf="@+id/btnContainer"
-            android:visibility="gone" >
-
-            <ImageView
-                android:id="@+id/imgEditor"
-                android:layout_width="12.0dip"
-                android:layout_height="12.0dip"
-                android:layout_marginTop="5.0dip"
-                android:scaleType="centerInside"
-                android:src="@drawable/icon_nice_mini"
-                android:visibility="visible" />
-
-            <LinearLayout
-                android:id="@+id/txtEditorDesc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="7.0dip"
-                android:layout_marginTop="1.0dip"
-                android:layout_toRightOf="@+id/imgEditor"
-                android:gravity="bottom"
-                android:orientation="horizontal"
-                android:visibility="visible" />
-
-            <TextView
-                android:id="@+id/pushWords"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="4.0dip"
-                android:layout_marginTop="7.0dip"
-                android:layout_toRightOf="@+id/txtEditorDesc"
-                android:gravity="bottom"
-                android:singleLine="true"
-                android:text="编辑精选"
-                android:textColor="#ff999999"
-                android:textSize="12.0sp"
-                android:visibility="visible" />
-        </RelativeLayout>
-    </RelativeLayout>
-	
-    <!-- include slider view -->
-    <include layout="@layout/album_slides_grid_view"/>
-
-    <LinearLayout
-        android:id="@+id/txtContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10.0dip"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/txtSticker"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10.0dip"
-            android:layout_marginRight="10.0dip"
-            android:text="sticker"
-            android:textColor="#ffe66c21"
-            android:textSize="14.0sp" />
-
-        <TextView
-            android:id="@+id/txtContent"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10.0dip"
-            android:layout_marginRight="10.0dip"
-            android:text="content"
-            android:textColor="#ff252525"
-            android:textSize="14.0sp" />
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10.0dip"
-        android:layout_marginRight="10.0dip"
-        android:layout_marginTop="10.0dip" >
-
-        <Button
-            android:id="@+id/btnZan"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:background="@drawable/btn_grey_bg"
-            android:drawableLeft="@drawable/icon_zan"
-            android:drawablePadding="4.0dip"
-            android:paddingLeft="10.0dip"
-            android:paddingRight="10.0dip"
-            android:text="赞"
-            android:textAlignment="center"
-            android:textColor="@color/txt_zan_color"
-            android:textSize="12.0sp" />
-
-        <Button
-            android:id="@+id/btnComment"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:layout_marginLeft="70.0dip"
-            android:background="@drawable/btn_grey_bg"
-            android:drawableLeft="@drawable/icon_comment"
-            android:drawablePadding="4.0dip"
-            android:paddingLeft="10.0dip"
-            android:paddingRight="10.0dip"
-            android:text="评论"
-            android:textColor="@color/txt_zan_color"
-            android:textSize="12.0sp" />
-
-        <Button
-            android:id="@+id/btnFavorite"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:layout_marginLeft="140.0dip"
-            android:background="@drawable/btn_grey_bg"
-            android:drawableLeft="@drawable/icon_zan"
-            android:drawablePadding="4.0dip"
-            android:paddingLeft="10.0dip"
-            android:paddingRight="10.0dip"
-            android:text="收藏"
-            android:textColor="@color/txt_zan_color"
-            android:textSize="12.0sp" />
-		
-        <Button
-            android:id="@+id/btnShare"
-            android:layout_width="60.0dip"
-            android:layout_height="28.0dip"
-            android:layout_alignParentRight="true"
-            android:background="@drawable/button_green_bg"
-            android:text="分享"
-            android:textStyle="bold"
-            android:textColor="@color/txt_button_color"
-            android:textSize="12.0sp" />
-             -->
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/zanAllContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="34.0dip"
-        android:layout_marginLeft="10.0dip"
-        android:layout_marginRight="10.0dip"
-        android:layout_marginTop="10.0dip"
-        android:visibility="gone" >
-
-        <LinearLayout
-            android:id="@+id/zansContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="36.0dip"
-            android:orientation="horizontal" />
-
-        <TextView
-            android:id="@+id/txtZansNum"
-            android:layout_width="wrap_content"
-            android:layout_height="28.0dip"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginRight="0.0dip"
-            android:layout_toRightOf="@+id/zansContainer"
-            android:background="@drawable/btn_grey_bg"
-            android:gravity="center"
-            android:singleLine="true"
-            android:text="10"
-            android:textColor="#ff999999"
-            android:textSize="12.0sp"
-            android:visibility="gone" />
-    </RelativeLayout>
-
-    <TextView
-        android:id="@+id/txtComment"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10.0dip"
-        android:layout_marginRight="10.0dip"
-        android:layout_marginTop="10.0dip"
-        android:text="评论列表"
-        android:textColor="@color/txt_show_comment_color"
-        android:textSize="12.0sp" />
-
-    <ListView
-        android:id="@+id/commentList"
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        android:id="@+id/pull_refresh_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
-    </ListView>
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="#19000000"
+        android:dividerHeight="0.5dp"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true" 
+        android:layout_marginBottom="50dp"
+        />
 
-</LinearLayout>
+    <!-- 评论对话框 -->
+    <RelativeLayout
+        android:id="@+id/commentPanel"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:background="#fff2f2f2"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        >
+
+        <EditText
+            android:id="@+id/commentInput"
+            android:layout_width="fill_parent"
+            android:layout_height="30.0dip"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="80.0dip"
+            android:background="@drawable/comment_input"
+            android:hint="我要评论"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:textColor="@color/black"
+            android:textColorHint="#ffd6d6d6"
+            android:textSize="16.0sp" />
+
+        <Button
+            android:id="@+id/btnCommentPost"
+            android:layout_width="60.0dip"
+            android:layout_height="30.0dip"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10.0dip"
+            android:background="@drawable/button_orange_bg"
+            android:text="发送"
+            android:textColor="@color/white"
+            android:textSize="12.0sp" />
+    </RelativeLayout>
+
+</RelativeLayout>

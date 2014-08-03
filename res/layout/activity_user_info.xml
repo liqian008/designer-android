@@ -7,6 +7,6 @@
 
     <include layout="@layout/titlebar" />
 
-    <include layout="@layout/user_profile" />
+    <include layout="@layout/user_home" />
 
 </LinearLayout>
