@@ -24,7 +24,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:background="@drawable/button_white_bg" >
-				
+
                 <RelativeLayout
                     android:id="@+id/avatarBox"
                     android:layout_width="wrap_content"
@@ -34,7 +34,7 @@
 
                     <include layout="@layout/avatar" />
                 </RelativeLayout>
-                
+
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="58.0dip"
@@ -67,7 +67,7 @@
                 android:focusableInTouchMode="true" >
 
                 <TextView
-                    android:id="@+id/nickNameDes"
+                    android:id="@+id/nickNameLabel"
                     android:layout_width="67.0dip"
                     android:layout_height="58.0dip"
                     android:layout_alignParentLeft="true"
@@ -81,22 +81,19 @@
                     android:id="@+id/nickNameTextView"
                     android:layout_width="fill_parent"
                     android:layout_height="58.0dip"
-                    android:layout_toRightOf="@+id/nickNameDes"
+                    android:layout_toRightOf="@+id/nickNameLabel"
                     android:gravity="center_vertical"
                     android:inputType="text"
                     android:paddingLeft="10.0dip"
                     android:text=""
-                    android:textSize="16.0sp"
-                 	/>
-
-                
+                    android:textSize="16.0sp" />
             </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
                 android:background="#fff2f2f2" />
-			
+
             <RelativeLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -112,7 +109,7 @@
                     android:editable="true"
                     android:gravity="center_vertical"
                     android:paddingLeft="10.0dip"
-                    android:text="Email"
+                    android:text="登录名"
                     android:textSize="16.0sp" />
 
                 <TextView
@@ -124,16 +121,14 @@
                     android:inputType="text"
                     android:paddingLeft="10.0dip"
                     android:text=""
-                    android:textSize="16.0sp"
-                    />
+                    android:textSize="16.0sp" />
             </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
                 android:background="#fff2f2f2" />
-            
-            
+
             <RelativeLayout
                 android:id="@+id/sexContainer"
                 android:layout_width="fill_parent"
@@ -141,7 +136,7 @@
                 android:background="@drawable/button_white_bg" >
 
                 <TextView
-                    android:id="@+id/sexDes"
+                    android:id="@+id/sexLabel"
                     android:layout_width="67.0dip"
                     android:layout_height="58.0dip"
                     android:gravity="center_vertical"
@@ -153,7 +148,7 @@
                     android:id="@+id/sex"
                     android:layout_width="wrap_content"
                     android:layout_height="58.0dip"
-                    android:layout_toRightOf="@+id/sexDes"
+                    android:layout_toRightOf="@+id/sexLabel"
                     android:gravity="center_vertical"
                     android:paddingLeft="10.0dip"
                     android:text=""
@@ -188,7 +183,7 @@
                 android:background="@drawable/button_white_bg" >
 
                 <TextView
-                    android:id="@+id/placeDes"
+                    android:id="@+id/placeLabel"
                     android:layout_width="67.0dip"
                     android:layout_height="58.0dip"
                     android:gravity="center_vertical"
@@ -197,10 +192,10 @@
                     android:textSize="16.0sp" />
 
                 <TextView
-                    android:id="@+id/place"
+                    android:id="@+id/placeTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="58.0dip"
-                    android:layout_toRightOf="@+id/placeDes"
+                    android:layout_toRightOf="@+id/placeLabel"
                     android:gravity="center_vertical"
                     android:paddingLeft="10.0dip"
                     android:text=""
@@ -211,7 +206,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/place"
+                    android:layout_toRightOf="@+id/placeTextView"
                     android:visibility="gone" />
 
                 <Spinner
@@ -244,7 +239,7 @@
                 android:minHeight="58.0dip" >
 
                 <TextView
-                    android:id="@+id/description"
+                    android:id="@+id/introduceLabel"
                     android:layout_width="67.0dip"
                     android:layout_height="fill_parent"
                     android:gravity="center_vertical"
@@ -254,10 +249,10 @@
                     android:textSize="16.0sp" />
 
                 <TextView
-                    android:id="@+id/introduce"
+                    android:id="@+id/introduceTextView"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:layout_toRightOf="@+id/description"
+                    android:layout_toRightOf="@+id/introduceLabel"
                     android:gravity="center_vertical"
                     android:minHeight="58.0dip"
                     android:paddingLeft="10.0dip"
@@ -282,6 +277,5 @@
                 android:orientation="horizontal" />
         </LinearLayout>
     </ScrollView>
-
 
 </RelativeLayout>

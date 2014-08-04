@@ -6,7 +6,6 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,12 +14,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_MyFavorite;
 import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserEdit;
 import com.bruce.designer.activity.Activity_UserFans;
@@ -29,7 +30,6 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
-import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
@@ -46,7 +46,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  * @author liqian
  *
  */
-public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<ListView> {
+public class Fragment_MyHome extends Fragment implements OnRefreshListener2<ListView> {
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
@@ -65,6 +65,8 @@ public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<L
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
+	private Button btnMyFavorite;
+	private Button btnUserInfo;
 	
 	private ImageButton btnSettings;
 	private PullToRefreshListView pullRefreshView;
@@ -133,7 +135,6 @@ public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<L
 		}
 	};
 	
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -182,6 +183,13 @@ public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<L
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
+		
+		btnMyFavorite = (Button)headerView.findViewById(R.id.btnMyFavorite);
+		btnMyFavorite.setOnClickListener(listener);
+		btnMyFavorite.setVisibility(View.VISIBLE);
+
+		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
+		btnUserInfo.setOnClickListener(listener);
 		
 		//获取个人资料详情
 		getUserinfo(hostId);
@@ -244,21 +252,23 @@ public class Fragment_MyProfile extends Fragment implements OnRefreshListener2<L
 
 			switch (view.getId()) {
 			case R.id.btnEditMyInfo:
-				Activity_UserEdit.show(getActivity());
+				Activity_UserEdit.show(context, hostId);
 				break;
 			case R.id.btnSettings:
 				Activity_Settings.show(context);
 				break;
 			case R.id.followsContainer:
-				Intent followsIntent = new Intent(context, Activity_UserFollows.class);
-				followsIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, hostId);
-				context.startActivity(followsIntent);
+				Activity_UserFollows.show(context, hostId);
 				break;
 			case R.id.fansContainer:
-				Intent fansIntent = new Intent(context, Activity_UserFans.class);
-				fansIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, hostId);
-				context.startActivity(fansIntent);
-				break;	
+				Activity_UserFans.show(context, hostId);
+				break;
+			case R.id.btnMyFavorite:
+				Activity_MyFavorite.show(context);
+				break;
+			case R.id.btnUserInfo:
+				Activity_UserEdit.show(context, hostId);
+				break;
 			default:
 				break;
 			}

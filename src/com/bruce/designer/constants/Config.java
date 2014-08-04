@@ -13,9 +13,9 @@ public class Config {
 	public static final String APP_SECRET_KEY = "1qaz2wsx";
 	
 	//online mcap api	
-	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn/designer-mcap";
+//	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn/designer-mcap";
 	//test mcap api
-//	public static final String JINWAN_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
+	public static final String JINWAN_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
 	
 	
 	public static final String JINWAN_API_PREFIX = JINWAN_DOMAIN + "/api";

@@ -47,6 +47,12 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 
 	private int userId;
 	
+	public static void show(Context context, int queryUserId){
+		Intent intent = new Intent(context, Activity_UserFollows.class);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
+		context.startActivity(intent);
+	}
+		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

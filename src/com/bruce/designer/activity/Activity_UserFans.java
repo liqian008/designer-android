@@ -42,6 +42,12 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 
 	private int userId;
 	
+	public static void show(Context context, int queryUserId){
+		Intent intent = new Intent(context, Activity_UserFans.class);
+		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
+		context.startActivity(intent);
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

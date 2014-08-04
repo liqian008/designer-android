@@ -80,6 +80,12 @@
             android:name="com.bruce.designer.activity.login.Activity_Login"
             android:screenOrientation="portrait" >
         </activity>
+        
+        <activity
+            android:name="com.bruce.designer.activity.Activity_MyFavorite"
+            android:screenOrientation="portrait" >
+        </activity>
+        
         <activity
             android:name="com.bruce.designer.activity.Activity_Settings"
             android:screenOrientation="portrait" >

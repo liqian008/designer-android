@@ -68,6 +68,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	
 	private Button btnFollow;
 	private Button btnUnfollow;
+	private Button btnUserInfo;
 	
 	private TextView followsNumView;
 	private TextView fansNumView;
@@ -90,7 +91,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME, nickname);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR, avatar);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, isDesigner);
-//		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, hasFollowed);
 		
 		context.startActivity(intent);
 	}
@@ -195,7 +195,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onclickListener);
 		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		if(isDesigner){
@@ -211,7 +211,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		albumListAdapter = new DesignerAlbumsAdapter(context, null);
 		albumListView.setAdapter(albumListAdapter);
 		
-		//把个人资料的layout作为listview的header
+		//把个人资料的layout作为listview的headerT
 		LayoutInflater layoutInflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View headerView = layoutInflate.inflate(R.layout.user_home_head, null);
 		albumListView.addHeaderView(headerView);
@@ -226,11 +226,11 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
-		fansView.setOnClickListener(listener);
+		fansView.setOnClickListener(onclickListener);
 		
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
-		followsView.setOnClickListener(listener);
+		followsView.setOnClickListener(onclickListener);
 		
 		View snsBtnContainer =  (View) headerView.findViewById(R.id.snsBtnContainer);
 		if(hostId==queryUserId){//查看的用户为自己，需要隐藏交互按钮
@@ -241,42 +241,12 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		btnFollow =  (Button) headerView.findViewById(R.id.btnFollow);
 		btnUnfollow =  (Button) headerView.findViewById(R.id.btnUnfollow);
-		//关注事件
-		btnFollow.setOnClickListener(new OnSingleClickListener() {
-			@Override
-			public void onSingleClick(View v) {
-				btnUnfollow.setVisibility(View.VISIBLE);
-				btnFollow.setVisibility(View.GONE);
-				new Thread(new Runnable(){
-					@Override
-					public void run() {
-						FollowUserApi api = new FollowUserApi(queryUserId, 1);
-						ApiResult apiResult = ApiManager.invoke(context, api);
-						if(apiResult!=null&&apiResult.getResult()==1){
-							handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
-						}
-					}
-				}).start();
-			}
-		});
-		//取消关注事件
-		btnUnfollow.setOnClickListener(new OnSingleClickListener() {
-			@Override
-			public void onSingleClick(View v) {
-				btnFollow.setVisibility(View.VISIBLE);
-				btnUnfollow.setVisibility(View.GONE);
-				new Thread(new Runnable(){
-					@Override
-					public void run() {
-						FollowUserApi api = new FollowUserApi(queryUserId, 0);
-						ApiResult apiResult = ApiManager.invoke(context, api);
-						if(apiResult!=null&&apiResult.getResult()==1){
-							handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
-						}
-					}
-				}).start();
-			}
-		});
+		
+		btnUserInfo =  (Button) headerView.findViewById(R.id.btnUserInfo);
+		
+		btnFollow.setOnClickListener(onclickListener);
+		btnUnfollow.setOnClickListener(onclickListener);
+		btnUserInfo.setOnClickListener(onclickListener);
 		
 		//获取个人资料详情
 		getUserinfo(queryUserId);
@@ -327,9 +297,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		thread.start();
 	}
 	
-	
-	
-	private OnClickListener listener = new OnSingleClickListener() {
+	private OnClickListener onclickListener = new OnSingleClickListener() {
 		@Override
 		public void onSingleClick(View view) {
 
@@ -338,21 +306,45 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				finish();
 				break;
 			case R.id.followsContainer:
-				Intent followsIntent = new Intent(context, Activity_UserFollows.class);
-				followsIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
-				context.startActivity(followsIntent);
+				Activity_UserFollows.show(context, queryUserId);
 				break;
 			case R.id.fansContainer:
-				Intent fansIntent = new Intent(context, Activity_UserFans.class);
-				fansIntent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
-				context.startActivity(fansIntent);
-				break;	
+				Activity_UserFans.show(context, queryUserId);
+				break;
+			case R.id.btnFollow:
+				btnUnfollow.setVisibility(View.VISIBLE);
+				btnFollow.setVisibility(View.GONE);
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						FollowUserApi api = new FollowUserApi(queryUserId, 1);
+						ApiResult apiResult = ApiManager.invoke(context, api);
+						if(apiResult!=null&&apiResult.getResult()==1){
+							handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
+						}
+					}
+				}).start();
+			case R.id.btnUnfollow:	
+				btnFollow.setVisibility(View.VISIBLE);
+				btnUnfollow.setVisibility(View.GONE);
+				new Thread(new Runnable(){
+					@Override
+					public void run() {
+						FollowUserApi api = new FollowUserApi(queryUserId, 0);
+						ApiResult apiResult = ApiManager.invoke(context, api);
+						if(apiResult!=null&&apiResult.getResult()==1){
+							handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
+						}
+					}
+				}).start();
+				break;
+			case R.id.btnUserInfo:
+				Activity_UserEdit.show(context, queryUserId);
 			default:
 				break;
 			}
 		}
 	};
-	
 	
 	/**
 	 * 下拉刷新
@@ -373,6 +365,5 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		//加载更多专辑信息
 		getAlbums(queryUserId, albumTailId);
 	}
-		
 	
 }

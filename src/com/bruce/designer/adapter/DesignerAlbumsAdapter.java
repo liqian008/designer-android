@@ -77,6 +77,12 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
 				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 				
+				TextView albumTitleView = (TextView) albumItemView.findViewById(R.id.txtSticker);
+				albumTitleView.setText(album.getTitle());
+				
+				TextView albumContentView = (TextView) albumItemView.findViewById(R.id.txtContent);
+				albumContentView.setText(album.getRemark());
+				
 				return albumItemView;
 			}
 			return null;

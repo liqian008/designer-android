@@ -32,7 +32,7 @@ public class Activity_AboutUs extends BaseActivity {
 	private void initView() {
 		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onclickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("关于我们");
 
@@ -41,7 +41,7 @@ public class Activity_AboutUs extends BaseActivity {
 
 	}
 
-	private OnClickListener listener = new OnSingleClickListener() {
+	private OnClickListener onclickListener = new OnSingleClickListener() {
 		@Override
 		public void onSingleClick(View view) {
 			switch (view.getId()) {

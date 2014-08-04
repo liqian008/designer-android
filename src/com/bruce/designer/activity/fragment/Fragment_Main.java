@@ -16,6 +16,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -58,9 +59,6 @@ public class Fragment_Main extends Fragment {
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
 	private static final int HANDLER_FLAG_TAB2 = 2;
-	
-//	private static final int HANDLER_FLAG_FOLLOW = 100;
-//	private static final int HANDLER_FLAG_UNFOLLOW = 101;
 	
 	private static final int HANDLER_FLAG_ERROR = -1;
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
@@ -292,76 +290,24 @@ public class Fragment_Main extends Fragment {
 					usernameView.setText(authorInfo.getDesignerNickname());
 				}
 				
-//				//关注按钮
-//				final Button followBtn = (Button) albumItemView.findViewById(R.id.btnFollow);
-//				//取消关注按钮
-//				final Button unfollowBtn = (Button) albumItemView.findViewById(R.id.btnUnfollow);
-//				
-//				if(authorInfo==null){
-//					followBtn.setVisibility(View.GONE);
-//					unfollowBtn.setVisibility(View.GONE);
-//				}else{
-//					//显示头像
-//					ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-//					//显示昵称
-//					usernameView.setText(authorInfo.getDesignerNickname());
-//					
-//					if(authorInfo.isFollowed()){
-//						followBtn.setVisibility(View.GONE);
-//						unfollowBtn.setVisibility(View.VISIBLE);
-//					}else{
-//						unfollowBtn.setVisibility(View.GONE);
-//						followBtn.setVisibility(View.VISIBLE);
-//					}
-//				}
-//				
-//				//关注事件
-//				followBtn.setOnClickListener(new OnSingleClickListener() {
-//					@Override
-//					public void onSingleClick(View v) {
-//						unfollowBtn.setVisibility(View.VISIBLE);
-//						followBtn.setVisibility(View.GONE);
-//						new Thread(new Runnable(){
-//							@Override
-//							public void run() {
-//								FollowUserApi api = new FollowUserApi(album.getUserId(), 0);
-//								ApiResult apiResult = ApiManager.invoke(context, api);
-//								//TODO 切换关注按钮，修改db中的关注状态
-//								if(apiResult!=null&&apiResult.getResult()==1){
-//									tabDataHandler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
-//								}
-//							}
-//						}).start();
-//					}
-//				});
-//				//取消关注事件
-//				unfollowBtn.setOnClickListener(new OnSingleClickListener() {
-//					@Override
-//					public void onSingleClick(View v) {
-//						followBtn.setVisibility(View.VISIBLE);
-//						unfollowBtn.setVisibility(View.GONE);
-//						new Thread(new Runnable(){
-//							@Override
-//							public void run() {
-//								FollowUserApi api = new FollowUserApi(album.getUserId(), 1);
-//								ApiResult apiResult = ApiManager.invoke(context, api);
-//								//TODO 切换关注按钮，修改db中的关注状态
-//								if(apiResult!=null&&apiResult.getResult()==1){
-//									tabDataHandler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
-//								}
-//							}
-//						}).start();
-//					}
-//				});
-				
-				
-				
 				//专辑title
 				TextView titleView = (TextView) albumItemView.findViewById(R.id.txtSticker);
 				titleView.setText(album.getTitle());
 				//专辑描述
 				TextView contentView = (TextView) albumItemView.findViewById(R.id.txtContent);
 				contentView.setText(album.getRemark());
+				
+				//专辑统计
+				Button btnBrowse = (Button) albumItemView.findViewById(R.id.btnBrowse);
+				Button btnLike = (Button) albumItemView.findViewById(R.id.btnLike);
+				Button btnComment = (Button) albumItemView.findViewById(R.id.btnComment);
+				Button btnFavorite = (Button) albumItemView.findViewById(R.id.btnFavorite);
+				
+				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
+				btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
+				btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
+				btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
+				
 				//评论数量
 				TextView commentView = (TextView) albumItemView.findViewById(R.id.txtComment);
 				if(album.getCommentCount()>0){
@@ -503,14 +449,6 @@ public class Fragment_Main extends Fragment {
 						}
 					}
 					break;
-//				case HANDLER_FLAG_FOLLOW:
-//					//广播
-//					NotificationBuilder.createNotification(context, "成功关注");
-//					break;
-//				case HANDLER_FLAG_UNFOLLOW:
-//					//广播
-//					NotificationBuilder.createNotification(context, "取消关注成功");
-//					break;
 				default:
 					break;
 			}

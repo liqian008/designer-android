@@ -25,7 +25,7 @@
 
         <fragment
             android:id="@+id/fragment_myprofile"
-            android:name="com.bruce.designer.activity.fragment.Fragment_MyProfile"
+            android:name="com.bruce.designer.activity.fragment.Fragment_MyHome"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </RelativeLayout>

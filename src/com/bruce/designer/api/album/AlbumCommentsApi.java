@@ -15,11 +15,11 @@ import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
-public class AlbumCommentApi extends AbstractApi { 
+public class AlbumCommentsApi extends AbstractApi { 
 
 	private Map<String, String> paramMap = null;
 
-	public AlbumCommentApi(int albumId, int commentsTailId) {
+	public AlbumCommentsApi(int albumId, int commentsTailId) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 		paramMap.put("commentsTailId", String.valueOf(commentsTailId));

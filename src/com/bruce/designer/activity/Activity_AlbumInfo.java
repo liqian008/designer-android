@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -26,10 +26,11 @@ import android.widget.TextView;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.album.AlbumCommentApi;
+import com.bruce.designer.api.album.AlbumCommentsApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.album.CommentPostApi;
-import com.bruce.designer.api.user.UserFansApi;
+import com.bruce.designer.api.album.PostFavoriteApi;
+import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
@@ -54,6 +55,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 	private static final int HANDLER_FLAG_COMMENTS = 3;
 	
 	private static final int HANDLER_FLAG_COMMENT_POST = 11;
+	private static final int HANDLER_FLAG_LIKE_POST = 21;
+	private static final int HANDLER_FLAG_FAVORITE_POST = 31;
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -63,6 +66,12 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 	private TextView pubtimeView;
 	private TextView albumTitleView;
 	private TextView albumContentView;
+	
+	private Button btnBrowse;
+	private Button btnLike;
+	private Button btnComment;
+	private Button btnFavorite;
+	
 //	private ImageView coverView;
 	
 	private PullToRefreshListView pullRefresh;
@@ -113,11 +122,18 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 					//重新加载评论列表
 					getAlbumComments(albumId, 0);
 					break;
+				case HANDLER_FLAG_LIKE_POST: //赞成功
+					NotificationBuilder.createNotification(context, "赞操作成功...");
+					break;
+				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
+					NotificationBuilder.createNotification(context, "收藏成功...");
+					break;
 				default:
 					break;
 			}
 		};
 	};
+	
 	
 	
 	@Override
@@ -153,6 +169,15 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		designerAvatarView = (ImageView) albumInfoView.findViewById(R.id.avatar);
 		designerNameView = (TextView) albumInfoView.findViewById(R.id.txtUsername);
 		
+		//专辑相关资料
+		btnBrowse = (Button) albumInfoView.findViewById(R.id.btnBrowse);
+		btnLike = (Button) albumInfoView.findViewById(R.id.btnLike);
+		btnComment = (Button) albumInfoView.findViewById(R.id.btnComment);
+		btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
+		btnLike.setOnClickListener(onclickListener);
+		btnComment.setOnClickListener(onclickListener);
+		btnFavorite.setOnClickListener(onclickListener);
+		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)albumInfoView.findViewById(R.id.albumSlideImages);
 		slideAdapter = new AlbumSlidesAdapter(context, null);
@@ -161,7 +186,11 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		pubtimeView = (TextView) albumInfoView.findViewById(R.id.txtTime);
 		albumTitleView = (TextView) albumInfoView.findViewById(R.id.txtSticker);
 		albumContentView = (TextView) albumInfoView.findViewById(R.id.txtContent);
-		
+
+		//评论框
+		commentInput = (EditText) findViewById(R.id.commentInput);
+		Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
+		btnCommentPost.setOnClickListener(onclickListener);
 		
 		Intent intent = getIntent();
 		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
@@ -171,7 +200,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		if(album!=null&&albumId!=null){
 			final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 			if(authorInfo!=null){
-				
 				View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
 				designerView.setOnClickListener(new OnSingleClickListener() {
 					@Override
@@ -180,7 +208,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 					}
 				});
 				
-				//显示头像
+				//显示设计师头像
 				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				designerNameView.setText(authorInfo.getDesignerNickname());
 			}
@@ -188,6 +216,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 			albumTitleView.setText(album.getTitle());
 			albumContentView.setText(album.getRemark());
+			
+			
+			
 			
 			//获取db中的图片列表
 			List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
@@ -207,24 +238,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 			//获取实时评论列表
 			getAlbumComments(albumId, 0);
 			
-			commentInput = (EditText) findViewById(R.id.commentInput);
-			Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
-			btnCommentPost.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-//					UiUtil.showShortToast(context, "post comment");
-					
-					//检查内容不为空
-					
-					//启动线程发布评论
-					postComment(designerId, commentInput.getText().toString());			
-					
-				}
-
-				
-			});
-			
-			
 		}
 	}
 		
@@ -242,29 +255,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}else{//发送失败消息
-					handler.obtainMessage(0).sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
-	
-	private void getAlbumComments(final int albumId, final int commentsTailId) {
-		//启动线程获取评论数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getAlbumComments(albumId, commentsTailId);
-				
-				AlbumCommentApi api = new AlbumCommentApi(albumId, commentsTailId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_COMMENTS);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}else{//发送失败消息
@@ -352,6 +342,53 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		
 	}
 
+	
+	
+	private OnClickListener onclickListener = new OnSingleClickListener() {
+		@Override
+		public void onSingleClick(View view) {
+			switch (view.getId()) {
+			case R.id.btnCommentPost:
+				//检查内容不为空
+				//启动线程发布评论
+				postComment(designerId, commentInput.getText().toString());			
+				break;
+			case R.id.btnLike:
+				postLike(albumId, designerId);
+				break;
+			case R.id.btnComment:
+				break;
+			case R.id.btnFavorite:
+				postFavorite(albumId, designerId);
+				break;
+			default:
+				break;
+			}
+		}
+	};
+	
+	
+	
+	private void getAlbumComments(final int albumId, final int commentsTailId) {
+		//启动线程获取评论数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				AlbumCommentsApi api = new AlbumCommentsApi(albumId, commentsTailId);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
+					message = handler.obtainMessage(HANDLER_FLAG_COMMENTS);
+					message.obj = apiResult.getData();
+					message.sendToTarget();
+				}else{//发送失败消息
+					handler.obtainMessage(0).sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
+	
 	/**
 	 * 发起评论
 	 */
@@ -374,5 +411,45 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		thread.start();
 	}
 	
+	/**
+	 * 发起赞
+	 */
+	private void postLike(final int albumId, final int designerId) {
+		//启动线程post数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				PostLikeApi api = new PostLikeApi(albumId, designerId);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
+				if(jsonResult!=null&&jsonResult.getResult()==1){
+					message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
+					message.obj = jsonResult.getData();
+					message.sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
 	
+	/**
+	 * 发起收藏
+	 */
+	private void postFavorite(final int albumId, final int designerId) {
+		//启动线程post数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, 1);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
+				if(jsonResult!=null&&jsonResult.getResult()==1){
+					message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
+					message.obj = jsonResult.getData();
+					message.sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
 }
