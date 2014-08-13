@@ -63,7 +63,7 @@ public class Activity_MessageList extends BaseActivity {
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText(Fragment_Msgbox.buildMessageTitle(messageType, null, -1));
+		titleView.setText(Fragment_Msgbox.buildMessageTitle(messageType, null));
 		
 		ListView messageListView = (ListView)findViewById(R.id.msgDialog);
 		messageListAdapter = new MessageListAdapter(context, null);

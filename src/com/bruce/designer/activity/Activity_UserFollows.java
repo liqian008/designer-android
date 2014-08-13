@@ -79,7 +79,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		
 		pullRefresh.setRefreshing(true);
 		//获取关注列表
-//		getFollows(userId);
+		getFollows(userId);
 		//TODO 需要增加下拉刷新
 	}
 	

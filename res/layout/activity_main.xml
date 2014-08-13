@@ -55,7 +55,7 @@
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
-            android:src="@drawable/tab_icon_explore" />
+            android:src="@drawable/tab_icon_ranking" />
 
         <ImageButton
             android:id="@+id/btnTabMsgbox"
@@ -65,9 +65,9 @@
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
-            android:src="@drawable/tab_icon_notification" />
+            android:src="@drawable/tab_icon_msgbox" />
 
-        <ImageButton
+        <ImageButton 
             android:id="@+id/btnTabProfile"
             android:layout_width="match_parent"
             android:layout_height="55.0dip"

@@ -142,8 +142,21 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 			if(message!=null){
 				View itemView = inflater.inflate(R.layout.item_msgbox_view, null);
 				
+				View unreadNumContainer = (View) itemView.findViewById(R.id.unreadNumContainer);
+				TextView unreadNumText = (TextView) itemView.findViewById(R.id.unreadNum);
+				
+				//未读消息数
+				int unreadNum = message.getUnread();
+				unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
+				if(unreadNum>0){
+					unreadNumContainer.setVisibility(View.VISIBLE);
+				}else{
+					unreadNumContainer.setVisibility(View.GONE);
+					unreadNumText.setText(String.valueOf(unreadNum));
+				}
+				
 				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
-				msgTitleView.setText(buildMessageTitle(message.getMessageType(), null, message.getUnread()));
+				msgTitleView.setText(buildMessageTitle(message.getMessageType(), null));
 				 
 				TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
 				msgContentView.setText(message.getMessage());
@@ -267,7 +280,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	 * @param messageType
 	 * @return
 	 */
-	public static String buildMessageTitle(int messageType, String nickname, int unreadAmount) {
+	public static String buildMessageTitle(int messageType, String nickname) {
 		String result = null;
 		if(messageType==ConstantDesigner.MESSAGE_TYPE_SYSTEM) {
 				result ="系统消息";
@@ -288,11 +301,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 					result = "私信 - " + nickname;
 				}
 			}
-		if(unreadAmount>=0){
-			return result + " (未读 "+unreadAmount+")";
-		}else{
 			return result;
-		}
 	}
 	
 	public static boolean isChatMessage(int messageType){
