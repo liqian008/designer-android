@@ -15,7 +15,6 @@ import android.widget.TextView;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserInfoApi;
-import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
@@ -23,7 +22,7 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class Activity_UserEdit extends BaseActivity {
+public class Activity_UserInfo extends BaseActivity {
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	
@@ -34,14 +33,14 @@ public class Activity_UserEdit extends BaseActivity {
 	private ImageView avatarView;
 	private TextView nicknameView;
 	private TextView emailTextView;
-	private TextView placeTextView;
+	private TextView shopTextView;
 	private TextView introduceTextView;
 	
 	private int queryUserId;
 
 	
 	public static void show(Context context, int queryUserId){
-		Intent intent = new Intent(context, Activity_UserEdit.class);
+		Intent intent = new Intent(context, Activity_UserInfo.class);
 		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
 		context.startActivity(intent);
 	}
@@ -73,7 +72,7 @@ public class Activity_UserEdit extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_user_edit);
+		setContentView(R.layout.activity_user_info);
 		
 		Intent intent = getIntent();
 		queryUserId = intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
@@ -88,7 +87,7 @@ public class Activity_UserEdit extends BaseActivity {
 		avatarView = (ImageView) findViewById(R.id.avatar);
 		nicknameView = (TextView) findViewById(R.id.nickNameTextView);
 		emailTextView = (TextView) findViewById(R.id.emailTextView);
-		placeTextView = (TextView) findViewById(R.id.placeTextView);
+		shopTextView = (TextView) findViewById(R.id.shopTextView);
 		introduceTextView = (TextView) findViewById(R.id.introduceTextView);
 		
 		//启动线程获取个人资料

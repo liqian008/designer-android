@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -38,8 +39,6 @@ public class Activity_MessageChat extends BaseActivity {
 	private MessageListAdapter messageListAdapter;
 
 	private int messageType;
-	
-	private int hostId = 100009;
 	
 	/**
 	 * Chat消息的messageType 实为对方的userId
@@ -127,7 +126,7 @@ public class Activity_MessageChat extends BaseActivity {
 				
 				RelativeLayout messageContainer = (RelativeLayout) itemView.findViewById(R.id.messageContainer);
 				RelativeLayout myMessageContainer = (RelativeLayout) itemView.findViewById(R.id.myMessageContainer);
-				if(message.getFromId()!=hostId){//需要展示对方的对话消息
+				if(message.getFromId()!=Config.HOST_ID){//需要展示对方的对话消息
 					
 					messageContainer.setVisibility(View.VISIBLE);
 					myMessageContainer.setVisibility(View.GONE);

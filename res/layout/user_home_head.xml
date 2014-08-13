@@ -278,6 +278,15 @@
                />
             </RelativeLayout>
             
+            
+           <!--  <RelativeLayout 
+                android:layout_width="fill_parent"
+                android:layout_height="28.0dip"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                >
+            </RelativeLayout>
+             -->
             <Button
                 android:id="@+id/btnSendMsg"
                 android:layout_width="fill_parent"
@@ -302,45 +311,29 @@
                 android:textSize="12.0sp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/editBtnContainer"
-            android:layout_width="fill_parent"
-            android:layout_height="40.0dip"
-            android:layout_alignLeft="@+id/snsInfoLayout"
-            android:layout_below="@+id/snsInfoLayout"
-            android:layout_marginTop="6.0dip"
-            android:gravity="center"
-           	android:visibility="gone"
-            >
-            <Button
-                android:id="@+id/btnEditMyInfo"
-                android:layout_width="fill_parent"
-                android:layout_height="50.0dip"
-                android:layout_alignStart="@+id/snsInfoLayout"
-                android:background="@drawable/button_grey_bg"
-                android:text="编辑个人资料"
-				android:textColor="#ff252525"
-                android:textSize="15.0sp" />
-        </LinearLayout>
     </RelativeLayout>
 
-    <!--
-    <TextView
-        android:id="@+id/txtDesc"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10.0dip"
-        android:paddingLeft="10.0dip"
-        android:paddingRight="10.0dip"
-        android:text="个人资料描述"
-        android:textColor="#ff252525" />
-    -->
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="1.0dip"
         android:background="#ffeeeeee" />
 
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="40dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="专辑列表" />
+
+    </RelativeLayout>
+    
+    
+    <!-- 
     <LinearLayout
         android:id="@+id/tab"
         android:layout_width="fill_parent"
@@ -349,7 +342,6 @@
         android:orientation="horizontal" >
 
         <RelativeLayout
-            android:id="@+id/tab_recommend"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:layout_weight="1.0" >
@@ -363,7 +355,7 @@
 
         </RelativeLayout>
 
-        <!-- 
+        
         <RelativeLayout
             android:id="@+id/tab_latest"
             android:layout_width="fill_parent"
@@ -398,9 +390,8 @@
                 android:layout_centerVertical="true"
                 android:text="TA的关注" />
         </RelativeLayout>
-        
-         -->
     </LinearLayout>
+	-->
 
     <LinearLayout
         android:layout_width="fill_parent"

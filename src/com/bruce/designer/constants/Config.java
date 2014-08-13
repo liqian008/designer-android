@@ -3,6 +3,11 @@ package com.bruce.designer.constants;
 import com.bruce.designer.AppApplication;
 
 public class Config {
+	
+	/*当前登录人uid*/
+	public static int HOST_ID = 100007;
+	
+	
 	/*客户端versionName*/
 	public static final String APP_VERSION_NAME = AppApplication.getVersionName();
 	/*客户端versionCode*/

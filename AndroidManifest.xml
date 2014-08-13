@@ -65,7 +65,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bruce.designer.activity.Activity_UserEdit"
+            android:name="com.bruce.designer.activity.Activity_UserInfo"
             android:screenOrientation="portrait" >
         </activity>
         <activity

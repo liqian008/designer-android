@@ -25,6 +25,7 @@ import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.FollowUserApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -68,13 +69,13 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	
 	private Button btnFollow;
 	private Button btnUnfollow;
+	private Button btnSendMsg;
 	private Button btnUserInfo;
 	
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
 	private int queryUserId;
-	private int hostId = 100007;
 
 	private DesignerAlbumsAdapter albumListAdapter;
 
@@ -183,7 +184,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_user_info);
+		setContentView(R.layout.activity_user_home);
 		
 		Intent intent = getIntent();
 		//从intent中获取参数
@@ -232,21 +233,24 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(onclickListener);
 		
-		View snsBtnContainer =  (View) headerView.findViewById(R.id.snsBtnContainer);
-		if(hostId==queryUserId){//查看的用户为自己，需要隐藏交互按钮
-			snsBtnContainer.setVisibility(View.GONE);
-		}else{
-			snsBtnContainer.setVisibility(View.VISIBLE);
-		}
-		
 		btnFollow =  (Button) headerView.findViewById(R.id.btnFollow);
 		btnUnfollow =  (Button) headerView.findViewById(R.id.btnUnfollow);
-		
+		btnSendMsg =  (Button) headerView.findViewById(R.id.btnSendMsg);
 		btnUserInfo =  (Button) headerView.findViewById(R.id.btnUserInfo);
 		
 		btnFollow.setOnClickListener(onclickListener);
 		btnUnfollow.setOnClickListener(onclickListener);
+		btnSendMsg.setOnClickListener(onclickListener);
 		btnUserInfo.setOnClickListener(onclickListener);
+		
+		View snsBtnContainer =  (View) headerView.findViewById(R.id.snsBtnContainer);
+		if(queryUserId==Config.HOST_ID){//查看的用户为自己，需要隐藏交互按钮
+			snsBtnContainer.setVisibility(View.GONE);
+			btnSendMsg.setVisibility(View.GONE);
+		}else{
+			snsBtnContainer.setVisibility(View.VISIBLE);
+			btnSendMsg.setVisibility(View.VISIBLE);
+		}
 		
 		//获取个人资料详情
 		getUserinfo(queryUserId);
@@ -338,8 +342,10 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					}
 				}).start();
 				break;
-			case R.id.btnUserInfo:
-				Activity_UserEdit.show(context, queryUserId);
+			case R.id.btnSendMsg://发私信
+				Activity_MessageChat.show(context, queryUserId);
+			case R.id.btnUserInfo://个人资料页
+				Activity_UserInfo.show(context, queryUserId);
 			default:
 				break;
 			}
