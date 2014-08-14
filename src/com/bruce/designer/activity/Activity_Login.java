@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.account.TestLoginApi;
@@ -60,11 +61,11 @@ public class Activity_Login extends BaseActivity{
 		
 		Button wbLoginBtn = (Button) findViewById(R.id.wbLoginButton);
 		Button selfLoginBtn = (Button) findViewById(R.id.selfLoginButton);
-		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
+//		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
 		
 		wbLoginBtn.setOnClickListener(listener);
 		selfLoginBtn.setOnClickListener(listener);
-		skipLoginBtn.setOnClickListener(listener);
+//		skipLoginBtn.setOnClickListener(listener);
 	}
 
 	/**
@@ -186,8 +187,13 @@ public class Activity_Login extends BaseActivity{
 					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
 					if(userPassport!=null){
-						SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+//						SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+						//设置对象缓存
+						AppApplication.setUserPassport(userPassport);
 					}
+					//跳转至主屏界面
+					Activity_Main.show(context);
+					finish();
 					break;
 				default:
 					break;
@@ -226,11 +232,11 @@ public class Activity_Login extends BaseActivity{
 				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
 				mSsoHandler.authorize(new AuthListener());
 				break;
-			case R.id.skipLoginButton://游客登录
-				Intent intent = new Intent(context, Activity_Main.class);
-				startActivity(intent);
-				finish();
-				break;
+//			case R.id.skipLoginButton://游客登录
+//				Intent intent = new Intent(context, Activity_Main.class);
+//				startActivity(intent);
+//				finish();
+//				break;
 			case R.id.selfLoginButton:
 //				Activity_Login_Bind.show(context);
 				

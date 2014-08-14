@@ -66,7 +66,7 @@ public abstract class AbstractApi {
 			boolean authencatiedError = true;
 			if(authencatiedError){
 				//TODO 抛出特定异常，通常需要跳转回登录界面
-				throw new Exception();
+				throw new Exception("requestUri: "+ getClass().getSimpleName());
 			}else{
 				apiResult = new ApiResult(result, null, errorcode, message);
 			}

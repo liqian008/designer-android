@@ -1,5 +1,8 @@
 package com.bruce.designer;
 
+import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.UserPassport;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -13,6 +16,8 @@ public class AppApplication extends Application {
 
 	private static String versionName;
 	private static int versionCode;
+	
+	private static UserPassport userPassport;
 	
 //	private static float screendensity;
 //	private static int screenHeight;
@@ -61,6 +66,23 @@ public class AppApplication extends Application {
 	public static Handler getUiHandler() {
 		return uiHandler;
 	}
+
+	public static UserPassport getUserPassport() {
+		if(userPassport==null){
+			//从sp中读取
+			userPassport = SharedPreferenceUtil.readObjectFromSp(UserPassport.class, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERPASSPORT);
+		}
+		return userPassport;
+	}
+
+	public static void setUserPassport(UserPassport userPassport) {
+		if(userPassport!=null){
+			//写入sp
+			SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+			AppApplication.userPassport = userPassport;
+		}
+	}
+	
 
 //	public static float getScreendensity() {
 //		return screendensity;

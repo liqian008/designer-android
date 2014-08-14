@@ -5,6 +5,7 @@ import java.util.TreeMap;
 
 import android.content.Context;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.broadcast.BroadcastSender;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.UserPassport;
@@ -83,9 +84,11 @@ public class ApiManager {
 		fullParamMap.put("v_code", String.valueOf(appVersionCode));
 		fullParamMap.put("call_id", Long.toString(System.currentTimeMillis()));
 		//构造用户级的请求参数
-		UserPassport userPassport = SharedPreferenceUtil.readObjectFromSp(
-				UserPassport.class, Config.SP_CONFIG_ACCOUNT,
-				Config.SP_KEY_USERPASSPORT);
+//		UserPassport userPassport = SharedPreferenceUtil.readObjectFromSp(
+//				UserPassport.class, Config.SP_CONFIG_ACCOUNT,
+//				Config.SP_KEY_USERPASSPORT);
+		UserPassport userPassport = AppApplication.getUserPassport();
+		
 		if(userPassport!=null&&userPassport.getTicket()!=null){
 			String ticket= null;
 			ticket= userPassport.getTicket();

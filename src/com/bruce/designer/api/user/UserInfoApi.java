@@ -8,8 +8,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
-import com.bruce.designer.api.RequestMethodEnum;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;

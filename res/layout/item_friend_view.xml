@@ -51,7 +51,7 @@
             android:layout_toLeftOf="@+id/btnSendMsg"
             android:layout_marginRight="10.0dip"
             android:background="@drawable/button_green_bg"
-            android:text="关注"
+            android:text="关 注"
             android:textColor="#ffffffff"
             android:textSize="12.0sp"
             android:visibility="gone" />
@@ -75,7 +75,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="10.0dip"
             android:background="@drawable/button_orange_bg" 
-            android:text="私信"
+            android:text="私 信"
             android:textColor="#ffffffff"
             android:textSize="12.0sp"
             android:visibility="visible" />

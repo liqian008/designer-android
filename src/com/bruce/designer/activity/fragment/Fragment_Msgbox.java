@@ -148,11 +148,11 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 				//未读消息数
 				int unreadNum = message.getUnread();
 				unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
+				unreadNumText.setText(String.valueOf(unreadNum));
 				if(unreadNum>0){
-					unreadNumContainer.setVisibility(View.VISIBLE);
+					unreadNumContainer.setVisibility(View.VISIBLE); 
 				}else{
 					unreadNumContainer.setVisibility(View.GONE);
-					unreadNumText.setText(String.valueOf(unreadNum));
 				}
 				
 				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
@@ -246,6 +246,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 				break;
 			}
 			case ConstantDesigner.MESSAGE_TYPE_FOLLOW: {
+				msgAvatrView.setImageResource(R.drawable.icon_msgbox_follow);
 				break;
 			}
 			case ConstantDesigner.MESSAGE_TYPE_COMMENT: {

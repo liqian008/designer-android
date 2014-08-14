@@ -67,6 +67,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 	private TextView fansNumView;
 	
 	private Button btnMyFavorite;
+	private Button btnSendMsg;
 	private Button btnUserInfo;
 	
 	private ImageButton btnSettings;
@@ -109,7 +110,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 								albumTailId = newTailId;
 							}else{
 								albumTailId = 0;
-								pullRefreshView.setMode(Mode.DISABLED);//禁用上拉刷新
+								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
 							}
 							List<Album> oldAlbumList = albumListAdapter.getAlbumList();
 							if(oldAlbumList==null){
@@ -125,6 +126,8 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 							}
 							albumListAdapter.setAlbumList(oldAlbumList);
 							albumListAdapter.notifyDataSetChanged();
+						}else{
+							pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新
 						}
 					}
 					break;
@@ -182,6 +185,11 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(listener);
+		
+		
+		btnSendMsg = (Button)headerView.findViewById(R.id.btnSendMsg);
+//		btnSendMsg.setOnClickListener(listener);
+		btnSendMsg.setVisibility(View.GONE);
 		
 		btnMyFavorite = (Button)headerView.findViewById(R.id.btnMyFavorite);
 		btnMyFavorite.setOnClickListener(listener);
@@ -291,7 +299,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//加载更多专辑信息
-		getAlbums(Config.HOST_ID, albumTailId);
+		getAlbums(Config.HOST_ID, 0);
 	}
 	
 }
