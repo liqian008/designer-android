@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
@@ -26,11 +27,13 @@ import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.UiUtil;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuth;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
+import com.sina.weibo.sdk.utils.UIUtils;
 
 public class Activity_Login extends BaseActivity{
 	/*默认处理*/
@@ -59,7 +62,7 @@ public class Activity_Login extends BaseActivity{
 		this.context = Activity_Login.this;
 		setContentView(R.layout.activity_login);
 		
-		Button wbLoginBtn = (Button) findViewById(R.id.wbLoginButton);
+		ImageButton wbLoginBtn = (ImageButton) findViewById(R.id.wbLoginButton);
 		Button selfLoginBtn = (Button) findViewById(R.id.selfLoginButton);
 //		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
 		
@@ -159,8 +162,8 @@ public class Activity_Login extends BaseActivity{
 						message.sendToTarget();
 						
 						//跳转至主屏界面
-						Activity_Main.show(context);
-						finish();
+//						Activity_Main.show(context);
+//						finish();
 					}else{//第一次登录，需要完善用户资料
 					}
 				}else{//发送失败消息
@@ -231,6 +234,10 @@ public class Activity_Login extends BaseActivity{
 				//SSO登录
 				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
 				mSsoHandler.authorize(new AuthListener());
+				
+				
+//				UiUtil.showShortToast(context, "微博登录功能未开放，请点击下方【直接登录】按钮");
+				
 				break;
 //			case R.id.skipLoginButton://游客登录
 //				Intent intent = new Intent(context, Activity_Main.class);
