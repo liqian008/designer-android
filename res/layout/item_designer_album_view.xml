@@ -10,6 +10,7 @@
     android:paddingBottom="20.0dip" >
 
     <RelativeLayout
+        android:id="@+id/designerContainer"
         android:layout_width="fill_parent"
         android:layout_height="47.0dip"
         android:layout_marginLeft="10.0dip"

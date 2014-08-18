@@ -6,17 +6,14 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -36,8 +33,6 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.album.FollowAlbumListApi;
-import com.bruce.designer.api.user.FollowUserApi;
-import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -319,11 +314,7 @@ public class Fragment_Main extends Fragment {
 				albumItemView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
-						Intent intent = new Intent(context, Activity_AlbumInfo.class);
-						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
-//						System.out.println("========="+album.getAuthorInfo());
-						intent.putExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO, authorInfo);
-						context.startActivity(intent);
+						Activity_AlbumInfo.show(context, album, authorInfo);
 					}
 				});
 				return albumItemView;

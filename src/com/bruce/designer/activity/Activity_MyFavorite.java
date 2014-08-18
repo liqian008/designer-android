@@ -51,7 +51,6 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	
 	private int albumTailId = 0;
 	
-	
 	public static void show(Context context){
 		Intent intent = new Intent(context, Activity_MyFavorite.class);
 		context.startActivity(intent);

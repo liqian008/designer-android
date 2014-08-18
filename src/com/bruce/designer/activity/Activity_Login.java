@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
@@ -62,12 +63,12 @@ public class Activity_Login extends BaseActivity{
 		this.context = Activity_Login.this;
 		setContentView(R.layout.activity_login);
 		
-		ImageButton wbLoginBtn = (ImageButton) findViewById(R.id.wbLoginButton);
-		Button selfLoginBtn = (Button) findViewById(R.id.selfLoginButton);
+		ImageView wbLoginBtn = (ImageView) findViewById(R.id.wbLoginButton);
+		ImageView qqLoginButton = (ImageView) findViewById(R.id.qqLoginButton);
 //		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
 		
 		wbLoginBtn.setOnClickListener(listener);
-		selfLoginBtn.setOnClickListener(listener);
+		qqLoginButton.setOnClickListener(listener);
 //		skipLoginBtn.setOnClickListener(listener);
 	}
 
@@ -180,13 +181,9 @@ public class Activity_Login extends BaseActivity{
 			switch(msg.what){
 				case HANDLER_FLAG_WB_LOGIN_SUCCESS:
 					//1、直接登录进入
-					
 					//2、需要绑定账户
-					
-					break;
-				case HANDLER_FLAG_WB_LOGIN_FAILED:
-					break;
 				case HANDLER_TEST_LOGIN_SUCCEED:
+//					UiUtil.showShortToast(context, "新浪微博登录成功，正在为您跳转至内容页...");
 					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
 					if(userPassport!=null){
@@ -197,6 +194,8 @@ public class Activity_Login extends BaseActivity{
 					//跳转至主屏界面
 					Activity_Main.show(context);
 					finish();
+					break;
+				case HANDLER_FLAG_WB_LOGIN_FAILED:
 					break;
 				default:
 					break;
@@ -244,7 +243,7 @@ public class Activity_Login extends BaseActivity{
 //				startActivity(intent);
 //				finish();
 //				break;
-			case R.id.selfLoginButton:
+			case R.id.qqLoginButton:
 //				Activity_Login_Bind.show(context);
 				
 				new Thread(new Runnable() {

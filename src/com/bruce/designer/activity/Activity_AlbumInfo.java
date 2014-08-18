@@ -135,6 +135,13 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 	};
 	
 	
+	public static void show(Context context, Album album, AlbumAuthorInfo authorInfo){
+		Intent intent = new Intent(context, Activity_AlbumInfo.class);
+		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
+		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO, authorInfo);
+		context.startActivity(intent);
+	}
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -217,7 +224,16 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 			albumTitleView.setText(album.getTitle());
 			albumContentView.setText(album.getRemark());
 			
+			//浏览，评论等交互数
+			Button btnBrowse = (Button) albumInfoView.findViewById(R.id.btnBrowse);
+			Button btnLike = (Button) albumInfoView.findViewById(R.id.btnLike);
+			Button btnComment = (Button) albumInfoView.findViewById(R.id.btnComment);
+			Button btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
 			
+			btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
+			btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
+			btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
+			btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
 			
 			
 			//获取db中的图片列表

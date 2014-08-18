@@ -1,8 +1,11 @@
 package com.bruce.designer.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class AlbumBase {
+public class AlbumBase implements Serializable{
+
+	private static final long serialVersionUID = -6085739230899814437L;
 
 	private long browseCount;
 
