@@ -26,6 +26,7 @@ import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -55,7 +56,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	
 	private LayoutInflater inflater;
 	
-	private PullToRefreshListView pullRefresh;
+	private PullToRefreshListView pullRefreshView; 
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,11 +80,11 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		titleView = (TextView) mainView.findViewById(R.id.titlebar_title);
 		titleView.setText("消息中心");
 		
-		pullRefresh = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
-		pullRefresh.setMode(Mode.BOTH);
-		pullRefresh.setOnRefreshListener(this);
+		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
+		pullRefreshView.setMode(Mode.PULL_FROM_START);
+		pullRefreshView.setOnRefreshListener(this);
 		
-		ListView msgboxView = pullRefresh.getRefreshableView();
+		ListView msgboxView = pullRefreshView.getRefreshableView();
 		messageBoxAdapter = new MessageBoxAdapter(context, null);
 		msgboxView.setAdapter(messageBoxAdapter);
 	}
@@ -136,53 +137,62 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			
 			final Message message = getItem(position);
-			if(message!=null){
-				View itemView = inflater.inflate(R.layout.item_msgbox_view, null);
-				
-				View unreadNumContainer = (View) itemView.findViewById(R.id.unreadNumContainer);
-				TextView unreadNumText = (TextView) itemView.findViewById(R.id.unreadNum);
-				
-				//未读消息数
-				int unreadNum = message.getUnread();
-				unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
-				unreadNumText.setText(String.valueOf(unreadNum));
-				if(unreadNum>0){
-					unreadNumContainer.setVisibility(View.VISIBLE); 
-				}else{
-					unreadNumContainer.setVisibility(View.GONE);
+			//TODO 使用convertView
+			MessageViewHandler viewHolder = null;
+			if(convertView==null){
+				viewHolder = new MessageViewHandler();
+				if(message!=null){
+					convertView = inflater.inflate(R.layout.item_msgbox_view, null);
+					viewHolder.messageItemView = convertView;
+					viewHolder.unreadNumContainer = (View) convertView.findViewById(R.id.unreadNumContainer);
+					viewHolder.unreadNumText = (TextView) convertView.findViewById(R.id.unreadNum);
+					viewHolder.msgTitleView = (TextView) convertView.findViewById(R.id.msgTitle);
+					viewHolder.msgContentView = (TextView) convertView.findViewById(R.id.msgContent);
+					viewHolder.msgPubTimeView = (TextView) convertView.findViewById(R.id.msgPubTime);
+					viewHolder.msgAvatrView = (ImageView) convertView.findViewById(R.id.msgAvatar);
+					convertView.setTag(viewHolder);
 				}
-				
-				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
-				msgTitleView.setText(buildMessageTitle(message.getMessageType(), null));
-				 
-				TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
-				msgContentView.setText(message.getMessage());
-				
-				TextView msgPubTimeView = (TextView) itemView.findViewById(R.id.msgPubTime);
-				msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
-				
-				//头像
-				ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
-				displayAvatarView(msgAvatrView, message);
-				
-				itemView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View v) {
-						if(isChatMessage(message.getMessageType())){//私信消息
-							Activity_MessageChat.show(context, message.getMessageType());
-						}else{//普通消息
-							Activity_MessageList.show(context, message.getMessageType());
-						}
-					}
-				});
-				return itemView;
+			}else{
+				viewHolder = (MessageViewHandler) convertView.getTag();
 			}
-			return null;
+
+			//填充数据
+			
+			//未读消息数
+			int unreadNum = message.getUnread();
+			unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
+			viewHolder.unreadNumText.setText(String.valueOf(unreadNum));
+			if(unreadNum>0){
+				viewHolder.unreadNumContainer.setVisibility(View.VISIBLE); 
+			}else{
+				viewHolder.unreadNumContainer.setVisibility(View.GONE);
+			}
+			//消息内容
+			String nickname = null;
+			int messageType = message.getMessageType();
+			if(MessageUtil.isChatMessage(messageType)){
+				nickname = message.getChatUser().getNickname();
+			}
+			
+			viewHolder.msgTitleView.setText(MessageUtil.buildMessageTitle(messageType, nickname));
+			viewHolder.msgContentView.setText(message.getMessage());
+			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
+			
+			//头像
+			MessageUtil.displayAvatarView(viewHolder.msgAvatrView, message);
+			viewHolder.messageItemView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					if(MessageUtil.isChatMessage(message.getMessageType())){//私信消息
+						Activity_MessageChat.show(context, message.getMessageType());
+					}else{//普通消息
+						Activity_MessageList.show(context, message.getMessageType());
+					}
+				}
+			});
+			return convertView;
 		}
-		
 	}
 	
 	/**
@@ -213,7 +223,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		public void handleMessage(android.os.Message msg) {
 			switch(msg.what){
 				case HANDLER_FLAG_USERBOX:
-					pullRefresh.onRefreshComplete();
+					pullRefreshView.onRefreshComplete();
 					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
 					if(userFansDataMap!=null){
 						List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
@@ -239,79 +249,6 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		}
 	};
 	
-	public static void displayAvatarView(ImageView msgAvatrView, Message message) {
-		switch (message.getMessageType()) {
-			case ConstantDesigner.MESSAGE_TYPE_SYSTEM: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_FOLLOW: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_follow);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_COMMENT: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_comment);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_LIKE: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_like);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_FAVORITIES: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_favorite);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_AT: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_at);
-				break;
-			}
-			default: {
-				//私信消息
-				if(message.getChatUser()!=null){
-					ImageLoader.getInstance().displayImage(message.getChatUser().getHeadImg(), msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				}
-				break;
-			}
-		}
-	}
-	
-	
-	/**
-	 * 构造消息title
-	 * @param messageType
-	 * @return
-	 */
-	public static String buildMessageTitle(int messageType, String nickname) {
-		String result = null;
-		if(messageType==ConstantDesigner.MESSAGE_TYPE_SYSTEM) {
-				result ="系统消息";
-			} else if(messageType==ConstantDesigner.MESSAGE_TYPE_FOLLOW) {
-				result ="关注消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_COMMENT) {
-				result ="评论消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_LIKE) {
-				result ="赞消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_FAVORITIES) {
-				result ="收藏消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_AT) {
-				result ="@消息";
-			}else if(isChatMessage(messageType)){
-				if(nickname==null){
-					result= "私信消息";
-				}else{
-					result = "私信 - " + nickname;
-				}
-			}
-			return result;
-	}
-	
-	public static boolean isChatMessage(int messageType){
-		return messageType>=10000; 
-	}
-	
-	public static boolean isBroadcastMessage(int messageType){
-		return messageType == ConstantDesigner.MESSAGE_TYPE_SYSTEM; 
-	}
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
@@ -322,5 +259,20 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+	}
+	
+	
+	static class MessageViewHandler{
+		
+		public View messageItemView;
+		
+		public View unreadNumContainer;
+		public TextView unreadNumText;
+		
+		public TextView msgTitleView;
+		public TextView msgContentView;
+		public TextView msgPubTimeView;
+		//头像
+		public ImageView msgAvatrView;
 	}
 }

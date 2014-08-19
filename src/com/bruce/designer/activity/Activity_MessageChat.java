@@ -25,18 +25,24 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 /**
  * 私信消息对话页面
  * @author liqian
  *
  */
-public class Activity_MessageChat extends BaseActivity {
+public class Activity_MessageChat extends BaseActivity implements OnRefreshListener2<ListView>{
+	
+	private static final int HANDLER_FLAG_MESSAGELIST = 1;
 	
 	private View titlebarView;
 	private TextView titleView;
 	
 	private MessageListAdapter messageListAdapter;
+	private PullToRefreshListView pullRefreshView;
 
 	private int messageType;
 	
@@ -65,15 +71,18 @@ public class Activity_MessageChat extends BaseActivity {
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("XX消息");
+		titleView.setText("对话消息");
 		
-		ListView messageListView = (ListView)findViewById(R.id.msgDialog);
+		View commentPanel = (View) findViewById(R.id.commentPanel);
+		commentPanel.setVisibility(View.VISIBLE);
+		
+		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		ListView messageListView = pullRefreshView.getRefreshableView();// (ListView)findViewById(R.id.msgDialog);
 		messageListAdapter = new MessageListAdapter(context, null);
 		messageListView.setAdapter(messageListAdapter);
 		
 		//获取消息列表
-		getMessageList(0);
-		//TODO 需要增加下拉刷新
+		getMessageList();
 	}
 	
 	
@@ -132,7 +141,6 @@ public class Activity_MessageChat extends BaseActivity {
 					myMessageContainer.setVisibility(View.GONE);
 					
 					TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
-	//				msgTitleView.setText(Fragment_Msgbox.buildMessageTitle(message));
 					
 					TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
 					msgContentView.setText(message.getMessage());
@@ -142,7 +150,6 @@ public class Activity_MessageChat extends BaseActivity {
 					
 					//头像
 					ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
-	//				Fragment_Msgbox.displayAvatarView(msgAvatrView, message);
 				
 				}else{//需要展示自己的对话消息
 					
@@ -168,20 +175,17 @@ public class Activity_MessageChat extends BaseActivity {
 	
 	/**
 	 * 获取关注列表
-	 * @param fansTailId
 	 */
-	private void getMessageList(final int fansTailId) {
+	private void getMessageList() {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				android.os.Message message;
-				
 				MessageListApi api = new MessageListApi(messageType, 1);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
-				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(0);
+					message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}
@@ -190,12 +194,12 @@ public class Activity_MessageChat extends BaseActivity {
 		thread.start();
 	}
 	
-	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
 			switch(msg.what){
-				case 0:
+				case HANDLER_FLAG_MESSAGELIST:
+					pullRefreshView.onRefreshComplete();
 					Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
 					if(messagesDataMap!=null){
 						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
@@ -211,6 +215,20 @@ public class Activity_MessageChat extends BaseActivity {
 		}
 	};
 	
+	/**
+	 * 下拉刷新
+	 */
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		getMessageList();
+	}
+	
+	/**
+	 * 上拉刷新
+	 */
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+	}
 
 	private OnClickListener listener = new OnSingleClickListener() {
 		@Override

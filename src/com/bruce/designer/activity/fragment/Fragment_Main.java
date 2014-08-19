@@ -17,17 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_Settings;
-import com.bruce.designer.activity.Activity_UserHome;
-import com.bruce.designer.adapter.GridAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
@@ -37,19 +33,16 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UniversalImageUtil;
+import com.bruce.designer.view.holder.AlbumViewHolder;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.nostra13.universalimageloader.core.ImageLoader;
-//import com.bruce.designer.util.cache.ImageLoader;
 
-public class Fragment_Main extends Fragment {
+public class Fragment_Main extends Fragment{
 
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
@@ -200,12 +193,10 @@ public class Fragment_Main extends Fragment {
 	class AlbumListAdapter extends BaseAdapter {
 		private List<Album> albumList;
 		private Context context;
-		private int style;
 		
 		public AlbumListAdapter(Context context, List<Album> albumList, int style) {
 			this.context = context;
 			this.albumList = albumList;
-			this.style = style;
 		}
 		
 		public void setAlbumList(List<Album> albumList) {
@@ -239,87 +230,40 @@ public class Fragment_Main extends Fragment {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			if(getItem(position)!=null){
-				final Album album = getItem(position);
-				View albumItemView = null;
-				
-				if(style==1){//grid mode
-					albumItemView = LayoutInflater.from(context).inflate(R.layout.item_album_info_view, null);
-					
-					GridView gridView = (GridView) albumItemView.findViewById(R.id.grid);
-					gridView.setAdapter(new GridAdapter(context));
-					
-				}else{//mainImg mode
-					albumItemView = LayoutInflater.from(context).inflate(R.layout.item_album_view, null);
-					ImageView coverView = (ImageView) albumItemView.findViewById(R.id.cover_img);
-//					ImageLoader.loadImage(album.getCoverMediumImg(), coverView);
-					ImageLoader.getInstance().displayImage(album.getCoverMediumImg(), coverView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
+			AlbumViewHolder viewHolder = null;  
+			final Album album = getItem(position);
+			if(convertView==null){
+				viewHolder=new AlbumViewHolder();
+				//TODO 使用convertView
+				if(album!=null){
+//					View albumItemView = null;
+					convertView = LayoutInflater.from(context).inflate(R.layout.item_album_view, null);
+					viewHolder.albumItemView = convertView;
+					viewHolder.coverView = (ImageView) convertView.findViewById(R.id.cover_img);
+					//发布时间
+					viewHolder.pubtimeView = (TextView) convertView.findViewById(R.id.txtTime);
+					viewHolder.designerView = (View) convertView.findViewById(R.id.designerContainer); 
+					//设计师头像
+					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);
+					//设计师姓名
+					viewHolder.usernameView = (TextView) convertView.findViewById(R.id.txtUsername);
+					//专辑title
+					viewHolder.titleView = (TextView) convertView.findViewById(R.id.txtSticker);
+					viewHolder.contentView = (TextView) convertView.findViewById(R.id.txtContent);
+					viewHolder.btnBrowse = (Button) convertView.findViewById(R.id.btnBrowse);
+					viewHolder.btnLike = (Button) convertView.findViewById(R.id.btnLike);
+					viewHolder.btnComment = (Button) convertView.findViewById(R.id.btnComment);
+					viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
+					//评论数量
+					viewHolder.commentView = (TextView) convertView.findViewById(R.id.txtComment);
+					convertView.setTag(viewHolder);
 				}
-				
-				//发布时间
-				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
-				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
-				
-				final AlbumAuthorInfo authorInfo = album.getAuthorInfo();
-				
-				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
-				designerView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						//跳转至个人资料页
-						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
-					}
-				});
-				
-				//设计师头像
-				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
-				//设计师姓名
-				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
-				
-				
-				if(authorInfo!=null){
-					//显示头像
-					ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-					//显示昵称
-					usernameView.setText(authorInfo.getDesignerNickname());
-				}
-				
-				//专辑title
-				TextView titleView = (TextView) albumItemView.findViewById(R.id.txtSticker);
-				titleView.setText(album.getTitle());
-				//专辑描述
-				TextView contentView = (TextView) albumItemView.findViewById(R.id.txtContent);
-				contentView.setText(album.getRemark());
-				
-				//专辑统计
-				Button btnBrowse = (Button) albumItemView.findViewById(R.id.btnBrowse);
-				Button btnLike = (Button) albumItemView.findViewById(R.id.btnLike);
-				Button btnComment = (Button) albumItemView.findViewById(R.id.btnComment);
-				Button btnFavorite = (Button) albumItemView.findViewById(R.id.btnFavorite);
-				
-				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
-				btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
-				btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
-				btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
-				
-				//评论数量
-				TextView commentView = (TextView) albumItemView.findViewById(R.id.txtComment);
-				if(album.getCommentCount()>0){
-					commentView.setText("查看全部"+album.getCommentCount()+"条评论");
-				}else{
-					commentView.setVisibility(View.GONE); 
-				}
-				
-				albumItemView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						Activity_AlbumInfo.show(context, album, authorInfo);
-					}
-				});
-				return albumItemView;
+			}else{
+				viewHolder = (AlbumViewHolder) convertView.getTag();
 			}
-			return null;
+			//构造显示数据
+			viewHolder.fillDisplayData(context, album);
+			return convertView;
 		}
 	}
 	

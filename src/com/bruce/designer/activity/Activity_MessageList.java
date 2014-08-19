@@ -17,74 +17,82 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.activity.fragment.Fragment_Msgbox;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
-import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UniversalImageUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 /**
  * 普通消息界面
+ * 
  * @author liqian
  */
-public class Activity_MessageList extends BaseActivity {
+public class Activity_MessageList extends BaseActivity implements OnRefreshListener2<ListView>{
+
+	private static final int HANDLER_FLAG_MESSAGELIST = 1;
 	
 	private View titlebarView;
 	private TextView titleView;
-	
-	private MessageListAdapter messageListAdapter;
 
+	private MessageListAdapter messageListAdapter;
+	private PullToRefreshListView pullRefreshView;
+	
 	private int messageType;
 
-//	private int userId;
-	
-	public static void show(Context context, int messageType){
+	// private int userId;
+
+	public static void show(Context context, int messageType) {
 		Intent intent = new Intent(context, Activity_MessageList.class);
 		intent.putExtra("messageType", messageType);
 		context.startActivity(intent);
 	}
-	
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_msg_dialog);
-		
+
 		Intent intent = getIntent();
-		//获取messageType
-		messageType =  intent.getIntExtra("messageType", 0); 
-		
-		//init view
+		// 获取messageType
+		messageType = intent.getIntExtra("messageType", 0);
+
+		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText(Fragment_Msgbox.buildMessageTitle(messageType, null));
+		titleView.setText(MessageUtil.buildMessageTitle(messageType, null));
 		
-		ListView messageListView = (ListView)findViewById(R.id.msgDialog);
+		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		pullRefreshView.setMode(Mode.PULL_FROM_START);
+		pullRefreshView.setOnRefreshListener(this);
+		
+		
+		ListView messageListView = pullRefreshView.getRefreshableView();
 		messageListAdapter = new MessageListAdapter(context, null);
 		messageListView.setAdapter(messageListAdapter);
-		
-		//获取消息列表
-		getMessageList(0);
-		//TODO 需要增加下拉刷新
+
+		// 获取消息列表
+		getMessageList();
+		// TODO 需要增加下拉刷新
 	}
-	
-	
+
 	class MessageListAdapter extends BaseAdapter {
 
 		private List<Message> messageList;
 		private Context context;
-		
+
 		public MessageListAdapter(Context context, List<Message> messageList) {
 			this.context = context;
 			this.messageList = messageList;
 		}
-		
+
 		public List<Message> getMessageList() {
 			return messageList;
 		}
@@ -116,62 +124,81 @@ public class Activity_MessageList extends BaseActivity {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
 			final Message message = getItem(position);
-			if(message!=null){
-				View itemView = LayoutInflater.from(context).inflate(R.layout.item_msgbox_view, null);
-				
-				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
-				
-				if(Fragment_Msgbox.isBroadcastMessage(message.getMessageType())){//系统消息title不变
-					msgTitleView.setText("系统消息");
-				}else if(!Fragment_Msgbox.isChatMessage(position)){//赞，评论，收藏等消息的title需要是fromUser
-					msgTitleView.setText(message.getFromUser().getNickname());
-				}else{//私信消息
-					//此界面不处理
+			//TODO 使用convertView
+			MessageViewHandler viewHolder = null;
+			if(convertView==null){
+				viewHolder = new MessageViewHandler();
+				if(message!=null){
+					convertView = LayoutInflater.from(context).inflate(R.layout.item_msgbox_view, null);
+					viewHolder.messageItemView = convertView;
+					viewHolder.unreadNumContainer = (View) convertView.findViewById(R.id.unreadNumContainer);
+					viewHolder.unreadNumText = (TextView) convertView.findViewById(R.id.unreadNum);
+					viewHolder.msgTitleView = (TextView) convertView.findViewById(R.id.msgTitle);
+					viewHolder.msgContentView = (TextView) convertView.findViewById(R.id.msgContent);
+					viewHolder.msgPubTimeView = (TextView) convertView.findViewById(R.id.msgPubTime);
+					viewHolder.msgAvatrView = (ImageView) convertView.findViewById(R.id.msgAvatar);
+					convertView.setTag(viewHolder);
 				}
-				
-				TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
-				msgContentView.setText(message.getMessage());
-				
-				TextView msgPubTimeView = (TextView) itemView.findViewById(R.id.msgPubTime);
-				msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
-				
-				//头像
-				ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
-				displayAvatarView(msgAvatrView, message);
-				
-				//头像点击事件
-				msgAvatrView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View v) {
-						//跳转个人主页
-						Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
-					}
-				});
-				
-				return itemView;
+			}else{
+				viewHolder = (MessageViewHandler) convertView.getTag();
 			}
-			return null;
+
+			//填充数据
+			
+			//未读消息数
+			int unreadNum = message.getUnread();
+			unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
+			viewHolder.unreadNumText.setText(String.valueOf(unreadNum));
+			if(unreadNum>0){
+				viewHolder.unreadNumContainer.setVisibility(View.VISIBLE);
+			}else{
+				viewHolder.unreadNumContainer.setVisibility(View.GONE);
+			}
+			//消息内容
+			int messageType = message.getMessageType();
+			if(MessageUtil.isBroadcastMessage(messageType)){
+				viewHolder.msgTitleView.setText("系统消息");
+			}else{
+				viewHolder.msgTitleView.setText(message.getFromUser().getNickname());
+			}
+			viewHolder.msgContentView.setText(message.getMessage());
+			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
+			
+			//头像
+			MessageUtil.displayAvatarView(viewHolder.msgAvatrView, message);
+			// 头像点击事件
+			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					// 跳转个人主页
+					Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
+				}
+			});
+			
+			viewHolder.messageItemView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					
+				}
+			});
+			return convertView;
 		}
 	}
-	
+
 	/**
-	 * 获取关注列表
-	 * @param fansTailId
+	 * 获取消息列表
 	 */
-	private void getMessageList(final int fansTailId) {
-		//启动线程获取数据
+	private void getMessageList() {
+		// 启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				android.os.Message message;
-				
 				MessageListApi api = new MessageListApi(messageType, 1);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(0);
+				if (jsonResult != null && jsonResult.getResult() == 1) {
+					message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}
@@ -179,28 +206,27 @@ public class Activity_MessageList extends BaseActivity {
 		});
 		thread.start();
 	}
-	
-	
-	private Handler handler = new Handler(){
+
+	private Handler handler = new Handler() {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
-			switch(msg.what){
-				case 0:
-					Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
-					if(messagesDataMap!=null){
-						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
-						if(messageList!=null&&messageList.size()>0){
-							messageListAdapter.setMessageList(messageList);
-							messageListAdapter.notifyDataSetChanged();
-						}
+			switch (msg.what) {
+			case HANDLER_FLAG_MESSAGELIST:
+				pullRefreshView.onRefreshComplete();
+				Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
+				if (messagesDataMap != null) {
+					List<Message> messageList = (List<Message>) messagesDataMap.get("messageList");
+					if (messageList != null && messageList.size() > 0) {
+						messageListAdapter.setMessageList(messageList);
+						messageListAdapter.notifyDataSetChanged();
 					}
-					break;
-				default:
-					break;
+				}
+				break;
+			default:
+				break;
 			}
 		}
 	};
-	
 
 	private OnClickListener listener = new OnSingleClickListener() {
 		@Override
@@ -214,34 +240,40 @@ public class Activity_MessageList extends BaseActivity {
 			}
 		}
 	};
-	
+
 	
 	/**
-	 * 构造消息头像
-	 * @param msgAvatrView
-	 * @param message
+	 * 下拉刷新
 	 */
-	public static void displayAvatarView(ImageView msgAvatrView, Message message) {
-		switch (message.getMessageType()) {
-			case ConstantDesigner.MESSAGE_TYPE_SYSTEM: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);//系统消息
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_LIKE:
-			case ConstantDesigner.MESSAGE_TYPE_FAVORITIES:
-			case ConstantDesigner.MESSAGE_TYPE_FOLLOW:
-			case ConstantDesigner.MESSAGE_TYPE_COMMENT:
-			case ConstantDesigner.MESSAGE_TYPE_AT: {//sns 交互类消息
-				if(message.getFromUser()!=null){
-					ImageLoader.getInstance().displayImage(message.getFromUser().getHeadImg(), msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				}
-				break;
-			}
-			default: {
-				break;
-			}
-		}
-		
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		getMessageList();
 	}
 	
+	/**
+	 * 上拉刷新
+	 */
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+	}
+	
+	/**
+	 * viewHolder
+	 * @author liqian
+	 *
+	 */
+	static class MessageViewHandler {
+
+		public View messageItemView;
+
+		public View unreadNumContainer;
+		public TextView unreadNumText;
+
+		public TextView msgTitleView;
+		public TextView msgContentView;
+		public TextView msgPubTimeView;
+		// 头像
+		public ImageView msgAvatrView;
+	}
+
 }

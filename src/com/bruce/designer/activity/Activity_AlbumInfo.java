@@ -48,7 +48,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListener {
+public class Activity_AlbumInfo extends BaseActivity {
 	
 	private static final int HANDLER_FLAG_INFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
@@ -83,6 +83,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 	
 	private Integer albumId;
 	private Integer designerId;
+	/*回复评论时的接收人，可能不是designerId*/
+	private int toId = 0;
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -166,11 +168,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		LayoutInflater layoutInflate = LayoutInflater.from(context);
 		View albumInfoView = layoutInflate.inflate(R.layout.item_album_info_head, null);
 		commentListView.addHeaderView(albumInfoView);
-		commentListView.setOnItemClickListener(this);
+//		commentListView.setOnItemClickListener(this);
 		
 		commentsAdapter = new AlbumCommentsAdapter(context, null);
 		commentListView.setAdapter(commentsAdapter);
-		
 
 		//设计师相关资料
 		designerAvatarView = (ImageView) albumInfoView.findViewById(R.id.avatar);
@@ -264,8 +265,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 			@Override
 			public void run() {
 				Message message;
-//				JsonResultBean jsonResult = ApiUtil.getAlbumInfo(albumId);
-				
 				AlbumInfoApi api = new AlbumInfoApi(albumId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
@@ -322,43 +321,63 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			if(getItem(position)!=null){
-				final Comment comment = getItem(position);
-				View commentItemView = LayoutInflater.from(context).inflate(R.layout.item_comment_view, null);
-				
-				ImageView avatarView = (ImageView) commentItemView.findViewById(R.id.avatar);
-				if(comment.getUserHeadImg()!=null){
-					ImageLoader.getInstance().displayImage(comment.getUserHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			final Comment comment = getItem(position);
+			//TODO 使用convertView
+			CommentViewHolder viewHolder = null;
+			if(convertView==null){
+				viewHolder = new CommentViewHolder();
+				if(comment!=null){
+					convertView = LayoutInflater.from(context).inflate(R.layout.item_comment_view, null);
+					
+					viewHolder.commentItemView = convertView;					
+					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);
+					viewHolder.commentUsernameView = (TextView) convertView.findViewById(R.id.commentUserame);
+					viewHolder.commentContentView = (TextView) convertView.findViewById(R.id.commentContent);
+					viewHolder.commentTimeView = (TextView) convertView.findViewById(R.id.commentTime);
+					
+					convertView.setTag(viewHolder);
 				}
-				
-				TextView commentUsernameView = (TextView) commentItemView.findViewById(R.id.commentUserame);
-				commentUsernameView.setText(comment.getNickname());
-				
-				TextView commentContentView = (TextView) commentItemView.findViewById(R.id.commentContent);
-				commentContentView.setText(comment.getComment());
-				
-				TextView commentTimeView = (TextView) commentItemView.findViewById(R.id.commentTime);
-				commentTimeView.setText(TimeUtil.displayTime(comment.getCreateTime()));
-				
-				return commentItemView;
+			}else{
+				viewHolder = (CommentViewHolder) convertView.getTag();
 			}
-			return null;
+			//填充数据
+			if(comment.getUserHeadImg()!=null){//头像
+				ImageLoader.getInstance().displayImage(comment.getUserHeadImg(), viewHolder.avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			}
+			viewHolder.commentUsernameView.setText(comment.getNickname());
+			viewHolder.commentContentView.setText(comment.getComment());
+			viewHolder.commentTimeView.setText(TimeUtil.displayTime(comment.getCreateTime()));
+			
+			//头像&点击事件
+			viewHolder.commentItemView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					toId = comment.getFromId();
+					UiUtil.showShortToast(context, "toId: "+ toId);
+					commentInput.setText("回复"+comment.getNickname()+": ");
+					
+				}
+			});
+			//头像&点击事件
+			viewHolder.avatarView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), true, false);
+				}
+			});
+			return convertView;
 		}
-		
 	}
 	
 	
-	@Override
-	public void onItemClick(AdapterView<?> arg0, View view, int index, long id) {
-		UiUtil.showShortToast(context, "click arg2:"+index+", arg3:"+id);
-		if(id>=0){
-			commentInput.setText("回复xxx: ");
-		}
-		
-	}
+//	@Override
+//	public void onItemClick(AdapterView<?> arg0, View view, int index, long id) {
+////		UiUtil.showShortToast(context, "click arg2:"+index+", arg3:"+id);
+//		if(id>=0){
+//			commentInput.setText("回复xxx: ");
+//		}
+//	}
 
-	
 	
 	private OnClickListener onclickListener = new OnSingleClickListener() {
 		@Override
@@ -367,7 +386,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 			case R.id.btnCommentPost:
 				//检查内容不为空
 				//启动线程发布评论
-				postComment(designerId, commentInput.getText().toString());			
+				postComment(designerId, designerId, commentInput.getText().toString());			
 				break;
 			case R.id.btnLike:
 				postLike(albumId, designerId);
@@ -408,7 +427,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 	/**
 	 * 发起评论
 	 */
-	private void postComment(final int toId, final String comment) {
+	private void postComment(final int designerId, final int toId, final String comment) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
@@ -468,4 +487,20 @@ public class Activity_AlbumInfo extends BaseActivity implements OnItemClickListe
 		});
 		thread.start();
 	}
+	
+	
+	
+	/**
+	 * viewHolder
+	 * @author liqian
+	 *
+	 */
+	static class CommentViewHolder {
+		public View commentItemView;
+		public ImageView avatarView;
+		public TextView commentUsernameView;
+		public TextView commentContentView;
+		public TextView commentTimeView;
+	}
+	
 }

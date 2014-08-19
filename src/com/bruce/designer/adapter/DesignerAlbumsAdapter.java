@@ -3,7 +3,6 @@ package com.bruce.designer.adapter;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +13,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.activity.Activity_AlbumInfo;
-import com.bruce.designer.activity.Activity_UserHome;
-import com.bruce.designer.constants.ConstantsKey;
-import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
-import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UniversalImageUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
+import com.bruce.designer.view.holder.AlbumViewHolder;
 
 /**
  * 用于展示设计师的专辑列表的Listadapter
@@ -70,69 +62,42 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			if(getItem(position)!=null){
-				final Album album = getItem(position);
-				View albumItemView = LayoutInflater.from(context).inflate(R.layout.item_designer_album_view, null);
-				
-				/*构造slide数据*/
-				GridView gridView = (GridView) albumItemView.findViewById(R.id.albumSlideImages);
-				List<AlbumSlide> slideList = album.getSlideList();
-				AlbumSlidesAdapter slideAdapter = new AlbumSlidesAdapter(context, slideList);
-				gridView.setAdapter(slideAdapter);
-				
-				final AlbumAuthorInfo authorInfo = album.getAuthorInfo();
-				
-				View designerView = (View) albumItemView.findViewById(R.id.designerContainer);
-				designerView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						//跳转至个人资料页
-						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
-					}
-				});
-				
-				//设计师头像
-				ImageView avatarView = (ImageView) albumItemView.findViewById(R.id.avatar);
-				//设计师姓名
-				TextView usernameView = (TextView) albumItemView.findViewById(R.id.txtUsername);
-				
-				if(authorInfo!=null){
-					//显示头像
-					ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-					//显示昵称
-					usernameView.setText(authorInfo.getDesignerNickname());
+			AlbumViewHolder viewHolder = null;  
+			final Album album = getItem(position);
+			if(convertView==null){
+				viewHolder=new AlbumViewHolder();
+				//TODO 使用convertView
+				if(album!=null){
+//					View albumItemView = null;
+					convertView = LayoutInflater.from(context).inflate(R.layout.item_designer_album_view, null);
+					viewHolder.albumItemView = convertView;
+					
+					/*构造slide数据*/
+					viewHolder.gridView = (GridView) convertView.findViewById(R.id.albumSlideImages);
+					
+					//发布时间
+					viewHolder.pubtimeView = (TextView) convertView.findViewById(R.id.txtTime);
+					viewHolder.designerView = (View) convertView.findViewById(R.id.designerContainer); 
+					//设计师头像
+					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);
+					//设计师姓名
+					viewHolder.usernameView = (TextView) convertView.findViewById(R.id.txtUsername);
+					//专辑title
+					viewHolder.titleView = (TextView) convertView.findViewById(R.id.txtSticker);
+					viewHolder.contentView = (TextView) convertView.findViewById(R.id.txtContent);
+					viewHolder.btnBrowse = (Button) convertView.findViewById(R.id.btnBrowse);
+					viewHolder.btnLike = (Button) convertView.findViewById(R.id.btnLike);
+					viewHolder.btnComment = (Button) convertView.findViewById(R.id.btnComment);
+					viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
+					//评论数量
+					viewHolder.commentView = (TextView) convertView.findViewById(R.id.txtComment);
+					convertView.setTag(viewHolder);
 				}
-
-				TextView pubtimeView = (TextView) albumItemView.findViewById(R.id.txtTime);
-				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
-				
-				TextView albumTitleView = (TextView) albumItemView.findViewById(R.id.txtSticker);
-				albumTitleView.setText(album.getTitle());
-				
-				TextView albumContentView = (TextView) albumItemView.findViewById(R.id.txtContent);
-				albumContentView.setText(album.getRemark());
-				
-				//浏览，评论等交互数
-				Button btnBrowse = (Button) albumItemView.findViewById(R.id.btnBrowse);
-				Button btnLike = (Button) albumItemView.findViewById(R.id.btnLike);
-				Button btnComment = (Button) albumItemView.findViewById(R.id.btnComment);
-				Button btnFavorite = (Button) albumItemView.findViewById(R.id.btnFavorite);
-				
-				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
-				btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
-				btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
-				btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
-				
-				albumItemView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						Activity_AlbumInfo.show(context, album, authorInfo);
-					}
-				});
-				
-				return albumItemView;
+			}else{
+				viewHolder = (AlbumViewHolder) convertView.getTag();
 			}
-			return null;
+			//构造显示数据
+			viewHolder.fillDisplayData(context, album);
+			return convertView;
 		}
 	}

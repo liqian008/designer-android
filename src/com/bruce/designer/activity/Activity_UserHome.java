@@ -269,7 +269,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				UserInfoApi api = new UserInfoApi(userId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
 				
-				
 				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
 					message.obj = apiResult.getData();
@@ -328,7 +327,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 						}
 					}
 				}).start();
-			case R.id.btnUnfollow:	
+				break;
+			case R.id.btnUnfollow:
 				btnFollow.setVisibility(View.VISIBLE);
 				btnUnfollow.setVisibility(View.GONE);
 				new Thread(new Runnable(){

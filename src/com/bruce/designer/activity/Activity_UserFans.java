@@ -19,11 +19,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_UserFollows.FollowViewHolder;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
+import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -131,48 +133,43 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			if(getItem(position)!=null){
-				final UserFan user = getItem(position);
-				
-				final int fanUserId = user.getFanId();
-				final String fanNickname = user.getFanUser().getNickname();
-				final boolean isDesigner = true;
-				final boolean hasFollowed = true;
-				
-				View friendItemView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
-				
-				TextView usernameView = (TextView) friendItemView.findViewById(R.id.username);
-				usernameView.setText(user.getFanUser().getNickname());
-				
-				ImageView avatarView = (ImageView) friendItemView.findViewById(R.id.avatar);
-				//显示头像
-				ImageLoader.getInstance().displayImage(user.getFanUser().getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				
-				
-				View friendView = (View) friendItemView.findViewById(R.id.friendContainer);
-				friendView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						Activity_UserHome.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
-					}
-				});
-				
-				//构造关注状态
-				Button btnFollow = (Button) friendItemView.findViewById(R.id.btnFollow);
-				Button btnUnfollow = (Button) friendItemView.findViewById(R.id.btnUnfollow);
-				if(fanUserMap!=null){
-					if(Boolean.TRUE.equals(fanUserMap.get(fanUserId))){
-						btnFollow.setVisibility(View.GONE);
-						btnUnfollow.setVisibility(View.VISIBLE);
-					}else if(Boolean.FALSE.equals(fanUserMap.get(fanUserId))){
-						btnFollow.setVisibility(View.VISIBLE);
-						btnUnfollow.setVisibility(View.GONE);
-					}
+			//使用convertView
+			final UserFan user = getItem(position);
+			FanViewHolder viewHolder = null;
+			if(convertView==null){
+				viewHolder = new FanViewHolder();
+				if(user!=null){
+					
+					convertView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
+					
+					viewHolder.friendView = (View) convertView.findViewById(R.id.friendContainer);;
+					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);
+					viewHolder.usernameView = (TextView) convertView.findViewById(R.id.username);
+					//构造关注状态
+					viewHolder.btnFollow = (Button) convertView.findViewById(R.id.btnFollow);
+					viewHolder.btnUnfollow = (Button) convertView.findViewById(R.id.btnUnfollow);
 				}
-				return friendItemView;
+				convertView.setTag(viewHolder);
+			}else{
+				viewHolder = (FanViewHolder) convertView.getTag();
 			}
-			return null;
+			
+			final FanViewHolder fanViewHolder = viewHolder;
+			//填充数据
+			final int fanUserId = user.getFanId();
+			final String fanNickname = user.getFanUser().getNickname();
+			final boolean isDesigner = true;
+			final boolean hasFollowed = true;
+			fanViewHolder.usernameView.setText(user.getFanUser().getNickname());
+			//显示头像
+			ImageLoader.getInstance().displayImage(user.getFanUser().getHeadImg(), fanViewHolder.avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			fanViewHolder.friendView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View view) {
+					Activity_UserHome.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
+				}
+			});
+			return convertView;
 		}
 	}
 	
@@ -256,4 +253,19 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		
 	}
 
+	
+	/**
+	 * viewHolder
+	 * @author liqian
+	 *
+	 */
+	static class FanViewHolder {  
+		public View friendView;
+		public TextView usernameView;
+		public ImageView avatarView;
+
+		// 构造关注状态
+		public Button btnFollow;
+		public Button btnUnfollow;
+	}
 }
