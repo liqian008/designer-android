@@ -1,5 +1,6 @@
 package com.bruce.designer.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ public class Activity_Main extends BaseActivity {
 	public static void show(Context context){
 		Intent intent = new Intent(context, Activity_Main.class);
 		context.startActivity(intent);
+		((Activity) context).overridePendingTransition(R.anim.anim_alpha_in, R.anim.anim_alpha_out);
 	}
 	
 	@Override

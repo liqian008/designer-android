@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/commentUserame"
             android:layout_below="@+id/commentUserame"
-            android:text="content"
+            android:text=""
             android:textColor="#ff252525"
             android:textSize="14.0sp" />
 

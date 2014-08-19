@@ -136,53 +136,62 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//TODO 暂未使用convertView
-			
 			final Message message = getItem(position);
-			if(message!=null){
-				View itemView = inflater.inflate(R.layout.item_msgbox_view, null);
-				
-				View unreadNumContainer = (View) itemView.findViewById(R.id.unreadNumContainer);
-				TextView unreadNumText = (TextView) itemView.findViewById(R.id.unreadNum);
-				
-				//未读消息数
-				int unreadNum = message.getUnread();
-				unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
-				unreadNumText.setText(String.valueOf(unreadNum));
-				if(unreadNum>0){
-					unreadNumContainer.setVisibility(View.VISIBLE); 
-				}else{
-					unreadNumContainer.setVisibility(View.GONE);
+			//TODO 使用convertView
+			MessageViewHandler viewHolder = null;
+			if(convertView==null){
+				viewHolder = new MessageViewHandler();
+				if(message!=null){
+					convertView = inflater.inflate(R.layout.item_msgbox_view, null);
+					viewHolder.messageItemView = convertView;
+					viewHolder.unreadNumContainer = (View) convertView.findViewById(R.id.unreadNumContainer);
+					viewHolder.unreadNumText = (TextView) convertView.findViewById(R.id.unreadNum);
+					viewHolder.msgTitleView = (TextView) convertView.findViewById(R.id.msgTitle);
+					viewHolder.msgContentView = (TextView) convertView.findViewById(R.id.msgContent);
+					viewHolder.msgPubTimeView = (TextView) convertView.findViewById(R.id.msgPubTime);
+					viewHolder.msgAvatrView = (ImageView) convertView.findViewById(R.id.msgAvatar);
+					convertView.setTag(viewHolder);
 				}
-				
-				TextView msgTitleView = (TextView) itemView.findViewById(R.id.msgTitle);
-				msgTitleView.setText(buildMessageTitle(message.getMessageType(), null));
-				 
-				TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
-				msgContentView.setText(message.getMessage());
-				
-				TextView msgPubTimeView = (TextView) itemView.findViewById(R.id.msgPubTime);
-				msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
-				
-				//头像
-				ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
-				displayAvatarView(msgAvatrView, message);
-				
-				itemView.setOnClickListener(new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View v) {
-						if(isChatMessage(message.getMessageType())){//私信消息
-							Activity_MessageChat.show(context, message.getMessageType());
-						}else{//普通消息
-							Activity_MessageList.show(context, message.getMessageType());
-						}
-					}
-				});
-				return itemView;
+			}else{
+				viewHolder = (MessageViewHandler) convertView.getTag();
 			}
-			return null;
+
+			//填充数据
+			
+			//未读消息数
+			int unreadNum = message.getUnread();
+			unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
+			viewHolder.unreadNumText.setText(String.valueOf(unreadNum));
+			if(unreadNum>0){
+				viewHolder.unreadNumContainer.setVisibility(View.VISIBLE); 
+			}else{
+				viewHolder.unreadNumContainer.setVisibility(View.GONE);
+			}
+			//消息内容
+			String nickname = null;
+			int messageType = message.getMessageType();
+			if(isChatMessage(messageType)){
+				nickname = message.getChatUser().getNickname();
+			}
+			
+			viewHolder.msgTitleView.setText(buildMessageTitle(messageType, nickname));
+			viewHolder.msgContentView.setText(message.getMessage());
+			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
+			
+			//头像
+			displayAvatarView(viewHolder.msgAvatrView, message);
+			viewHolder.messageItemView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					if(isChatMessage(message.getMessageType())){//私信消息
+						Activity_MessageChat.show(context, message.getMessageType());
+					}else{//普通消息
+						Activity_MessageList.show(context, message.getMessageType());
+					}
+				}
+			});
+			return convertView;
 		}
-		
 	}
 	
 	/**
@@ -322,5 +331,20 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+	}
+	
+	
+	static class MessageViewHandler{
+		
+		public View messageItemView;
+		
+		public View unreadNumContainer;
+		public TextView unreadNumText;
+		
+		public TextView msgTitleView;
+		public TextView msgContentView;
+		public TextView msgPubTimeView;
+		//头像
+		public ImageView msgAvatrView;
 	}
 }
