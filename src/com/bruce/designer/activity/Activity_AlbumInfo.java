@@ -13,8 +13,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,7 +26,7 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumCommentsApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
-import com.bruce.designer.api.album.CommentPostApi;
+import com.bruce.designer.api.album.PostCommentApi;
 import com.bruce.designer.api.album.PostFavoriteApi;
 import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
@@ -44,11 +42,13 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-public class Activity_AlbumInfo extends BaseActivity {
+public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListener2<ListView>{
 	
 	private static final int HANDLER_FLAG_INFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
@@ -71,8 +71,8 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private Button btnLike;
 	private Button btnComment;
 	private Button btnFavorite;
+	private Button btnShare;
 	
-//	private ImageView coverView;
 	
 	private PullToRefreshListView pullRefresh;
 	private ListView commentListView;
@@ -85,6 +85,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 	private Integer designerId;
 	/*回复评论时的接收人，可能不是designerId*/
 	private int toId = 0;
+	private long commentsTailId = 0; 
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -104,15 +105,41 @@ public class Activity_AlbumInfo extends BaseActivity {
 					}
 					break;
 				case HANDLER_FLAG_COMMENTS:
+					//关闭刷新控件
+					pullRefresh.onRefreshComplete();
+					
 					Map<String, Object> commentDataMap = (Map<String, Object>) msg.obj;
 					if(commentDataMap!=null){
+						//解析响应数据
+						Long fromTailId = (Long) commentDataMap.get("fromTailId");
+						Long newTailId = (Long) commentDataMap.get("newTailId");
 						List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
-						//先将评论存入db
-						AlbumCommentDB.deleteByAlbumId(context, albumId);
-						AlbumCommentDB.save(context, commentList);
-						
-						commentsAdapter.setCommentList(commentList);
-						commentsAdapter.notifyDataSetChanged();
+						if(commentList!=null&&commentList.size()>0){
+							if(newTailId!=null&&newTailId>0){//还有可加载的数据
+								commentsTailId = newTailId;
+								pullRefresh.setMode(Mode.BOTH);
+							}else{
+								commentsTailId = 0;
+								pullRefresh.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+							}
+							
+							
+							List<Comment> oldCommentList = commentsAdapter.getCommentList();
+							//判断加载位置，以确定是list增量还是覆盖
+							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+								oldCommentList.addAll(commentList);
+							}else{//下拉加载，需覆盖原数据
+								//先将评论存入db
+								AlbumCommentDB.deleteByAlbumId(context, albumId);
+								AlbumCommentDB.save(context, commentList);
+								
+								oldCommentList = null;
+								oldCommentList = commentList; 
+							}
+							commentsAdapter.setCommentList(oldCommentList);
+							commentsAdapter.notifyDataSetChanged();
+						}
 					}
 					break;
 				case HANDLER_FLAG_COMMENT_POST: //评论成功
@@ -122,7 +149,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 					InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 					inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
 					//重新加载评论列表
-					getAlbumComments(albumId, 0);
+					getAlbumComments(0);
 					break;
 				case HANDLER_FLAG_LIKE_POST: //赞成功
 					NotificationBuilder.createNotification(context, "赞操作成功...");
@@ -159,16 +186,16 @@ public class Activity_AlbumInfo extends BaseActivity {
 			}
 		});
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("作品集");
+		titleView.setText("作品辑");
 		
 		pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-		pullRefresh.setMode(Mode.PULL_FROM_END);
+		pullRefresh.setMode(Mode.PULL_FROM_START);
+		pullRefresh.setOnRefreshListener(this);
 		commentListView = pullRefresh.getRefreshableView();
 		//为listview增加headerView (专辑基础信息)
 		LayoutInflater layoutInflate = LayoutInflater.from(context);
 		View albumInfoView = layoutInflate.inflate(R.layout.item_album_info_head, null);
 		commentListView.addHeaderView(albumInfoView);
-//		commentListView.setOnItemClickListener(this);
 		
 		commentsAdapter = new AlbumCommentsAdapter(context, null);
 		commentListView.setAdapter(commentsAdapter);
@@ -182,9 +209,12 @@ public class Activity_AlbumInfo extends BaseActivity {
 		btnLike = (Button) albumInfoView.findViewById(R.id.btnLike);
 		btnComment = (Button) albumInfoView.findViewById(R.id.btnComment);
 		btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
+		btnShare = (Button) albumInfoView.findViewById(R.id.btnShare);
+		
 		btnLike.setOnClickListener(onclickListener);
 		btnComment.setOnClickListener(onclickListener);
 		btnFavorite.setOnClickListener(onclickListener);
+		btnShare.setOnClickListener(onclickListener);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)albumInfoView.findViewById(R.id.albumSlideImages);
@@ -226,16 +256,10 @@ public class Activity_AlbumInfo extends BaseActivity {
 			albumContentView.setText(album.getRemark());
 			
 			//浏览，评论等交互数
-			Button btnBrowse = (Button) albumInfoView.findViewById(R.id.btnBrowse);
-			Button btnLike = (Button) albumInfoView.findViewById(R.id.btnLike);
-			Button btnComment = (Button) albumInfoView.findViewById(R.id.btnComment);
-			Button btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
-			
 			btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
 			btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
 			btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
 			btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
-			
 			
 			//获取db中的图片列表
 			List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
@@ -253,7 +277,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 				commentsAdapter.notifyDataSetChanged();
 			}
 			//获取实时评论列表
-			getAlbumComments(albumId, 0);
+			getAlbumComments(0);
 			
 		}
 	}
@@ -353,31 +377,21 @@ public class Activity_AlbumInfo extends BaseActivity {
 				@Override
 				public void onSingleClick(View v) {
 					toId = comment.getFromId();
-					UiUtil.showShortToast(context, "toId: "+ toId);
+//					UiUtil.showShortToast(context, "toId: "+ toId);
 					commentInput.setText("回复"+comment.getNickname()+": ");
-					
 				}
 			});
 			//头像&点击事件
 			viewHolder.avatarView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View v) {
-					Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), true, false);
+					Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), false, false);
 				}
 			});
 			return convertView;
 		}
 	}
 	
-	
-//	@Override
-//	public void onItemClick(AdapterView<?> arg0, View view, int index, long id) {
-////		UiUtil.showShortToast(context, "click arg2:"+index+", arg3:"+id);
-//		if(id>=0){
-//			commentInput.setText("回复xxx: ");
-//		}
-//	}
-
 	
 	private OnClickListener onclickListener = new OnSingleClickListener() {
 		@Override
@@ -403,15 +417,19 @@ public class Activity_AlbumInfo extends BaseActivity {
 	};
 	
 	
-	
-	private void getAlbumComments(final int albumId, final int commentsTailId) {
+	/**
+	 * 加载评论列表
+	 * @param albumId
+	 * @param commentsTailId
+	 */
+	private void getAlbumComments(final long tailId) {
 		//启动线程获取评论数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Message message;
-				AlbumCommentsApi api = new AlbumCommentsApi(albumId, commentsTailId);
-				ApiResult apiResult = ApiManager.invoke(context, api);
+				AlbumCommentsApi api = new AlbumCommentsApi(albumId, tailId);
+				ApiResult apiResult = ApiManager.invoke(context, api); 
 				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_COMMENTS);
 					message.obj = apiResult.getData();
@@ -433,7 +451,7 @@ public class Activity_AlbumInfo extends BaseActivity {
 			@Override
 			public void run() {
 				Message message;
-				CommentPostApi api = new CommentPostApi(albumId, designerId, toId, comment);
+				PostCommentApi api = new PostCommentApi(albumId, designerId, toId, comment);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -488,7 +506,17 @@ public class Activity_AlbumInfo extends BaseActivity {
 		thread.start();
 	}
 	
-	
+
+	@Override
+	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
+		getAlbumComments(0);//下拉刷新，tailId为0
+	}
+
+
+	@Override
+	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+		getAlbumComments(commentsTailId);//加载更多，tailId为上次缓存的
+	}
 	
 	/**
 	 * viewHolder
@@ -502,5 +530,5 @@ public class Activity_AlbumInfo extends BaseActivity {
 		public TextView commentContentView;
 		public TextView commentTimeView;
 	}
-	
+
 }

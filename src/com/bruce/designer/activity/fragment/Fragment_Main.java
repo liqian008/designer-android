@@ -357,6 +357,7 @@ public class Fragment_Main extends Fragment{
 						Integer fromTailId = (Integer) tabedDataMap.get("fromTailId");
 						Integer newTailId = (Integer) tabedDataMap.get("newTailId");
 						if(albumList!=null&&albumList.size()>0){
+							//缓存本次刷新的时间
 							SharedPreferenceUtil.putSharePre(context, getRefreshKey(tabIndex), System.currentTimeMillis());
 							if(newTailId!=null&&newTailId>0){//还有可加载的数据
 								tabAlbumTailIds[tabIndex] = newTailId;

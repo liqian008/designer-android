@@ -1,4 +1,4 @@
-package com.bruce.designer.api.album;
+package com.bruce.designer.api.message;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -12,16 +12,14 @@ import com.bruce.designer.util.ResponseBuilderUtil;
  * @author liqian
  *
  */
-public class CommentPostApi extends AbstractApi { 
+public class PostChatApi extends AbstractApi { 
 
 	private Map<String, String> paramMap = null;
 
-	public CommentPostApi(int albumId, int designerId, int toId, String comment) {
+	public PostChatApi(int toId, String content) {
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("albumId", String.valueOf(albumId));
-		paramMap.put("designerId", String.valueOf(designerId));
 		paramMap.put("toId", String.valueOf(toId));
-		paramMap.put("comment", String.valueOf(comment));
+		paramMap.put("content", String.valueOf(content));
 	}
 
 	
@@ -39,7 +37,7 @@ public class CommentPostApi extends AbstractApi {
 
 	@Override
 	protected String getApiMethodName() {
-		return "comment.cmd";
+		return "postChat.cmd";
 	}
 
 }

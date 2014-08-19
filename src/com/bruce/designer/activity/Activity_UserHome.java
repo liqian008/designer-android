@@ -22,7 +22,7 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.api.user.FollowUserApi;
+import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
@@ -75,7 +75,11 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
+	private TextView albumsTabTitle;
+	
 	private int queryUserId;
+	private String queryUserNickname;
+	private String queryUserAvatar;
 
 	private DesignerAlbumsAdapter albumListAdapter;
 
@@ -113,6 +117,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 							//设计师or用户
 							if(userinfo.getDesignerStatus()!=null&&userinfo.getDesignerStatus()==ConstantDesigner.DESIGNER_APPLY_APPROVED){//设计师状态
 								titleView.setText("设计师");
+								albumsTabTitle.setText("专辑列表");
 								if(hasFollowed){
 									btnFollow.setVisibility(View.GONE);
 									btnUnfollow.setVisibility(View.VISIBLE);
@@ -189,8 +194,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		Intent intent = getIntent();
 		//从intent中获取参数
 		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
-		String userNickname = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME);
-		String userAvatar = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR);
+		queryUserNickname = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME);
+		queryUserAvatar = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR); 
 		boolean isDesigner = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, false);
 //		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
 		
@@ -220,14 +225,19 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
 		//显示头像
-		ImageLoader.getInstance().displayImage(userAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+		ImageLoader.getInstance().displayImage(queryUserAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 		//显示昵称
 		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
-		nicknameView.setText(userNickname);
+		nicknameView.setText(queryUserNickname);
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
 		fansView.setOnClickListener(onclickListener);
+		
+		albumsTabTitle = (TextView) headerView.findViewById(R.id.albumsTabTitle);
+		if(!isDesigner){
+			albumsTabTitle.setText("非设计师身份，无作品辑");
+		}
 		
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
@@ -320,7 +330,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				new Thread(new Runnable(){
 					@Override
 					public void run() {
-						FollowUserApi api = new FollowUserApi(queryUserId, 1);
+						PostFollowApi api = new PostFollowApi(queryUserId, 1);
 						ApiResult apiResult = ApiManager.invoke(context, api);
 						if(apiResult!=null&&apiResult.getResult()==1){
 							handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
@@ -334,7 +344,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				new Thread(new Runnable(){
 					@Override
 					public void run() {
-						FollowUserApi api = new FollowUserApi(queryUserId, 0);
+						PostFollowApi api = new PostFollowApi(queryUserId, 0);
 						ApiResult apiResult = ApiManager.invoke(context, api);
 						if(apiResult!=null&&apiResult.getResult()==1){
 							handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
@@ -343,7 +353,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				}).start();
 				break;
 			case R.id.btnSendMsg://发私信
-				Activity_MessageChat.show(context, queryUserId);
+				Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
+				break;
 			case R.id.btnUserInfo://个人资料页
 				Activity_UserInfo.show(context, queryUserId);
 			default:

@@ -7,16 +7,16 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
-public class FollowUserApi extends AbstractApi {
+public class PostFollowApi extends AbstractApi {
 
 	private Map<String, String> paramMap = null;
 
 	@Override
 	protected String getApiMethodName() {
-		return "follow.cmd";
+		return "postFollow.cmd";
 	}
 
-	public FollowUserApi(int designerId, int mode) {
+	public PostFollowApi(int designerId, int mode) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("designerId", String.valueOf(designerId));
 		paramMap.put("mode", String.valueOf(mode));

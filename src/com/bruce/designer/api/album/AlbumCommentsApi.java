@@ -19,7 +19,7 @@ public class AlbumCommentsApi extends AbstractApi {
 
 	private Map<String, String> paramMap = null;
 
-	public AlbumCommentsApi(int albumId, int commentsTailId) {
+	public AlbumCommentsApi(int albumId, long commentsTailId) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 		paramMap.put("commentsTailId", String.valueOf(commentsTailId));
@@ -62,13 +62,15 @@ public class AlbumCommentsApi extends AbstractApi {
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int commentTailId = jsonData.getInt("commentTailId");
-			dataMap.put("commentTailId", commentTailId);
+			long fromTailId = jsonData.optLong("fromTailId");
+			long newTailId = jsonData.optLong("newTailId");
 			
 			String commentListStr = jsonData.getString("commentList");
 			if(commentListStr!=null){
 				List<Comment> commentList = JsonUtil.gson.fromJson(commentListStr, new TypeToken<List<Comment>>() {}.getType());
 				dataMap.put("commentList", commentList);
+				dataMap.put("fromTailId", fromTailId);
+				dataMap.put("newTailId", newTailId);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			} 
 		}catch (JSONException e) {

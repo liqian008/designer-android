@@ -6,6 +6,7 @@
     <color name="red">#ffff0000</color>
     <color name="green">#ff2bb458</color>
     <color name="red">#ff0000</color>
+    <color name="grey">#f2f2f2</color>
     
     <color name="border_bg">#ffeeeeee</color>
     <color name="brand_selected_color">#ffe5e5e5</color>

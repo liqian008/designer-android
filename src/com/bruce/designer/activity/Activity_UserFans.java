@@ -148,6 +148,8 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 					//构造关注状态
 					viewHolder.btnFollow = (Button) convertView.findViewById(R.id.btnFollow);
 					viewHolder.btnUnfollow = (Button) convertView.findViewById(R.id.btnUnfollow);
+					
+					viewHolder.btnSendMsg = (Button) convertView.findViewById(R.id.btnSendMsg);
 				}
 				convertView.setTag(viewHolder);
 			}else{
@@ -167,6 +169,14 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				@Override
 				public void onSingleClick(View view) {
 					Activity_UserHome.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
+				}
+			});
+			
+			//私信事件
+			fanViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
 				}
 			});
 			return convertView;
@@ -267,5 +277,6 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		// 构造关注状态
 		public Button btnFollow;
 		public Button btnUnfollow;
+		public Button btnSendMsg;
 	}
 }

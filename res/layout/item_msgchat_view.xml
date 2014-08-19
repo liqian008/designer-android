@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 我的消息条目 -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/messageContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12.0dip"
+        android:background="@drawable/button_white_bg" >
+		
+        <TextView
+            android:id="@+id/chatTime"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_centerHorizontal="true"
+               android:gravity="center"
+               android:text="发送时间"
+              android:paddingLeft="10dp"
+               android:paddingRight="10dp"
+               android:paddingTop="4dp"
+               android:paddingBottom="4dp"
+               android:textColor="@color/black2c"
+               android:textSize="11.0sp"
+               android:layout_marginBottom="10dp"
+                />
+        
+        
+        <RelativeLayout
+            android:id="@+id/msgAvatarBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:layout_below="@+id/chatTime"
+            >
+
+            <ImageView
+                android:id="@+id/msgAvatar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/default_avatar" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:layout_toRightOf="@+id/msgAvatarBox"
+            android:layout_below="@+id/chatTime"
+             >
+
+            <TextView
+                android:id="@+id/msgContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:minHeight="50sp"
+                android:padding="10sp"
+                android:text="xcvxcvxcvxcv"
+                android:lineSpacingMultiplier="1.3"
+                android:textSize="16.0sp" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <!-- 我的对话消息 -->
+
+    <RelativeLayout
+        android:id="@+id/myMessageContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="12.0dip"
+        android:background="@drawable/button_white_bg" >
+		
+        <TextView
+            android:id="@+id/myChatTime"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_centerHorizontal="true"
+               android:gravity="center"
+               android:text="发送时间"
+               android:paddingLeft="10dp"
+               android:paddingRight="10dp"
+               android:paddingTop="4dp"
+               android:paddingBottom="4dp"
+               android:textColor="@color/black2c"
+               android:textSize="11.0sp"
+               android:layout_marginBottom="10dp"
+                />
+        
+        
+        <RelativeLayout
+            android:id="@+id/myAvatarBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/myChatTime"
+             >
+
+            <ImageView
+                android:id="@+id/myAvatar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/default_avatar" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10.0dip"
+            android:layout_marginRight="10.0dip"
+            android:layout_toLeftOf="@+id/myAvatarBox"
+            android:layout_below="@+id/myChatTime"
+             >
+
+            <TextView
+                android:id="@+id/myMsgContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical|left"
+                android:minHeight="50sp"
+                android:padding="10sp"
+                android:text=""
+                android:background="@color/green_button_normal_color"
+                android:textColor="#fdfdfd"
+                android:textSize="16.0sp" 
+                android:lineSpacingMultiplier="1.3"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -22,17 +22,15 @@ import com.bruce.designer.activity.Activity_MessageChat;
 import com.bruce.designer.activity.Activity_MessageList;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageBoxApi;
-import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 我的个人资料的Fragment
@@ -41,9 +39,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  */
 public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<ListView> {
 	
-	
 	private static final int HANDLER_FLAG_USERBOX = 1;
-	
 	
 	private View titlebarView;
 
@@ -55,7 +51,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	
 	private LayoutInflater inflater;
 	
-	private PullToRefreshListView pullRefresh;
+	private PullToRefreshListView pullRefreshView; 
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,11 +75,11 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		titleView = (TextView) mainView.findViewById(R.id.titlebar_title);
 		titleView.setText("消息中心");
 		
-		pullRefresh = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
-		pullRefresh.setMode(Mode.BOTH);
-		pullRefresh.setOnRefreshListener(this);
+		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
+		pullRefreshView.setMode(Mode.PULL_FROM_START);
+		pullRefreshView.setOnRefreshListener(this);
 		
-		ListView msgboxView = pullRefresh.getRefreshableView();
+		ListView msgboxView = pullRefreshView.getRefreshableView();
 		messageBoxAdapter = new MessageBoxAdapter(context, null);
 		msgboxView.setAdapter(messageBoxAdapter);
 	}
@@ -170,21 +166,22 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 			//消息内容
 			String nickname = null;
 			int messageType = message.getMessageType();
-			if(isChatMessage(messageType)){
+			if(MessageUtil.isChatMessage(messageType)){
 				nickname = message.getChatUser().getNickname();
 			}
+			final String chatNickname = nickname;
 			
-			viewHolder.msgTitleView.setText(buildMessageTitle(messageType, nickname));
+			viewHolder.msgTitleView.setText(MessageUtil.buildMessageTitle(messageType, nickname));
 			viewHolder.msgContentView.setText(message.getMessage());
 			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
 			
 			//头像
-			displayAvatarView(viewHolder.msgAvatrView, message);
+			MessageUtil.displayAvatarView(viewHolder.msgAvatrView, message);
 			viewHolder.messageItemView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View v) {
-					if(isChatMessage(message.getMessageType())){//私信消息
-						Activity_MessageChat.show(context, message.getMessageType());
+					if(MessageUtil.isChatMessage(message.getMessageType())){//私信消息
+						Activity_MessageChat.show(context, message.getMessageType(), chatNickname, message.getChatUser().getHeadImg());
 					}else{//普通消息
 						Activity_MessageList.show(context, message.getMessageType());
 					}
@@ -222,7 +219,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		public void handleMessage(android.os.Message msg) {
 			switch(msg.what){
 				case HANDLER_FLAG_USERBOX:
-					pullRefresh.onRefreshComplete();
+					pullRefreshView.onRefreshComplete();
 					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
 					if(userFansDataMap!=null){
 						List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
@@ -248,79 +245,6 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		}
 	};
 	
-	public static void displayAvatarView(ImageView msgAvatrView, Message message) {
-		switch (message.getMessageType()) {
-			case ConstantDesigner.MESSAGE_TYPE_SYSTEM: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_FOLLOW: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_follow);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_COMMENT: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_comment);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_LIKE: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_like);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_FAVORITIES: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_favorite);
-				break;
-			}
-			case ConstantDesigner.MESSAGE_TYPE_AT: {
-				msgAvatrView.setImageResource(R.drawable.icon_msgbox_at);
-				break;
-			}
-			default: {
-				//私信消息
-				if(message.getChatUser()!=null){
-					ImageLoader.getInstance().displayImage(message.getChatUser().getHeadImg(), msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				}
-				break;
-			}
-		}
-	}
-	
-	
-	/**
-	 * 构造消息title
-	 * @param messageType
-	 * @return
-	 */
-	public static String buildMessageTitle(int messageType, String nickname) {
-		String result = null;
-		if(messageType==ConstantDesigner.MESSAGE_TYPE_SYSTEM) {
-				result ="系统消息";
-			} else if(messageType==ConstantDesigner.MESSAGE_TYPE_FOLLOW) {
-				result ="关注消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_COMMENT) {
-				result ="评论消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_LIKE) {
-				result ="赞消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_FAVORITIES) {
-				result ="收藏消息";
-			}else if(messageType==ConstantDesigner.MESSAGE_TYPE_AT) {
-				result ="@消息";
-			}else if(isChatMessage(messageType)){
-				if(nickname==null){
-					result= "私信消息";
-				}else{
-					result = "私信 - " + nickname;
-				}
-			}
-			return result;
-	}
-	
-	public static boolean isChatMessage(int messageType){
-		return messageType>=10000; 
-	}
-	
-	public static boolean isBroadcastMessage(int messageType){
-		return messageType == ConstantDesigner.MESSAGE_TYPE_SYSTEM; 
-	}
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {

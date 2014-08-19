@@ -21,6 +21,7 @@ public class Activity_Main extends BaseActivity {
 	
 	private static final int TAB_NUM=4;
 	private long lastQuitTime = 0;
+	private int currentTabIndex = 0 ;
 	
 	private FragmentManager fragmentManager;
 	
@@ -66,12 +67,17 @@ public class Activity_Main extends BaseActivity {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		boolean flag = false;
 		if (keyCode == KeyEvent.KEYCODE_BACK) {// 退出
-			long currentTime = System.currentTimeMillis();
-			if (lastQuitTime <= 0 || currentTime - lastQuitTime > 2000) {
-				lastQuitTime = System.currentTimeMillis();
-				UiUtil.showShortToast(context, "再次点击后即可退出应用");
-			} else {
-				AppManager.getInstance().exitApp(context);
+			if(currentTabIndex!=0){//需要先将焦点回到tab0
+				highLight(0);
+			}else{
+				long currentTime = System.currentTimeMillis();
+				if (lastQuitTime <= 0 || currentTime - lastQuitTime > 2000) {
+					lastQuitTime = System.currentTimeMillis();
+					
+					UiUtil.showShortToast(context, "再次点击后即可退出应用");
+				} else {
+					AppManager.getInstance().exitApp(context);
+				}
 			}
 		} else {
 			flag = super.onKeyUp(keyCode, event);
@@ -90,6 +96,7 @@ public class Activity_Main extends BaseActivity {
 		if(index>=TAB_NUM||index<0){
 			index = 0;
 		}
+		currentTabIndex = index;
 		for(ImageButton tab:footerTabs){
 			tab.setBackgroundResource(R.color.tab_normal_color);
 		}
@@ -104,7 +111,7 @@ public class Activity_Main extends BaseActivity {
 	private void showFragment(int index) {
 		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);  
         fragmentTransaction.show(mFragments[index]).commit();
-//        mFragments[index].onResume();
+        mFragments[index].onResume();
 	}
 	
 	

@@ -56,7 +56,7 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="10.0dip"
             android:background="@drawable/button_orange_bg"
-            android:text="发送"
+            android:text="评 论"
             android:textColor="@color/white"
             android:textSize="12.0sp" />
     </RelativeLayout>

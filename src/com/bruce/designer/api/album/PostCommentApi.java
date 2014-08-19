@@ -8,19 +8,20 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
- * 提交收藏api
+ * 提交评论api
  * @author liqian
  *
  */
-public class PostFavoriteApi extends AbstractApi { 
+public class PostCommentApi extends AbstractApi { 
 
 	private Map<String, String> paramMap = null;
 
-	public PostFavoriteApi(int albumId, int designerId, int mode) {
+	public PostCommentApi(int albumId, int designerId, int toId, String comment) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 		paramMap.put("designerId", String.valueOf(designerId));
-		paramMap.put("mode", String.valueOf(mode));
+		paramMap.put("toId", String.valueOf(toId));
+		paramMap.put("comment", String.valueOf(comment));
 	}
 
 	
@@ -38,7 +39,7 @@ public class PostFavoriteApi extends AbstractApi {
 
 	@Override
 	protected String getApiMethodName() {
-		return "postFavorite.cmd";
+		return "postComment.cmd";
 	}
 
 }

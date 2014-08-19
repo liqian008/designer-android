@@ -37,7 +37,7 @@ public class PostLikeApi extends AbstractApi {
 
 	@Override
 	protected String getApiMethodName() {
-		return "like.cmd";
+		return "postLike.cmd";
 	}
 
 }

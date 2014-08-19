@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.user.FollowUserApi;
+import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
@@ -73,14 +73,12 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		pullRefresh.setMode(Mode.PULL_FROM_START);
 		pullRefresh.setOnRefreshListener(this);
 		
-//		ListView followsListView = (ListView)findViewById(R.id.userFollows);
 		followsListAdapter = new FollowsListAdapter(context, null, null);
 		followsListView.setAdapter(followsListAdapter);
 		
 		pullRefresh.setRefreshing(true);
 		//获取关注列表
 		getFollows(userId);
-		//TODO 需要增加下拉刷新
 	}
 	
 	
@@ -141,7 +139,6 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 			if(convertView==null){
 				viewHolder = new FollowViewHolder();
 				if(user!=null){
-					
 					convertView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
 					
 					viewHolder.friendView = (View) convertView.findViewById(R.id.friendContainer);;
@@ -150,6 +147,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					//构造关注状态
 					viewHolder.btnFollow = (Button) convertView.findViewById(R.id.btnFollow);
 					viewHolder.btnUnfollow = (Button) convertView.findViewById(R.id.btnUnfollow);
+					viewHolder.btnSendMsg = (Button) convertView.findViewById(R.id.btnSendMsg);
 				}
 				convertView.setTag(viewHolder);
 			}else{
@@ -191,7 +189,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					new Thread(new Runnable(){
 						@Override
 						public void run() {
-							FollowUserApi api = new FollowUserApi(followUserId, 1);
+							PostFollowApi api = new PostFollowApi(followUserId, 1);
 							ApiResult apiResult = ApiManager.invoke(context, api);
 							if(apiResult!=null&&apiResult.getResult()==1){
 								handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
@@ -209,13 +207,21 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					new Thread(new Runnable(){
 						@Override
 						public void run() {
-							FollowUserApi api = new FollowUserApi(followUserId, 0);
+							PostFollowApi api = new PostFollowApi(followUserId, 0);
 							ApiResult apiResult = ApiManager.invoke(context, api);
 							if(apiResult!=null&&apiResult.getResult()==1){
 								handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
 							}
 						}
 					}).start();
+				}
+			});
+			
+			//取消关注事件
+			followViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
 				}
 			});
 			return convertView;
@@ -318,9 +324,11 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		public TextView usernameView;
 		public ImageView avatarView;
 
-		// 构造关注状态
+		//关注按钮
 		public Button btnFollow;
 		public Button btnUnfollow;
+		//私信按钮
+		public Button btnSendMsg;
 	}
 	
 }
