@@ -51,9 +51,6 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	
 	private long messageTailId;
 
-
-	// private int userId;
-
 	public static void show(Context context, int messageType) {
 		Intent intent = new Intent(context, Activity_MessageList.class);
 		intent.putExtra("messageType", messageType);
@@ -79,14 +76,12 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 		pullRefreshView.setMode(Mode.PULL_FROM_START);
 		pullRefreshView.setOnRefreshListener(this);
 		
-		
 		messageListView = pullRefreshView.getRefreshableView();
 		messageListAdapter = new MessageListAdapter(context, null);
 		messageListView.setAdapter(messageListAdapter);
 
 		// 获取消息列表
 		getMessageList(0);
-		// TODO 需要增加下拉刷新
 	}
 
 	class MessageListAdapter extends BaseAdapter {
@@ -152,6 +147,24 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 
 			//填充数据
 			
+			
+			//加载头像
+			if(MessageUtil.isBroadcastMessage(messageType)){//系统消息使用系统头像
+				viewHolder.msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
+			}else{//其他消息需要使用fromUser的头像
+				ImageLoader.getInstance().displayImage(message.getFromUser().getHeadImg(), viewHolder.msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			}
+			
+			// 头像点击事件
+			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
+				@Override
+				public void onSingleClick(View v) {
+					// 跳转个人主页
+					Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
+				}
+			});
+			
+			
 			//未读消息数
 			int unreadNum = message.getUnread();
 			unreadNum = unreadNum>99?99:unreadNum;//最多显示99条
@@ -171,29 +184,20 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 			viewHolder.msgContentView.setText(message.getMessage());
 			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
 			
-			//加载头像
-			if(MessageUtil.isBroadcastMessage(messageType)){//系统消息使用系统头像
-				viewHolder.msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
-			}else{//其他消息需要使用fromUser的头像
-				ImageLoader.getInstance().displayImage(message.getFromUser().getHeadImg(), viewHolder.msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			OnClickListener itemClickListener = null;
+			if(MessageUtil.isInteractiveMessage(messageType)){//交互类消息，点击后跳到专辑的界面
+				itemClickListener = new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+//						Activity_AlbumInfo.show(context, album, authorInfo);
+					}
+				};
 			}
 			
+			if(itemClickListener!=null){
+				viewHolder.messageItemView.setOnClickListener(itemClickListener);
+			}
 			
-			// 头像点击事件
-			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					// 跳转个人主页
-					Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
-				}
-			});
-			
-			viewHolder.messageItemView.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					
-				}
-			});
 			return convertView;
 		}
 	}

@@ -79,9 +79,24 @@ public class MessageUtil {
 	public static boolean isChatMessage(int messageType) {
 		return messageType >= 100000;
 	}
-
+	
+	/**
+	 * 判断是否是系统广播
+	 * @param messageType
+	 * @return
+	 */
 	public static boolean isBroadcastMessage(int messageType) {
 		return messageType == ConstantDesigner.MESSAGE_TYPE_SYSTEM;
+	}
+
+	
+	/**
+	 * 判断是否是交互的消息（交互类消息有源，通常是Album）
+	 * @param messageType
+	 * @return
+	 */
+	public static boolean isInteractiveMessage(int messageType) {
+		return messageType == ConstantDesigner.MESSAGE_TYPE_COMMENT || messageType == ConstantDesigner.MESSAGE_TYPE_LIKE || messageType == ConstantDesigner.MESSAGE_TYPE_FAVORITIES;
 	}
 
 }
