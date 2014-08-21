@@ -1,6 +1,7 @@
 package com.bruce.designer.activity.fragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -88,6 +90,9 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 						int fansCount = (Integer) userinfoDataMap.get("fansCount");
 						int followsCount = (Integer) userinfoDataMap.get("followsCount");
 						if(userinfo!=null&&userinfo.getId()>0){
+							//缓存到sp
+							SharedPreferenceUtil.writeObjectToSp(userinfo, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
+
 							titleView.setText(userinfo.getNickname());
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
@@ -198,11 +203,10 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
 		btnUserInfo.setOnClickListener(listener);
 		
-		//获取个人资料详情
+		//启动获取个人资料详情
 		getUserinfo(Config.HOST_ID);
 		//获取个人专辑
 		getAlbums(Config.HOST_ID, 0);
-		
 	}
 	
 	@Override
@@ -219,8 +223,6 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 				
 				UserInfoApi api = new UserInfoApi(userId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				
-				
 				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
 					message.obj = apiResult.getData();
@@ -258,9 +260,6 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		public void onSingleClick(View view) {
 
 			switch (view.getId()) {
-//			case R.id.btnEditMyInfo:
-//				Activity_UserEdit.show(context, hostId);
-//				break;
 			case R.id.btnSettings:
 				Activity_Settings.show(context);
 				break;
@@ -299,7 +298,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//加载更多专辑信息
-		getAlbums(Config.HOST_ID, 0);
+		getAlbums(Config.HOST_ID, albumTailId);
 	}
 	
 }

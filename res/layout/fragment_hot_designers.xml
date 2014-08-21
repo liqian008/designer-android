@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/titlebar" />
+
+    <LinearLayout
+        android:id="@+id/tab"
+        android:layout_width="fill_parent"
+        android:layout_height="48.0dip"
+        android:background="@color/white"
+        android:orientation="horizontal" >
+
+        <RelativeLayout
+            android:id="@+id/tab_weekly_hot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="本周热门" />
+
+            <ImageView
+                android:layout_width="1.0px"
+                android:layout_height="30.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10.0dip"
+                android:background="#ffeeeeee" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_weekly_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="@color/green"/>
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tab_monthly_hot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="本月热门" />
+
+            <ImageView
+                android:layout_width="1.0px"
+                android:layout_height="30.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10.0dip"
+                android:background="#ffeeeeee" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_monthly_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="@color/green"/>
+            </RelativeLayout>
+            
+			<!-- 
+			<ImageView
+                android:id="@+id/new_notice"
+                android:layout_width="6.0dip"
+                android:layout_height="6.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="20.0dip"
+                android:layout_marginTop="10.0dip"
+                android:background="@drawable/new_notice_tip"/>
+             -->
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tab_yearly_hot"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="年度热门" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_yearly_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="@color/green"/>
+            </RelativeLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- <com.nice.main.viewpagerindicator.UnderlinePageIndicator
+        android:id="@+id/indicator"
+        android:layout_width="fill_parent"
+        android:layout_height="2.0dip"
+        android:background="@color/white"
+        android:duplicateParentState="true" /> -->
+
+    <LinearLayout
+        android:id="@+id/border"
+        android:layout_width="fill_parent"
+        android:layout_height="1.0dip"
+        android:background="@color/border_bg"
+        android:orientation="horizontal" />
+
+    <LinearLayout
+        android:id="@+id/publishContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1.0" />
+
+</LinearLayout>

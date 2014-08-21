@@ -15,6 +15,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 import android.content.Context;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -48,7 +49,8 @@ public class AlbumViewHolder {
 	public Button btnShare;
 	// 评论数量
 	public TextView commentView;
-	
+	/*个人主页按钮*/
+	public Button btnUserHome;
 	
 	
 	/**
@@ -62,13 +64,18 @@ public class AlbumViewHolder {
 			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 			
 			final AlbumAuthorInfo authorInfo = album.getAuthorInfo();
-			designerView.setOnClickListener(new OnSingleClickListener() {
+			//用户主页按钮的点击事件
+			OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
 					//跳转至个人资料页
 					Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 				}
-			});
+			};
+			designerView.setOnClickListener(userHomeOnclickListener);
+			if(btnUserHome!=null){
+				btnUserHome.setOnClickListener(userHomeOnclickListener);
+			}
 			
 			if(authorInfo!=null){
 				//显示头像
@@ -88,14 +95,15 @@ public class AlbumViewHolder {
 			btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
 			btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
 			
-			//评论数量
-			if(commentView!=null){
-				if(album.getCommentCount()>0){
-					commentView.setText("查看全部"+album.getCommentCount()+"条评论");
-				}else{
-					commentView.setVisibility(View.GONE); 
-				}
-			}
+			
+//			//评论数量
+//			if(commentView!=null){
+//				if(album.getCommentCount()>0){
+//					commentView.setText("查看全部"+album.getCommentCount()+"条评论");
+//				}else{
+//					commentView.setVisibility(View.GONE); 
+//				}
+//			}
 			
 			if(coverView!=null){
 				//单独处理cover图片
@@ -108,8 +116,6 @@ public class AlbumViewHolder {
 				AlbumSlidesAdapter slideAdapter = new AlbumSlidesAdapter(context, slideList);
 				gridView.setAdapter(slideAdapter);
 			}
-			
-			
 			
 			albumItemView.setOnClickListener(new OnSingleClickListener() {
 				@Override

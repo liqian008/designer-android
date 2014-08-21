@@ -18,13 +18,27 @@
             android:layout_height="match_parent" />
 
         <fragment
+            android:id="@+id/fragment_hot_albums"
+            android:name="com.bruce.designer.activity.fragment.Fragment_Hot_Albums"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!--
+        <fragment
+            android:id="@+id/fragment_hot_designers"
+            android:name="com.bruce.designer.activity.fragment.Fragment_Hot_Designers"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        -->
+
+        <fragment
             android:id="@+id/fragment_msgbox"
             android:name="com.bruce.designer.activity.fragment.Fragment_Msgbox"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <fragment
-            android:id="@+id/fragment_myprofile"
+            android:id="@+id/fragment_myhome"
             android:name="com.bruce.designer.activity.fragment.Fragment_MyHome"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -40,38 +54,44 @@
         <ImageButton
             android:id="@+id/btnTabMain"
             android:layout_width="match_parent"
-            android:layout_height="55.0dip"
-            android:layout_alignParentBottom="true"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
             android:src="@drawable/tab_icon_main" />
 
         <ImageButton
-            android:id="@+id/btnTabHotAlbum"
+            android:id="@+id/btnTabHotAlbums"
             android:layout_width="match_parent"
-            android:layout_height="55.0dip"
-            android:layout_alignParentBottom="true"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
-            android:src="@drawable/tab_icon_ranking" />
+            android:src="@drawable/tab_icon_hot" />
+        <!--
+        <ImageButton
+            android:id="@+id/btnTabHotDesigners"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1.0"
+            android:background="@drawable/main_tab_bg"
+            android:src="@drawable/tab_icon_hot" />
+        -->
 
         <ImageButton
             android:id="@+id/btnTabMsgbox"
             android:layout_width="match_parent"
-            android:layout_height="55.0dip"
-            android:layout_alignParentBottom="true"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"
             android:src="@drawable/tab_icon_msgbox" />
 
-        <ImageButton 
-            android:id="@+id/btnTabProfile"
+        <ImageButton
+            android:id="@+id/btnTabHome"
             android:layout_width="match_parent"
-            android:layout_height="55.0dip"
-            android:layout_alignParentBottom="true"
+            android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:layout_weight="1.0"
             android:background="@drawable/main_tab_bg"

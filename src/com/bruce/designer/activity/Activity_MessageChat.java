@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.DownloadManager.Query;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
@@ -14,8 +13,8 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,20 +25,22 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.album.PostCommentApi;
-import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.api.message.MessageListApi;
+import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.DipUtil;
+import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 私信消息对话页面
@@ -61,8 +62,11 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 
 	private int messageType;
 	private String nickname;
+	private String avatarUrl;
 
 	private EditText messageInput;
+	
+	private long messageTailId;
 	
 	/**
 	 * Chat消息的messageType 实为对方的userId
@@ -87,7 +91,8 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		Intent intent = getIntent();
 		//获取messageType
 		messageType =  intent.getIntExtra("messageType", 0); 
-		nickname =  intent.getStringExtra("nickname"); 
+		nickname =  intent.getStringExtra("nickname");
+		avatarUrl =  intent.getStringExtra("avatarUrl");
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
@@ -112,7 +117,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		messageListView.setAdapter(messageListAdapter);
 		
 		//获取消息列表
-		getMessageList();
+		getMessageList(0);
 	}
 	
 	
@@ -187,8 +192,10 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 					chatTextDrawable.setCornerRadius(radius);
 					
 					msgContentView.setBackground(timeTextDrawable);
-					//头像
+					
+					//私信消息需要使用fromUser的头像
 					ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
+					ImageLoader.getInstance().displayImage(avatarUrl, msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				}else{//需要展示自己的对话消息
 					TextView myChatTimetView = (TextView) itemView.findViewById(R.id.myChatTime);
 					myChatTimetView.setText(TimeUtil.displayTime(message.getCreateTime()));
@@ -220,13 +227,13 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	/**
 	 * 获取关注列表
 	 */
-	private void getMessageList() {
+	private void getMessageList(final long messageTailId) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				android.os.Message message;
-				MessageListApi api = new MessageListApi(messageType, 1);
+				MessageListApi api = new MessageListApi(messageType, messageTailId); 
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_CHAT_LIST);
@@ -246,13 +253,36 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 					pullRefreshView.onRefreshComplete();
 					Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
 					if(messagesDataMap!=null){
+						//解析响应数据
+						Long fromTailId = (Long) messagesDataMap.get("fromTailId");
+						Long newTailId = (Long) messagesDataMap.get("newTailId");
+						
 						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
 						if(messageList!=null&&messageList.size()>0){
-							Collections.reverse(messageList);
-							messageListAdapter.setMessageList(messageList);
+							if(newTailId!=null&&newTailId>0){//还有可加载的数据
+								messageTailId = newTailId;
+								pullRefreshView.setMode(Mode.BOTH);
+							}else{
+								messageTailId = 0;
+								pullRefreshView.setMode(Mode.PULL_FROM_END);//禁用下拉刷新查询历史消息 
+							}
+							
+							Collections.reverse(messageList);//聊天界面需要反转list，保证最新消息在最下方
+							List<Message> oldMessageList = messageListAdapter.getMessageList();
+							//判断加载位置，以确定是list增量还是覆盖
+							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+							if(fallloadAppend){//加载更多操作，需添加至list的开始
+								oldMessageList.addAll(0, messageList);
+							}else{//下拉加载，需覆盖原数据
+								oldMessageList = null;
+								oldMessageList = messageList;
+							}
+							messageListAdapter.setMessageList(oldMessageList);
 							messageListAdapter.notifyDataSetChanged();
-							//直接滚动到底部
-							messageListView.setSelection(messageListView.getBottom());
+							if(!fallloadAppend){
+								//非加载更多的场景，需要直接滚动到底部
+								messageListView.setSelection(messageListView.getBottom());
+							}
 						}
 					}
 					break;
@@ -263,7 +293,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 					InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 					inputManager.hideSoftInputFromWindow(messageInput.getWindowToken(), 0);
 					//重新加载评论列表
-					getMessageList();
+					getMessageList(0);
 					break;
 				default:
 					break;
@@ -276,7 +306,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	 */
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-		
+		getMessageList(messageTailId);
 	}
 	
 	/**
@@ -284,7 +314,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	 */
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-		getMessageList();
+		getMessageList(0);
 	}
 
 	private OnClickListener onclickListener = new OnSingleClickListener() {

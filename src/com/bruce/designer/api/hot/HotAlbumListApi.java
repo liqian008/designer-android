@@ -1,4 +1,4 @@
-package com.bruce.designer.api.album;
+package com.bruce.designer.api.hot;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,15 +15,14 @@ import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 import com.google.gson.reflect.TypeToken;
 
-public class AlbumListApi extends AbstractApi{
+public class HotAlbumListApi extends AbstractApi{
 	
 
 	private Map<String, String> paramMap = null;
 	
-	public AlbumListApi(int designerId, int albumsTailId){
+	public HotAlbumListApi(int mode){
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("designerId", String.valueOf(designerId));
-		paramMap.put("albumsTailId", String.valueOf(albumsTailId));
+		paramMap.put("mode", String.valueOf(mode));
 	}
 	
 	@Override
@@ -39,13 +38,9 @@ public class AlbumListApi extends AbstractApi{
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
 			jsonData = new JSONObject(dataStr);
-			int fromTailId = jsonData.optInt("fromTailId", 0);
-			int newTailId = jsonData.optInt("newTailId", 0);
-			String albumListStr = jsonData.getString("albumList");
-			if(albumListStr!=null){
-				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-				dataMap.put("fromTailId", fromTailId);
-				dataMap.put("newTailId", newTailId);
+			String hotAlbumListStr = jsonData.getString("hotAlbumList");
+			if(hotAlbumListStr!=null){
+				List<Album> albumList = JsonUtil.gson.fromJson(hotAlbumListStr, new TypeToken<List<Album>>(){}.getType());
 				dataMap.put("albumList", albumList);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
@@ -57,7 +52,7 @@ public class AlbumListApi extends AbstractApi{
 
 	@Override
 	protected String getApiMethodName() {
-		return "latestAlbum.cmd";
+		return "hotAlbums.cmd";
 	}
 
 }

@@ -1,5 +1,6 @@
 package com.bruce.designer.api.album;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumFavorite;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
@@ -44,12 +46,23 @@ public class FavoriteAlbumsListApi extends AbstractApi{
 			jsonData = new JSONObject(dataStr);
 			int fromTailId = jsonData.getInt("fromTailId");
 			int newTailId = jsonData.getInt("newTailId");
-			String albumListStr = jsonData.getString("albumList");
-			if(albumListStr!=null){
-				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
+			String favoriteListStr = jsonData.getString("favoriteList");
+			if(favoriteListStr!=null){
+				List<AlbumFavorite> favoriteList = JsonUtil.gson.fromJson(favoriteListStr, new TypeToken<List<AlbumFavorite>>(){}.getType());
+				//需要在此将转为albumList，送给ListView adapter
+				List<Album> albumList = new ArrayList<Album>();
+				if(favoriteList!=null&&favoriteList.size()>0){
+					for(AlbumFavorite favorite: favoriteList){
+						Album album = favorite.getAlbum();
+						if(album!=null){
+							albumList.add(album);
+						}
+					}
+				}
+				
+				dataMap.put("albumList", albumList);
 				dataMap.put("fromTailId", fromTailId);
 				dataMap.put("newTailId", newTailId);
-				dataMap.put("albumList", albumList);
 				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			}
 		} catch (JSONException e) {

@@ -19,10 +19,10 @@ public class MessageListApi extends AbstractApi {
 
 private Map<String, String> paramMap = null;
 	
-	public MessageListApi(int messageType, int pageNo){
+	public MessageListApi(int messageType, long messageTailId){
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("messageType", String.valueOf(messageType));
-		paramMap.put("pageNo", String.valueOf(pageNo));
+		paramMap.put("messageTailId", String.valueOf(messageTailId));
 	}
 
 	@Override
@@ -32,10 +32,14 @@ private Map<String, String> paramMap = null;
 		try {
 			jsonData = new JSONObject(dataStr);
 			String messageListStr = jsonData.optString("messageList");
+			long fromTailId = jsonData.optLong("fromTailId", 0);
+			long newTailId = jsonData.optLong("newTailId", 0);
 			if(messageListStr!=null){
 				List<Message> messageList = JsonUtil.gson.fromJson(messageListStr, new TypeToken<List<Message>>() {}.getType());
 				if (messageList != null) {
 					dataMap.put("messageList", messageList);
+					dataMap.put("fromTailId", fromTailId);
+					dataMap.put("newTailId", newTailId);
 					return ResponseBuilderUtil.buildSuccessResult(dataMap);
 				}
 			}

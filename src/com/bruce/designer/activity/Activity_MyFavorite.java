@@ -49,7 +49,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	
 	private PullToRefreshListView pullRefreshView;
 	
-	private int albumTailId = 0;
+	private int favoriteTailId = 0;
 	
 	public static void show(Context context){
 		Intent intent = new Intent(context, Activity_MyFavorite.class);
@@ -70,10 +70,11 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 						if(albumList!=null&&albumList.size()>0){
 							
 							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								albumTailId = newTailId;
+								favoriteTailId = newTailId;
+								pullRefreshView.setMode(Mode.BOTH);
 							}else{
-								albumTailId = 0;
-								pullRefreshView.setMode(Mode.DISABLED);//禁用上拉刷新
+								favoriteTailId = 0;
+								pullRefreshView.setMode(Mode.PULL_FROM_START);
 							}
 							List<Album> oldAlbumList = albumListAdapter.getAlbumList();
 							if(oldAlbumList==null){
@@ -85,7 +86,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 								oldAlbumList.addAll(albumList);
 							}else{//下拉加载，需覆盖原数据
 								oldAlbumList = null;
-								oldAlbumList = albumList; 
+								oldAlbumList = albumList;
 							}
 							albumListAdapter.setAlbumList(oldAlbumList);
 							albumListAdapter.notifyDataSetChanged();
@@ -140,17 +141,17 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//加载更多专辑信息
-		getMyFavoriteAlbums(albumTailId);
+		getMyFavoriteAlbums(favoriteTailId);
 	}
 	
-	private void getMyFavoriteAlbums(final int albumTailId) {
+	private void getMyFavoriteAlbums(final int favoriteTailId) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Message message;
 				
-				FavoriteAlbumsListApi api = new FavoriteAlbumsListApi(albumTailId);
+				FavoriteAlbumsListApi api = new FavoriteAlbumsListApi(favoriteTailId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
 				
 				if(apiResult!=null&&apiResult.getResult()==1){

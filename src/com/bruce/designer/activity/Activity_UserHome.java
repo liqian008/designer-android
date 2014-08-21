@@ -60,8 +60,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	/*设计师头像*/
 	private ImageView avatarView;
 	
-	private View followsView;
-	private View fansView;
+	private View followsContainer;
+	private View fansContainer;
 	/*粉丝个数*/
 	private int fansCount = 0;
 	/*关注人个数*/
@@ -88,7 +88,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	private PullToRefreshListView pullRefreshView;
 	
 	private int albumTailId = 0;
-	
+	private boolean isDesigner;
 	
 	public static void show(Context context, int userId, String nickname, String avatar, boolean isDesigner, boolean hasFollowed){
 		Intent intent = new Intent(context, Activity_UserHome.class);
@@ -196,7 +196,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
 		queryUserNickname = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_NICKNAME);
 		queryUserAvatar = intent.getStringExtra(ConstantsKey.BUNDLE_USER_INFO_AVATAR); 
-		boolean isDesigner = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, false);
+		isDesigner = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_ISDESIGNER, false);
 //		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
 		
 		//init view
@@ -230,18 +230,19 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
 		nicknameView.setText(queryUserNickname);
 		
-		fansView = (View) headerView.findViewById(R.id.fansContainer);
+		fansContainer = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
-		fansView.setOnClickListener(onclickListener);
+		fansContainer.setOnClickListener(onclickListener);
+		
 		
 		albumsTabTitle = (TextView) headerView.findViewById(R.id.albumsTabTitle);
 		if(!isDesigner){
 			albumsTabTitle.setText("非设计师身份，无作品辑");
 		}
 		
-		followsView = (View) headerView.findViewById(R.id.followsContainer);
+		followsContainer = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
-		followsView.setOnClickListener(onclickListener);
+		followsContainer.setOnClickListener(onclickListener);
 		
 		btnFollow =  (Button) headerView.findViewById(R.id.btnFollow);
 		btnUnfollow =  (Button) headerView.findViewById(R.id.btnUnfollow);
@@ -253,12 +254,12 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		btnSendMsg.setOnClickListener(onclickListener);
 		btnUserInfo.setOnClickListener(onclickListener);
 		
-		View snsBtnContainer =  (View) headerView.findViewById(R.id.snsBtnContainer);
+		View followBtnContainer =  (View) headerView.findViewById(R.id.followBtnContainer);
 		if(queryUserId==Config.HOST_ID){//查看的用户为自己，需要隐藏交互按钮
-			snsBtnContainer.setVisibility(View.GONE);
+			followBtnContainer.setVisibility(View.GONE);
 			btnSendMsg.setVisibility(View.GONE);
 		}else{
-			snsBtnContainer.setVisibility(View.VISIBLE);
+			followBtnContainer.setVisibility(View.VISIBLE);
 			btnSendMsg.setVisibility(View.VISIBLE);
 		}
 		

@@ -26,9 +26,13 @@ public class AlbumDB {
 	public static final String TB_ALBUM_RECOMMEND = "tb_album_recommend";
 	/*我关注的的专辑*/
 	public static final String TB_ALBUM_FOLLOW = "tb_album_follow";
-//	/*我的专辑*/
-//	public static final String TB_ALBUM = "tb_album";
-
+	/*本周热门专辑*/
+	public static final String TB_HOT_ALBUM_WEEKLY = "tb_hot_album_weekly";
+	/*本月热门专辑*/
+	public static final String TB_HOT_ALBUM_MONTHLY = "tb_hot_album_monthly";
+	/*本年热门专辑*/
+	public static final String TB_HOT_ALBUM_YEARLY = "tb_hot_album_yearly";
+	
 	public static List<Album> queryAllLatest(Context context) {
 		return queryAll(context, TB_ALBUM_LATEST);
 	}
@@ -40,6 +44,19 @@ public class AlbumDB {
 	public static List<Album> queryAllFollow(Context context) {
 		return queryAll(context, TB_ALBUM_FOLLOW);
 	}
+	
+	public static List<Album> queryHotWeekly(Context context) {
+		return queryAll(context, TB_HOT_ALBUM_WEEKLY);
+	}
+	
+	public static List<Album> queryHotMonthly(Context context) {
+		return queryAll(context, TB_HOT_ALBUM_MONTHLY);
+	}
+	
+	public static List<Album> queryHotYearly(Context context) {
+		return queryAll(context, TB_HOT_ALBUM_YEARLY);
+	}
+	
 	
 	private static List<Album> queryAll(Context context, String tableName) {
 		// 读取SQLite里面的数据
@@ -91,6 +108,15 @@ public class AlbumDB {
 		}
 	}
 	
+	public static int saveHotAlbumsByTab(Context context, List<Album> albumList, int tabIndex) {
+		switch(tabIndex){
+			case 0:	return save(context, TB_HOT_ALBUM_WEEKLY, albumList);
+			case 1: return save(context, TB_HOT_ALBUM_MONTHLY, albumList);
+			case 2:	return save(context, TB_HOT_ALBUM_YEARLY, albumList);
+			default: return 0;
+		}
+	}
+	
 	public static int save(Context context, String tableName, List<Album> albumList) {
 		if(albumList!=null&&albumList.size()>0){
 			SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
@@ -129,6 +155,35 @@ public class AlbumDB {
 //			db.execSQL("insert into tb_album (title, remark, link, user_id, status, cover_large_img, cover_medium_img, cover_small_img, create_time, update_time) values (?,?,?,?,?,?,?,?,?,?)", bindArgs);
 			}
 			return albumList.size();
+		}
+		return 0;
+	}
+	
+	
+	public static int deleteByTab(Context context, int tabIndex){
+		switch(tabIndex){
+		case 0:	return delete(context, TB_ALBUM_RECOMMEND);
+		case 1: return delete(context, TB_ALBUM_LATEST);
+		case 2:	return delete(context, TB_ALBUM_FOLLOW);
+		default: return 0;
+		}
+	}
+	
+	public static int deleteHotByTab(Context context, int tabIndex){
+		switch(tabIndex){
+		case 0:	return delete(context, TB_HOT_ALBUM_WEEKLY);
+		case 1: return delete(context, TB_HOT_ALBUM_MONTHLY);
+		case 2:	return delete(context, TB_HOT_ALBUM_YEARLY);
+		default: return 0;
+		}
+	}
+	
+	
+	public static int delete(Context context, String tableName) {
+		if(tableName!=null){
+			SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+			int result = db.delete(tableName, null, null);
+			return result;
 		}
 		return 0;
 	}

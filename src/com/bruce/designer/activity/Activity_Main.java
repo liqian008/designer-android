@@ -19,7 +19,7 @@ import com.bruce.designer.util.UiUtil;
 
 public class Activity_Main extends BaseActivity {
 	
-	private static final int TAB_NUM=4;
+	private static final int TAB_NUM = 4;
 	private long lastQuitTime = 0;
 	private int currentTabIndex = 0 ;
 	
@@ -41,26 +41,35 @@ public class Activity_Main extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
 		fragmentManager = getSupportFragmentManager();
-		
-		mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
-		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_myprofile);
+
+//		mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
+//		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_hot_albums);
+//		mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_hot_designers);
+//        mFragments[3] = fragmentManager.findFragmentById(R.id.fragment_msgbox);
+//        mFragments[4] = fragmentManager.findFragmentById(R.id.fragment_myhome);
+//        
+//        footerTabs[0] = (ImageButton) findViewById(R.id.btnTabMain);
+//        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabHotAlbums);
+//        footerTabs[2] = (ImageButton) findViewById(R.id.btnTabHotDesigners);
+//        footerTabs[3] = (ImageButton) findViewById(R.id.btnTabMsgbox);
+//        footerTabs[4] = (ImageButton) findViewById(R.id.btnTabHome);
+        
+        mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
+		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_hot_albums);
         mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_msgbox);
-        mFragments[3] = fragmentManager.findFragmentById(R.id.fragment_myprofile);
+        mFragments[3] = fragmentManager.findFragmentById(R.id.fragment_myhome);
         
         footerTabs[0] = (ImageButton) findViewById(R.id.btnTabMain);
-        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabHotAlbum);
+        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabHotAlbums);
         footerTabs[2] = (ImageButton) findViewById(R.id.btnTabMsgbox);
-        footerTabs[3] = (ImageButton) findViewById(R.id.btnTabProfile);
+        footerTabs[3] = (ImageButton) findViewById(R.id.btnTabHome);
         
         for(int i=0; i<footerTabs.length;i++){
         	footerTabs[i].setOnClickListener(tabOnclickListener);
         }
 		highLight(0);
 	}
-
-	
 
 	
 	@Override
@@ -109,8 +118,11 @@ public class Activity_Main extends BaseActivity {
 	 * @param index
 	 */
 	private void showFragment(int index) {
-		fragmentTransaction = fragmentManager.beginTransaction().hide(mFragments[0]).hide(mFragments[1]).hide(mFragments[2]);  
-        fragmentTransaction.show(mFragments[index]).commit();
+		fragmentTransaction = fragmentManager.beginTransaction();
+		for(int i=0;i<TAB_NUM;i++){
+			fragmentTransaction.hide(mFragments[i]);
+		}
+		fragmentTransaction.show(mFragments[index]).commit();
         mFragments[index].onResume();
 	}
 	
@@ -124,15 +136,19 @@ public class Activity_Main extends BaseActivity {
 					highLight(0);
 					break;
 				}
-				case R.id.btnTabHotAlbum:{
+				case R.id.btnTabHotAlbums:{
 					highLight(1);
 					break;
 				}
+//				case R.id.btnTabHotDesigners:{
+//					highLight(2);
+//					break;
+//				}
 				case R.id.btnTabMsgbox:{
 					highLight(2);
 					break;
 				}
-				case R.id.btnTabProfile:{
+				case R.id.btnTabHome:{
 					highLight(3);
 					break;
 				}default:{

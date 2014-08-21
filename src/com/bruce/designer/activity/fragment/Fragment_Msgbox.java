@@ -59,7 +59,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		context = getActivity();
 		this.inflater = inflater;
 		
-		View mainView = inflater.inflate(R.layout.activity_msg_box, null);
+		View mainView = inflater.inflate(R.layout.fragment_msgbox, null);
 		
 		initView(mainView);
 		return mainView;

@@ -40,7 +40,6 @@ import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -67,6 +66,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private TextView albumTitleView;
 	private TextView albumContentView;
 	
+	private TextView commentView;
+	
+	private Button btnUserHome;
+	
 	private Button btnBrowse;
 	private Button btnLike;
 	private Button btnComment;
@@ -85,7 +88,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private Integer designerId;
 	/*回复评论时的接收人，可能不是designerId*/
 	private int toId = 0;
-	private long commentsTailId = 0; 
+	private long commentsTailId = 0;
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -122,7 +125,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 								commentsTailId = 0;
 								pullRefresh.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
 							}
-							
 							
 							List<Comment> oldCommentList = commentsAdapter.getCommentList();
 							//判断加载位置，以确定是list增量还是覆盖
@@ -164,6 +166,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	};
 	
 	
+	
 	public static void show(Context context, Album album, AlbumAuthorInfo authorInfo){
 		Intent intent = new Intent(context, Activity_AlbumInfo.class);
 		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
@@ -194,7 +197,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		commentListView = pullRefresh.getRefreshableView();
 		//为listview增加headerView (专辑基础信息)
 		LayoutInflater layoutInflate = LayoutInflater.from(context);
-		View albumInfoView = layoutInflate.inflate(R.layout.item_album_info_head, null);
+		View albumInfoView = layoutInflate.inflate(R.layout.item_designer_album_view, null);
 		commentListView.addHeaderView(albumInfoView);
 		
 		commentsAdapter = new AlbumCommentsAdapter(context, null);
@@ -203,6 +206,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		//设计师相关资料
 		designerAvatarView = (ImageView) albumInfoView.findViewById(R.id.avatar);
 		designerNameView = (TextView) albumInfoView.findViewById(R.id.txtUsername);
+		
+		btnUserHome = (Button) albumInfoView.findViewById(R.id.btnUserHome);
 		
 		//专辑相关资料
 		btnBrowse = (Button) albumInfoView.findViewById(R.id.btnBrowse);
@@ -224,7 +229,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		pubtimeView = (TextView) albumInfoView.findViewById(R.id.txtTime);
 		albumTitleView = (TextView) albumInfoView.findViewById(R.id.txtSticker);
 		albumContentView = (TextView) albumInfoView.findViewById(R.id.txtContent);
-
+		commentView = (TextView) albumInfoView.findViewById(R.id.txtComment);
+		commentView.setVisibility(View.VISIBLE);
+		
 		//评论框
 		commentInput = (EditText) findViewById(R.id.commentInput);
 		Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
@@ -239,12 +246,19 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 			if(authorInfo!=null){
 				View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
-				designerView.setOnClickListener(new OnSingleClickListener() {
+				
+				//用户主页按钮的点击事件
+				OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View view) {
-						Activity_UserHome.show(context, designerId, authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+						//跳转至个人资料页
+						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 					}
-				});
+				};
+				designerView.setOnClickListener(userHomeOnclickListener);
+				if(btnUserHome!=null){
+					btnUserHome.setOnClickListener(userHomeOnclickListener);
+				}
 				
 				//显示设计师头像
 				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
@@ -400,7 +414,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			case R.id.btnCommentPost:
 				//检查内容不为空
 				//启动线程发布评论
-				postComment(designerId, designerId, commentInput.getText().toString());			
+				postComment(designerId, toId, commentInput.getText().toString());
 				break;
 			case R.id.btnLike:
 				postLike(albumId, designerId);

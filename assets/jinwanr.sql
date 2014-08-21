@@ -74,6 +74,82 @@ CREATE TABLE `tb_album_follow` (
 );
 
 
+
+CREATE TABLE `tb_hot_album_weekly` (
+  `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `title` text DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `link` text DEFAULT NULL,
+  `user_id` integer NOT NULL,
+  `status` short DEFAULT 1,
+  `cover_large_img` text DEFAULT '',
+  `cover_medium_img`text DEFAULT '',
+  `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 1,
+
+  `create_time` long DEFAULT NULL,
+  `update_time` long DEFAULT NULL
+);
+
+
+CREATE TABLE `tb_hot_album_monthly` (
+  `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `title` text DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `link` text DEFAULT NULL,
+  `user_id` integer NOT NULL,
+  `status` short DEFAULT 1,
+  `cover_large_img` text DEFAULT '',
+  `cover_medium_img`text DEFAULT '',
+  `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 1,
+
+  `create_time` long DEFAULT NULL,
+  `update_time` long DEFAULT NULL
+);
+
+
+CREATE TABLE `tb_hot_album_yearly` (
+  `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+  `title` text DEFAULT NULL,
+  `remark` text DEFAULT NULL,
+  `link` text DEFAULT NULL,
+  `user_id` integer NOT NULL,
+  `status` short DEFAULT 1,
+  `cover_large_img` text DEFAULT '',
+  `cover_medium_img`text DEFAULT '',
+  `cover_small_img` text DEFAULT '',
+
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+
+  `designer_avatar` text DEFAULT '',
+  `designer_nickname` text DEFAULT '',
+  `designer_follow_status` integer default 1,
+
+  `create_time` long DEFAULT NULL,
+  `update_time` long DEFAULT NULL
+);
+
+
 CREATE TABLE `tb_album_mine` (
   `id` integer NOT NULL PRIMARY KEY AUTOINCREMENT,
   `title` text DEFAULT NULL,

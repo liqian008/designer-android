@@ -91,6 +91,9 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
 					//评论数量
 					viewHolder.commentView = (TextView) convertView.findViewById(R.id.txtComment);
+					
+					viewHolder.btnUserHome = (Button) convertView.findViewById(R.id.btnUserHome);
+					
 					convertView.setTag(viewHolder);
 				}
 			}else{

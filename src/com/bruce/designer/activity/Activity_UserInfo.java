@@ -1,5 +1,6 @@
 package com.bruce.designer.activity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import android.content.Context;
@@ -15,10 +16,12 @@ import android.widget.TextView;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserInfoApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -59,6 +62,7 @@ public class Activity_UserInfo extends BaseActivity {
 							} 
 							nicknameView.setText(userinfo.getNickname());
 							emailTextView.setText(userinfo.getUsername());
+							shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
 							introduceTextView.setText(userinfo.getDesignerIntroduction());
 						}
 					}
@@ -90,8 +94,18 @@ public class Activity_UserInfo extends BaseActivity {
 		shopTextView = (TextView) findViewById(R.id.shopTextView);
 		introduceTextView = (TextView) findViewById(R.id.introduceTextView);
 		
-		//启动线程获取个人资料
-		getUserinfo(queryUserId);
+		User userinfo = SharedPreferenceUtil.readObjectFromSp(User.class, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
+		if(queryUserId==Config.HOST_ID&&(userinfo!=null&&userinfo.getId()!=null&&userinfo.getId()>0)){
+			//从sp中读取用户资料
+			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			dataMap.put("userinfo", userinfo);
+			message.obj = dataMap;
+			message.sendToTarget();
+		}else{
+			//启动获取个人资料详情
+			getUserinfo(queryUserId);
+		}
 	}
 	
 	

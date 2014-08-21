@@ -14,7 +14,6 @@ import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.MD5;
 import com.bruce.designer.util.MobileUtils;
-import com.bruce.designer.util.SharedPreferenceUtil;
 
 public class ApiManager {
 

@@ -24,10 +24,12 @@ import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * 普通消息界面
@@ -43,8 +45,12 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 
 	private MessageListAdapter messageListAdapter;
 	private PullToRefreshListView pullRefreshView;
+	private ListView messageListView;
 	
 	private int messageType;
+	
+	private long messageTailId;
+
 
 	// private int userId;
 
@@ -74,12 +80,12 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 		pullRefreshView.setOnRefreshListener(this);
 		
 		
-		ListView messageListView = pullRefreshView.getRefreshableView();
+		messageListView = pullRefreshView.getRefreshableView();
 		messageListAdapter = new MessageListAdapter(context, null);
 		messageListView.setAdapter(messageListAdapter);
 
 		// 获取消息列表
-		getMessageList();
+		getMessageList(0);
 		// TODO 需要增加下拉刷新
 	}
 
@@ -165,8 +171,14 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 			viewHolder.msgContentView.setText(message.getMessage());
 			viewHolder.msgPubTimeView.setText(TimeUtil.displayTime(message.getCreateTime()));
 			
-			//头像
-			MessageUtil.displayAvatarView(viewHolder.msgAvatrView, message);
+			//加载头像
+			if(MessageUtil.isBroadcastMessage(messageType)){//系统消息使用系统头像
+				viewHolder.msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
+			}else{//其他消息需要使用fromUser的头像
+				ImageLoader.getInstance().displayImage(message.getFromUser().getHeadImg(), viewHolder.msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			}
+			
+			
 			// 头像点击事件
 			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
 				@Override
@@ -189,13 +201,13 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	/**
 	 * 获取消息列表
 	 */
-	private void getMessageList() {
+	private void getMessageList(final long messageTailId) {
 		// 启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				android.os.Message message;
-				MessageListApi api = new MessageListApi(messageType, 1);
+				MessageListApi api = new MessageListApi(messageType, messageTailId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if (jsonResult != null && jsonResult.getResult() == 1) {
 					message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST);
@@ -215,9 +227,29 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 				pullRefreshView.onRefreshComplete();
 				Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
 				if (messagesDataMap != null) {
-					List<Message> messageList = (List<Message>) messagesDataMap.get("messageList");
-					if (messageList != null && messageList.size() > 0) {
-						messageListAdapter.setMessageList(messageList);
+					//解析响应数据
+					Long fromTailId = (Long) messagesDataMap.get("fromTailId");
+					Long newTailId = (Long) messagesDataMap.get("newTailId");
+					
+					List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
+					if(messageList!=null&&messageList.size()>0){
+						if(newTailId!=null&&newTailId>0){//还有可加载的数据
+							messageTailId = newTailId;
+							pullRefreshView.setMode(Mode.BOTH);
+						}else{
+							messageTailId = 0;
+							pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新查询历史消息 
+						}
+						List<Message> oldMessageList = messageListAdapter.getMessageList();
+						//判断加载位置，以确定是list增量还是覆盖
+						boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+						if(fallloadAppend){//加载更多操作，需添加至list的开始
+							oldMessageList.addAll(0, messageList);
+						}else{//下拉加载，需覆盖原数据
+							oldMessageList = null;
+							oldMessageList = messageList;
+						}
+						messageListAdapter.setMessageList(oldMessageList);
 						messageListAdapter.notifyDataSetChanged();
 					}
 				}
@@ -247,7 +279,7 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	 */
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-		getMessageList();
+		getMessageList(0);
 	}
 	
 	/**
@@ -255,6 +287,7 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	 */
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
+		getMessageList(messageTailId);
 	}
 	
 	/**
