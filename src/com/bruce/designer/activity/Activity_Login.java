@@ -3,6 +3,7 @@ package com.bruce.designer.activity;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ public class Activity_Login extends BaseActivity{
 	/*测试登录成功*/
 	private static final int HANDLER_TEST_LOGIN_SUCCEED = 10;
 	
+	private ProgressDialog progressDialog;
 	
 	private Context context;
 	private SsoHandler mSsoHandler; 
@@ -70,6 +72,8 @@ public class Activity_Login extends BaseActivity{
 		wbLoginBtn.setOnClickListener(listener);
 		qqLoginButton.setOnClickListener(listener);
 //		skipLoginBtn.setOnClickListener(listener);
+		
+		progressDialog = ProgressDialog.show(context, "title", "content", true, false);
 	}
 
 	/**
@@ -180,9 +184,13 @@ public class Activity_Login extends BaseActivity{
 		public void handleMessage(Message msg) {
 			switch(msg.what){
 				case HANDLER_FLAG_WB_LOGIN_SUCCESS:
+					progressDialog.dismiss();
+					
 					//1、直接登录进入
 					//2、需要绑定账户
 				case HANDLER_TEST_LOGIN_SUCCEED:
+					progressDialog.dismiss();
+					
 //					UiUtil.showShortToast(context, "新浪微博登录成功，正在为您跳转至内容页...");
 					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
@@ -196,6 +204,7 @@ public class Activity_Login extends BaseActivity{
 					finish();
 					break;
 				case HANDLER_FLAG_WB_LOGIN_FAILED:
+					progressDialog.dismiss();
 					break;
 				default:
 					break;
@@ -227,6 +236,8 @@ public class Activity_Login extends BaseActivity{
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.wbLoginButton:
+				progressDialog.show();
+				
 				//跳转wb oauth
 				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY,
 						ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
@@ -244,6 +255,8 @@ public class Activity_Login extends BaseActivity{
 //				finish();
 //				break;
 			case R.id.qqLoginButton:
+				progressDialog.show();
+				
 //				Activity_Login_Bind.show(context);
 				
 				new Thread(new Runnable() {
@@ -265,4 +278,10 @@ public class Activity_Login extends BaseActivity{
 		}
 	};
     
+	
+	
+	
+	
+	
+	
 }

@@ -23,86 +23,123 @@
         android:layout_marginTop="96.0dip"
         android:src="@drawable/logo_splash" />
 
-    <ImageView
-        android:id="@+id/wbLoginButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="18dp"
-        android:layout_above="@+id/qqLoginButton"
-        android:src="@drawable/button_login_weibo" />
     
-    <ImageView
-        android:id="@+id/qqLoginButton"
+    
+    <LinearLayout
+        android:id="@+id/snsLoginContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="85dp"
-        android:src="@drawable/button_login_qq" />
-    <!--
-
-    <ImageButton
-        android:id="@+id/wbLoginButton"
-        android:layout_width="180dp"
-        android:layout_height="36dp"
         android:layout_centerHorizontal="true"
-        android:layout_above="@+id/selfLoginButton"
-        android:layout_marginBottom="16dp"
-       	android:src="@drawable/button_login_weibo"
-        android:visibility="visible" 
-        />
+        android:gravity="center"
+         >
+
+        <ImageView
+            android:id="@+id/wbLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:src="@drawable/button_login_weibo" />
+
+        <ImageView
+            android:id="@+id/qqLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/button_login_qq" />
+    </LinearLayout>
     
-    <Button
-        android:id="@+id/selfLoginButton"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
-        android:text="直接登录"
-        android:textSize="15dp"
-        android:background="#ffffff"
-        android:visibility="visible" />
-    -->
-    <!--
-    <Button
-        android:id="@+id/skipLoginButton"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60.0dip"
-        android:text="游客访问"
-        android:textSize="15dp"
-        android:background="#ffffff"
-        android:visibility="visible" />
-    -->
-
-
-    <!--
-    <ImageButton
-        android:id="@+id/wbLoginButton"
-        android:layout_width="wrap_content"
+    
+    
+    <LinearLayout
+        android:id="@+id/bindLoginContainer"
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical" 
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="60.0dip"
-        android:background="#00000000"
-        android:src="@drawable/btn_login_weibo"
-        android:visibility="visible" />
+        android:layout_marginBottom="85dp"
+        android:visibility="gone"
+        >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/loginBindContainer"
+            android:background="#fff"
+            android:padding="10dp"
+            android:text="还差一步您就可完成登录"
+            android:textSize="14dp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="0.5dp"
+            android:layout_weight="0"
+            android:background="#ececec" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/loginUsernameIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_email" />
+
+            <EditText
+                android:id="@+id/loginUsernameText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/loginUsernameIcon"
+                android:hint="请输入邮箱"
+                android:textSize="14dp" />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="0.5dp"
+            android:layout_weight="0"
+            android:background="#ececec" />
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/loginPasswordIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_passwd" />
+
+            <EditText
+                android:id="@+id/loginPasswordText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/loginPasswordIcon"
+                android:hint="请输入密码"
+                android:textSize="14dp" />
+        </RelativeLayout>
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/button_orange_bg"
+            android:text="完 成"
+            android:textColor="#fff" />
+    </LinearLayout>
     
     
-     <ImageButton
-        android:id="@+id/wbLoginButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="120.0dip"
-        android:background="#00000000"
-        android:src="@drawable/btn_login_weibo"
-        android:visibility="visible" />
-    -->
+    
 
 </RelativeLayout>
