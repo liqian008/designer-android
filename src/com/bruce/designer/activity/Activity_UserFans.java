@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_UserFollows.FollowViewHolder;
 import com.bruce.designer.api.ApiManager;
@@ -42,7 +43,9 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 	
 	private FansListAdapter fansListAdapter;
 
-	private int userId;
+	private int queryUserId;
+	private boolean isHost;
+	
 	
 	public static void show(Context context, int queryUserId){
 		Intent intent = new Intent(context, Activity_UserFans.class);
@@ -57,28 +60,30 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		
 		Intent intent = getIntent();
 		//获取userid
-		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		queryUserId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		
+		//获取userid
+		queryUserId = intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		isHost = AppApplication.isHost(queryUserId);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("TA的粉丝");
+		titleView.setText((isHost?"我":"TA") + "的粉丝");
 		
 		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		ListView fansListView = pullRefresh.getRefreshableView();
 		pullRefresh.setMode(Mode.PULL_FROM_START);
 		pullRefresh.setOnRefreshListener(this);
 		
-//		ListView fansListView = (ListView)findViewById(R.id.userFans);
 		fansListAdapter = new FansListAdapter(context, null, null);
 		fansListView.setAdapter(fansListAdapter);
 		
-		pullRefresh.setRefreshing(true);
+		pullRefresh.setRefreshing(false);
 		
 		//获取粉丝列表
-		getFans(userId);
-		//TODO 需要增加下拉刷新
+//		getFans(queryUserId);
 	}
 
 	
@@ -163,6 +168,21 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 			final boolean isDesigner = true;
 			final boolean hasFollowed = true;
 			fanViewHolder.usernameView.setText(user.getFanUser().getNickname());
+			
+			if(AppApplication.isHost(fanUserId)){//查看的用户为自己，需要隐藏交互按钮
+				fanViewHolder.btnFollow.setVisibility(View.GONE);
+				fanViewHolder.btnUnfollow.setVisibility(View.GONE);
+				fanViewHolder.btnSendMsg.setVisibility(View.GONE);
+			}else{
+				//私信事件
+				fanViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
+					}
+				});
+			}
+			
 			//显示头像
 			ImageLoader.getInstance().displayImage(user.getFanUser().getHeadImg(), fanViewHolder.avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 			fanViewHolder.friendView.setOnClickListener(new OnSingleClickListener() {
@@ -172,13 +192,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				}
 			});
 			
-			//私信事件
-			fanViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
-				}
-			});
+			
 			return convertView;
 		}
 	}
@@ -195,7 +209,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				Message message;
 //				JsonResultBean jsonResult = ApiUtil.getUserFans(userId);
 				
-				UserFansApi api = new UserFansApi(userId);
+				UserFansApi api = new UserFansApi(queryUserId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -252,7 +266,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//获取关注列表
-		getFans(userId);
+		getFans(queryUserId);
 	}
 	
 	/**

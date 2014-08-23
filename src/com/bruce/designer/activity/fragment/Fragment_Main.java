@@ -42,7 +42,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-public class Fragment_Main extends Fragment{
+public class Fragment_Main extends BaseFragment{
 
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
@@ -70,14 +70,14 @@ public class Fragment_Main extends Fragment{
 	
 	private ImageButton btnRefresh;
 	
-	private Activity context;
+	private Activity activity;
 	private LayoutInflater inflater;
 	private ImageButton btnSettings;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		context = getActivity();
+		activity = getActivity();
 		this.inflater = inflater;
 		
 		View mainView = inflater.inflate(R.layout.fragment_main, null);
@@ -124,14 +124,14 @@ public class Fragment_Main extends Fragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new AlbumListAdapter(context, null, 0);
+			listViewAdapters[i] = new AlbumListAdapter(activity, null, 0);
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
 			pagerViews.add(pageView);
 		}
 		//viewPager的适配器
-		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(context, pagerViews);
+		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(activity, pagerViews);
 		viewPager.setAdapter(viewPagerAdapter);
 		viewPager.setOnPageChangeListener(viewPagerListener);
 		
@@ -169,23 +169,24 @@ public class Fragment_Main extends Fragment{
 		//判断tab的上次刷新时间
 		long currentTime = System.currentTimeMillis();
 		String tabRefreshKey = getRefreshKey(currentTab);
-		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
+		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 		long interval = currentTime - lastRefreshTime;
 		//相应page上请求数据
 		List<Album> albumList = null;
 		if(currentTab==1){
-			albumList= AlbumDB.queryAllLatest(context);//请求最新数据
+			albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
 		}else if(currentTab==2){
-			albumList= AlbumDB.queryAllFollow(context);//请求关注数据
+			albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
 		}else{
-			albumList= AlbumDB.queryAllRecommend(context);//请求系统推荐数据
+			albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
 		}
-		if(albumList!=null&&albumList.size()>0){
-			listViewAdapters[currentTab].setAlbumList(albumList);
-			listViewAdapters[currentTab].notifyDataSetChanged();
-			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-				pullRefreshViews[currentTab].setRefreshing(false);
-			}
+		
+		//自动刷新
+		listViewAdapters[currentTab].setAlbumList(albumList);
+		listViewAdapters[currentTab].notifyDataSetChanged();
+		
+		if(albumList==null || albumList.size() ==0 || interval > TimeUtil.TIME_UNIT_MINUTE){
+			pullRefreshViews[currentTab].setRefreshing(false);
 		}
 	}
 	
@@ -307,7 +308,7 @@ public class Fragment_Main extends Fragment{
 				}else{
 					api = new AlbumListApi(0, albumTailId);
 				}
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
 					message.obj = jsonResult.getData();
@@ -332,19 +333,14 @@ public class Fragment_Main extends Fragment{
 					if(tab0DataMap!=null){
 						List<Album> albumList = (List<Album>) tab0DataMap.get("albumList");
 						if(albumList!=null&&albumList.size()>0){
+							AlbumDB.deleteByTab(activity, 0);
 							//save to db
-//							AlbumDB.save(context, albumList);
-							
-							List<Album> oldAlbumList = listViewAdapters[0].getAlbumList();
-							if(oldAlbumList==null){
-								oldAlbumList = new ArrayList<Album>();
-							}
-							oldAlbumList.addAll(0, albumList);
-							listViewAdapters[0].setAlbumList(oldAlbumList);
+							AlbumDB.saveAlbumsByTab(activity, albumList, 0);
+							listViewAdapters[0].setAlbumList(albumList);
 							listViewAdapters[0].notifyDataSetChanged();
 						}
 					}
-					SharedPreferenceUtil.putSharePre(context, getRefreshKey(0), System.currentTimeMillis());
+					SharedPreferenceUtil.putSharePre(activity, getRefreshKey(0), System.currentTimeMillis());
 					break;
 				case HANDLER_FLAG_TAB1:
 				case HANDLER_FLAG_TAB2:
@@ -359,7 +355,7 @@ public class Fragment_Main extends Fragment{
 						Integer newTailId = (Integer) tabedDataMap.get("newTailId");
 						if(albumList!=null&&albumList.size()>0){
 							//缓存本次刷新的时间
-							SharedPreferenceUtil.putSharePre(context, getRefreshKey(tabIndex), System.currentTimeMillis());
+							SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
 							if(newTailId!=null&&newTailId>0){//还有可加载的数据
 								tabAlbumTailIds[tabIndex] = newTailId;
 								pullRefreshViews[tabIndex].setMode(Mode.BOTH);
@@ -377,8 +373,8 @@ public class Fragment_Main extends Fragment{
 							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
 								oldAlbumList.addAll(albumList);
 							}else{//下拉加载，需覆盖原数据
-								AlbumDB.deleteByTab(context, tabIndex);
-								AlbumDB.saveAlbumsByTab(context, albumList, tabIndex);
+								AlbumDB.deleteByTab(activity, tabIndex);
+								AlbumDB.saveAlbumsByTab(activity, albumList, tabIndex);
 								oldAlbumList = null;
 								oldAlbumList = albumList; 
 							}
@@ -410,7 +406,7 @@ public class Fragment_Main extends Fragment{
 				}
 				break;
 			case R.id.btnSettings:
-				Activity_Settings.show(context);
+				Activity_Settings.show(activity);
 				break;
 			default:
 				break;
@@ -424,7 +420,7 @@ public class Fragment_Main extends Fragment{
 	 * @return
 	 */
 	private static String getRefreshKey(int tabIndex){
-		return ConstantsKey.LAST_REFRESH_TIME_PREFIX + tabIndex;
+		return ConstantsKey.LAST_REFRESH_TIME_MAIN_PREFIX + tabIndex;
 	}
 	
 	/**

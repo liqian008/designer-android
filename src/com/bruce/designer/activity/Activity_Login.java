@@ -12,40 +12,40 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.account.BindWeiboApi;
 import com.bruce.designer.api.account.TestLoginApi;
 import com.bruce.designer.api.account.WeiboLoginApi;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.listener.OnSingleClickListener;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
-import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuth;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
-import com.sina.weibo.sdk.utils.UIUtils;
 
 public class Activity_Login extends BaseActivity{
 	/*默认处理*/
 	private static final int HANDLER_FLAG_ERROR = 0;
 	/*微博登录成功*/
-	private static final int HANDLER_FLAG_WB_LOGIN_SUCCESS = 1;
+	private static final int HANDLER_FLAG_WEIBO_LOGIN_SUCCESS = 1;
 	/*微博登录失败*/
-	private static final int HANDLER_FLAG_WB_LOGIN_FAILED = 2;
+	private static final int HANDLER_FLAG_WEIBO_LOGIN_FAILED = 2;
 	/*测试登录成功*/
 	private static final int HANDLER_TEST_LOGIN_SUCCEED = 10;
+	
+	protected static final int HANDLER_FLAG_BIND_SUCCESS = 20;
+	protected static final int HANDLER_FLAG_BIND_FAILED = 21;
 	
 	private ProgressDialog progressDialog;
 	
@@ -53,6 +53,8 @@ public class Activity_Login extends BaseActivity{
 	private SsoHandler mSsoHandler; 
 	private Oauth2AccessToken mAccessToken;
 	
+	private View snsLoginContainer;
+	private View bindLoginContainer;
 	
 	public static void show(Context context){
 		Intent intent = new Intent(context, Activity_Login.class);
@@ -65,15 +67,17 @@ public class Activity_Login extends BaseActivity{
 		this.context = Activity_Login.this;
 		setContentView(R.layout.activity_login);
 		
+		snsLoginContainer = findViewById(R.id.snsLoginContainer);
+		bindLoginContainer = findViewById(R.id.bindLoginContainer);
+		
 		ImageView wbLoginBtn = (ImageView) findViewById(R.id.wbLoginButton);
 		ImageView qqLoginButton = (ImageView) findViewById(R.id.qqLoginButton);
-//		Button skipLoginBtn = (Button) findViewById(R.id.skipLoginButton);
 		
-		wbLoginBtn.setOnClickListener(listener);
-		qqLoginButton.setOnClickListener(listener);
-//		skipLoginBtn.setOnClickListener(listener);
+		wbLoginBtn.setOnClickListener(onClickListener);
+		qqLoginButton.setOnClickListener(onClickListener);
 		
-		progressDialog = ProgressDialog.show(context, "title", "content", true, false);
+		progressDialog = ProgressDialog.show(context, null, "努力登录中...", true, false);
+		progressDialog.dismiss();
 	}
 
 	/**
@@ -94,13 +98,8 @@ public class Activity_Login extends BaseActivity{
             	String refreshToken = mAccessToken.getRefreshToken();
             	long expiresTime = mAccessToken.getExpiresTime();
             	
+            	progressDialog.setMessage("微博验证通过，正在获取用户详细资料");
             	LogUtil.d("=============="+mAccessToken.getUid()+"========"+ mAccessToken.getToken());
-                // 显示 Token
-//            	Toast.makeText(context,  mAccessToken.getUid()+"========"+ mAccessToken.getToken(), Toast.LENGTH_LONG).show();
-//                Toast.makeText(context, R.string.weibosdk_demo_toast_auth_success, Toast.LENGTH_SHORT).show();
-                
-//                Activity_Login_Bind.show(context);
-//                finish();
                 //向服务器提交，验证token
                 weiboLogin(uid, accessToken, refreshToken, expiresTime);
             } else {
@@ -113,22 +112,22 @@ public class Activity_Login extends BaseActivity{
                 if (!TextUtils.isEmpty(code)) {
                     message = message + "\nObtained the code: " + code;
                 }
-                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                UiUtil.showShortToast(context, message);
             }
         }
 
         @Override
         public void onCancel() {
-            Toast.makeText(context, R.string.weibosdk_demo_toast_auth_canceled, Toast.LENGTH_LONG).show();
+        	progressDialog.dismiss();
+            UiUtil.showShortToast(context, "您已取消微博登录");
         }
 
         @Override
         public void onWeiboException(WeiboException e) {
-            Toast.makeText(context, 
-                    "Auth exception : " + e.getMessage(), Toast.LENGTH_LONG).show();
+        	progressDialog.dismiss();
+        	UiUtil.showShortToast(context, "Auth exception : " + e.getMessage());
         }
     }
-
     
     /**
      * 当 SSO 授权 Activity 退出时，该函数被调用。
@@ -144,121 +143,72 @@ public class Activity_Login extends BaseActivity{
         }
     }
     
-    /**
-     * 根据用户的accessToken换取用户资料
-     * @param accessToken
-     * @param expiresTime 
-     * @param refreshToken 
-     * @param thirdpartyType
-     */
-    private void weiboLogin(final String uid, final String accessToken, final String refreshToken, final long expiresTime) {
-		//启动线程获取用户数据
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken, refreshToken, expiresTime);
-				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					//weibo登录成功，两种情况
-					boolean result = true;
-					if(result){//直接返回用户ticket信息
-						Message message = loginHandler.obtainMessage(HANDLER_TEST_LOGIN_SUCCEED);
-						message.obj = apiResult.getData();
-						message.sendToTarget();
-						
-						//跳转至主屏界面
-//						Activity_Main.show(context);
-//						finish();
-					}else{//第一次登录，需要完善用户资料
-					}
-				}else{//发送失败消息
-//					oAuthLoginListener.loginFailed();
-				}
-			}
-		}).start();
-	}
     
     
     private Handler loginHandler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			progressDialog.dismiss();
 			switch(msg.what){
-				case HANDLER_FLAG_WB_LOGIN_SUCCESS:
-					progressDialog.dismiss();
-					
-					//1、直接登录进入
-					//2、需要绑定账户
+				case HANDLER_FLAG_WEIBO_LOGIN_SUCCESS:
 				case HANDLER_TEST_LOGIN_SUCCEED:
-					progressDialog.dismiss();
-					
-//					UiUtil.showShortToast(context, "新浪微博登录成功，正在为您跳转至内容页...");
 					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
-					if(userPassport!=null){
-//						SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+					User hostUser = (User) dataMap.get("hostUser");
+					if(userPassport!=null){//之前绑定过，可以直接获取数据
+						//TODO 
+						UiUtil.showShortToast(context, "您好，正在进入主屏页..");
 						//设置对象缓存
 						AppApplication.setUserPassport(userPassport);
+						AppApplication.setHostUser(hostUser);
+						
+						//直接跳转至主屏界面
+						Activity_Main.show(context);
+						finish();
+					}else{//db未查到，认为是新用户，则必须要进行绑定
+						UiUtil.showShortToast(context, "您好，首次登录需要绑定本站账户");
+						//显示绑定对话
+						snsLoginContainer.setVisibility(View.GONE);
+						bindLoginContainer.setVisibility(View.VISIBLE);
 					}
-					//跳转至主屏界面
+					break;
+				case HANDLER_FLAG_WEIBO_LOGIN_FAILED:
+					break;
+				case HANDLER_FLAG_BIND_SUCCESS:
+					Map<String, Object> bindDataMap = (Map<String, Object>) msg.obj;
+					UserPassport bindUserPassport = (UserPassport) bindDataMap.get("userPassport");
+					User bindHostUser = (User) bindDataMap.get("hostUser");
+					//设置对象缓存
+					AppApplication.setUserPassport(bindUserPassport);
+					AppApplication.setHostUser(bindHostUser);
+					
+					//绑定成功，跳转至主屏界面
 					Activity_Main.show(context);
 					finish();
-					break;
-				case HANDLER_FLAG_WB_LOGIN_FAILED:
-					progressDialog.dismiss();
-					break;
+				case HANDLER_FLAG_BIND_FAILED:
+					//绑定失败
 				default:
 					break;
 			}
 		};
 	};
     
-//    class WeiboLoginListener implements OAuthLoginListener{
-//		@Override
-//		public void loginComplete(UserPassport userPassport) {
-//			UiUtil.showShortToast(context, "登录成功");
-////			SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERPASSPORT);
-//		}
-//		@Override
-//		public void needComplete() {
-//			UiUtil.showShortToast(context, "登录成功，需要完善个人资料");
-//		}
-//
-//		@Override
-//		public void loginFailed() {
-//			UiUtil.showShortToast(context, "登录失败");
-//		}
-//    	
-//    }
-    
-    
-	private OnClickListener listener = new OnSingleClickListener() {
+	private OnClickListener onClickListener = new OnSingleClickListener() {
 		@Override
 		public void onSingleClick(View view) {
+			progressDialog.show();
 			switch (view.getId()) {
 			case R.id.wbLoginButton:
-				progressDialog.show();
 				
 				//跳转wb oauth
-				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY,
-						ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
+				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY, ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
 				//SSO登录
 				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
 				mSsoHandler.authorize(new AuthListener());
 				
-				
 //				UiUtil.showShortToast(context, "微博登录功能未开放，请点击下方【直接登录】按钮");
-				
 				break;
-//			case R.id.skipLoginButton://游客登录
-//				Intent intent = new Intent(context, Activity_Main.class);
-//				startActivity(intent);
-//				finish();
-//				break;
-			case R.id.qqLoginButton:
-				progressDialog.show();
-				
-//				Activity_Login_Bind.show(context);
-				
+			case R.id.qqLoginButton: //暂时被当做【临时登录】按钮
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
@@ -277,11 +227,59 @@ public class Activity_Login extends BaseActivity{
 			}
 		}
 	};
+	
+	
+	
+	/**
+     * 微博登录，根据用户的accessToken换取用户资料
+     * @param accessToken
+     * @param expiresTime 
+     * @param refreshToken 
+     * @param thirdpartyType
+     */
+    private void weiboLogin(final String uid, final String accessToken, final String refreshToken, final long expiresTime) {
+		//启动线程获取用户数据
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken, refreshToken, expiresTime);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
+					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIBO_LOGIN_SUCCESS);
+					message.obj = apiResult.getData();
+					message.sendToTarget();
+				}else{//数据异常
+					UiUtil.showShortToast(context, "登录失败，请重试");
+				}
+			}
+		}).start();
+	}
     
-	
-	
-	
-	
-	
+    /**
+     * 
+     * @param uid
+     * @param accessToken
+     * @param refreshToken
+     * @param expiresTime
+     */
+    private void bindWeibo(final String email, final String nickname, final String password, final String uid, final String accessToken, final String refreshToken, final long expiresTime) {
+		//启动线程绑定微博&账户
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				BindWeiboApi api = new BindWeiboApi(email, nickname, password, uid, accessToken, refreshToken, expiresTime);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
+					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
+					message.obj = apiResult.getData();
+					message.sendToTarget();
+				}else{//数据异常
+					
+				}
+			}
+		}).start();
+	}
+    
+    
 	
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppManager;
 
 public class BaseActivity extends FragmentActivity {
@@ -18,6 +19,20 @@ public class BaseActivity extends FragmentActivity {
 		context = this;
 		AppManager.getInstance().addActivity(this);
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		StatService.onResume(context);	
+	}
+	
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		StatService.onPause(context);
+	}
+	
 	
 	@Override
 	protected void onDestroy() {

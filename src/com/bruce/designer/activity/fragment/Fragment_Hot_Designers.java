@@ -34,7 +34,7 @@ import com.bruce.designer.util.SharedPreferenceUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 
-public class Fragment_Hot_Designers extends Fragment{
+public class Fragment_Hot_Designers extends BaseFragment{
 
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
@@ -51,15 +51,10 @@ public class Fragment_Hot_Designers extends Fragment{
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
 	
-	/*下拉控件*/
-//	private PullToRefreshListView[] pullRefreshViews = new PullToRefreshListView[TAB_NUM];
-//	private ListView[] listViews = new ListView[TAB_NUM];
-	
-	
 	private GridView[] gridViews = new GridView[TAB_NUM];
 	private HotDesignerAdapter[] gridViewAdapters = new HotDesignerAdapter[TAB_NUM];
 	
-	private Activity context;
+	private Activity activity;
 	private LayoutInflater inflater;
 	
 	private TextView titleView;
@@ -68,7 +63,7 @@ public class Fragment_Hot_Designers extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		context = getActivity();
+		activity = getActivity();
 		this.inflater = inflater;
 		
 		View mainView = inflater.inflate(R.layout.fragment_hot_designers, null);
@@ -104,14 +99,14 @@ public class Fragment_Hot_Designers extends Fragment{
 		for(int i=0;i<TAB_NUM; i++){
 			View pageView = inflater.inflate(R.layout.designer_view, null);
 			gridViews[i] = (GridView) pageView.findViewById(R.id.designerGridView);
-			gridViewAdapters[i] = new HotDesignerAdapter(context, null);
+			gridViewAdapters[i] = new HotDesignerAdapter(activity, null);
 			gridViews[i].setAdapter(gridViewAdapters[i]);
 			
 			//将views加入viewPager
 			pagerViews.add(pageView);
 		}
 		//viewPager的适配器
-		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(context, pagerViews);
+		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(activity, pagerViews);
 		viewPager.setAdapter(viewPagerAdapter);
 		viewPager.setOnPageChangeListener(viewPagerListener);
 		
@@ -157,24 +152,9 @@ public class Fragment_Hot_Designers extends Fragment{
 		//判断tab的上次刷新时间
 		long currentTime = System.currentTimeMillis();
 		String tabRefreshKey = getRefreshKey(currentTab);
-		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
+		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 		long interval = currentTime - lastRefreshTime;
 //		//相应page上请求数据
-//		List<Album> albumList = null;
-//		if(currentTab==1){
-//			albumList= AlbumDB.queryHotMonthly(context);//月热门
-//		}else if(currentTab==2){
-//			albumList= AlbumDB.queryHotYearly(context);//年热门
-//		}else{
-//			albumList= AlbumDB.queryHotWeekly(context);//周热门
-//		}
-//		if(albumList!=null&&albumList.size()>0){
-//			listViewAdapters[currentTab].setAlbumList(albumList);
-//			listViewAdapters[currentTab].notifyDataSetChanged();
-//			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-//				pullRefreshViews[currentTab].setRefreshing(false);
-//			}
-//		}
 	}
 	
 	/**
@@ -211,7 +191,7 @@ public class Fragment_Hot_Designers extends Fragment{
 				int mode = 1;
 				AbstractApi api = new HotDesignerListApi(mode);
 				
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
 					message.obj = jsonResult.getData();
@@ -241,7 +221,7 @@ public class Fragment_Hot_Designers extends Fragment{
 						if(designerList!=null&&designerList.size()>0){
 							
 							//缓存本次刷新的时间
-							SharedPreferenceUtil.putSharePre(context, getRefreshKey(tabIndex), System.currentTimeMillis());
+							SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
 							gridViewAdapters[tabIndex].setUserList(designerList);
 							gridViewAdapters[tabIndex].notifyDataSetChanged();
 						}
@@ -259,7 +239,7 @@ public class Fragment_Hot_Designers extends Fragment{
 	 * @return
 	 */
 	private static String getRefreshKey(int tabIndex){
-		return ConstantsKey.LAST_REFRESH_TIME_PREFIX + tabIndex;
+		return ConstantsKey.LAST_REFRESH_TIME_HOTALBUM_PREFIX+ tabIndex;
 	}
 	
 	/**
@@ -300,7 +280,7 @@ public class Fragment_Hot_Designers extends Fragment{
 				}
 				break;
 			case R.id.btnSettings:
-				Activity_Settings.show(context);
+				Activity_Settings.show(activity);
 				break;
 			default:
 				break;

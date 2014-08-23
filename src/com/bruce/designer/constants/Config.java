@@ -4,6 +4,8 @@ import com.bruce.designer.AppApplication;
 
 public class Config {
 	
+	public static final boolean DEBUG = true;
+	
 	/*当前登录人uid*/
 	public static int HOST_ID = 100009; 
 	

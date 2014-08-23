@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.bruce.designer.db.DBHelper;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
+import com.bruce.designer.model.AlbumSlide;
 
 public class AlbumDB {
 	
@@ -46,19 +47,23 @@ public class AlbumDB {
 	}
 	
 	public static List<Album> queryHotWeekly(Context context) {
-		return queryAll(context, TB_HOT_ALBUM_WEEKLY);
+		return queryAll(context, TB_HOT_ALBUM_WEEKLY, true);
 	}
 	
 	public static List<Album> queryHotMonthly(Context context) {
-		return queryAll(context, TB_HOT_ALBUM_MONTHLY);
+		return queryAll(context, TB_HOT_ALBUM_MONTHLY, true);
 	}
 	
 	public static List<Album> queryHotYearly(Context context) {
-		return queryAll(context, TB_HOT_ALBUM_YEARLY);
+		return queryAll(context, TB_HOT_ALBUM_YEARLY, true);
 	}
 	
-	
 	private static List<Album> queryAll(Context context, String tableName) {
+		return queryAll(context, tableName, false);
+	}
+		
+		
+	private static List<Album> queryAll(Context context, String tableName, boolean initSlides) {
 		// 读取SQLite里面的数据
 		SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
 
@@ -93,6 +98,12 @@ public class AlbumDB {
 			
 			album.setCreateTime(cursor.getLong(cursor.getColumnIndex("create_time")));
 			album.setUpdateTime(cursor.getLong(cursor.getColumnIndex("update_time")));
+			
+			//需要加载作品列表
+			if(initSlides){
+				List<AlbumSlide> albumSlideList = AlbumSlideDB.queryByAlbumId(context, album.getId());
+				album.setSlideList(albumSlideList);
+			}
 			albumList.add(album);
 		}
 		return albumList;
@@ -151,8 +162,14 @@ public class AlbumDB {
 		        values.put("create_time", album.getCreateTime());
 		        values.put("update_time", album.getUpdateTime());
 			
-		        db.insert(tableName,  null, values);
-//			db.execSQL("insert into tb_album (title, remark, link, user_id, status, cover_large_img, cover_medium_img, cover_small_img, create_time, update_time) values (?,?,?,?,?,?,?,?,?,?)", bindArgs);
+		        db.replace(tableName,  null, values);
+		        
+		        //保存slide信息
+		        List<AlbumSlide> albumSlideList = album.getSlideList();
+		        if(albumSlideList!=null&&albumSlideList.size()>0){
+		        	AlbumSlideDB.save(context, albumSlideList);
+		        }
+		        
 			}
 			return albumList.size();
 		}

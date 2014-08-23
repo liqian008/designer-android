@@ -37,7 +37,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  * @author liqian
  *
  */
-public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<ListView> {
+public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<ListView> {
 	
 	private static final int HANDLER_FLAG_USERBOX = 1;
 	
@@ -47,7 +47,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	
 	private MessageBoxAdapter messageBoxAdapter;
 	
-	private Activity context;
+	private Activity activity;
 	
 	private LayoutInflater inflater;
 	
@@ -56,7 +56,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		context = getActivity();
+		activity = getActivity();
 		this.inflater = inflater;
 		
 		View mainView = inflater.inflate(R.layout.fragment_msgbox, null);
@@ -80,7 +80,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 		pullRefreshView.setOnRefreshListener(this);
 		
 		ListView msgboxView = pullRefreshView.getRefreshableView();
-		messageBoxAdapter = new MessageBoxAdapter(context, null);
+		messageBoxAdapter = new MessageBoxAdapter(activity, null);
 		msgboxView.setAdapter(messageBoxAdapter);
 	}
 
@@ -88,7 +88,8 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 	public void onResume() {
 		super.onResume();
 		//获取消息列表
-		getMessageBox(0);
+//		getMessageBox(0);
+		pullRefreshView.setRefreshing(false);
 	}
 	
 	class MessageBoxAdapter extends BaseAdapter {
@@ -202,7 +203,7 @@ public class Fragment_Msgbox extends Fragment implements OnRefreshListener2<List
 			public void run() {
 				android.os.Message message;
 				MessageBoxApi api = new MessageBoxApi();
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_USERBOX);

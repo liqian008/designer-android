@@ -1,5 +1,7 @@
 package com.bruce.designer.util;
 
+import com.bruce.designer.constants.Config;
+
 import android.util.Log;
 
 /**
@@ -9,7 +11,9 @@ import android.util.Log;
  * 
  */
 public class LogUtil {
-	public static boolean isDebug = true;// 是否需要打印bug，可以在application的onCreate函数里面初始化
+	
+	public static final boolean isDebug = Config.DEBUG;// 是否需要打印bug，可以在application的onCreate函数里面初始化
+	
 	private static final String TAG = "designer";
 
 	// 下面四个是默认tag的函数

@@ -12,9 +12,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 
+import com.baidu.android.pushservice.PushConstants;
+import com.baidu.android.pushservice.PushManager;
+import com.baidu.android.pushservice.PushSettings;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSingleClickListener;
+import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.UiUtil;
 
 public class Activity_Main extends BaseActivity {
@@ -41,20 +45,10 @@ public class Activity_Main extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		//初始化baiduPush
+		initBaiduPush(context);
+		
 		fragmentManager = getSupportFragmentManager();
-
-//		mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
-//		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_hot_albums);
-//		mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_hot_designers);
-//        mFragments[3] = fragmentManager.findFragmentById(R.id.fragment_msgbox);
-//        mFragments[4] = fragmentManager.findFragmentById(R.id.fragment_myhome);
-//        
-//        footerTabs[0] = (ImageButton) findViewById(R.id.btnTabMain);
-//        footerTabs[1] = (ImageButton) findViewById(R.id.btnTabHotAlbums);
-//        footerTabs[2] = (ImageButton) findViewById(R.id.btnTabHotDesigners);
-//        footerTabs[3] = (ImageButton) findViewById(R.id.btnTabMsgbox);
-//        footerTabs[4] = (ImageButton) findViewById(R.id.btnTabHome);
-        
         mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
 		mFragments[1] = fragmentManager.findFragmentById(R.id.fragment_hot_albums);
         mFragments[2] = fragmentManager.findFragmentById(R.id.fragment_msgbox);
@@ -72,6 +66,7 @@ public class Activity_Main extends BaseActivity {
 	}
 
 	
+
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		boolean flag = false;
@@ -157,5 +152,14 @@ public class Activity_Main extends BaseActivity {
 			}
 		}
 	};
+	
+	/**
+	 * 初始化百度push
+	 * @param context
+	 */
+	private void initBaiduPush(Context context) {
+		PushSettings.enableDebugMode(context, true);
+		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "api_key"));
+	}
 	
 }

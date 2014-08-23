@@ -5,15 +5,6 @@
     android:background="@color/green"
     android:orientation="vertical" >
 
-    <!--
-    <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:contentDescription="bg"
-        android:scaleType="centerCrop"
-        android:src="@drawable/bmp_splash_bg" />
-    -->
-
     <ImageView
         android:id="@+id/imgLogo"
         android:layout_width="wrap_content"
@@ -22,8 +13,6 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="96.0dip"
         android:src="@drawable/logo_splash" />
-
-    
     
     <LinearLayout
         android:id="@+id/snsLoginContainer"
@@ -34,6 +23,7 @@
         android:layout_marginBottom="85dp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
+        android:visibility="visible"
          >
 
         <ImageView
@@ -54,7 +44,7 @@
     
     <LinearLayout
         android:id="@+id/bindLoginContainer"
-        android:layout_width="280dp"
+        android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical" 
@@ -66,11 +56,12 @@
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/loginBindContainer"
             android:background="#fff"
             android:padding="10dp"
             android:text="还差一步您就可完成登录"
-            android:textSize="14dp" />
+            android:textSize="14dp" 
+            android:visibility="gone"
+            />
 
         <View
             android:layout_width="fill_parent"
@@ -85,7 +76,7 @@
             android:background="#fff" >
 
             <ImageView
-                android:id="@+id/loginUsernameIcon"
+                android:id="@+id/loginEmailIcon"
                 android:layout_width="50dp"
                 android:layout_height="match_parent"
                 android:layout_centerVertical="true"
@@ -93,11 +84,34 @@
                 android:src="@drawable/login_email" />
 
             <EditText
-                android:id="@+id/loginUsernameText"
+                android:id="@+id/loginEmailText"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
-                android:layout_toRightOf="@+id/loginUsernameIcon"
+                android:layout_toRightOf="@+id/loginEmailIcon"
                 android:hint="请输入邮箱"
+                android:textSize="14dp" />
+        </RelativeLayout>
+        
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/loginNicinameIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_nickname" />
+
+            <EditText
+                android:id="@+id/loginNicinameText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/loginNicinameIcon"  
+                android:hint="请输入昵称"
                 android:textSize="14dp" />
         </RelativeLayout>
 

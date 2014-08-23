@@ -6,7 +6,7 @@ import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_UserHome;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.listener.OnSingleClickListener;
-import com.bruce.designer.model.Album;
+import com.bruce.designer.model.Album; 
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.util.TimeUtil;

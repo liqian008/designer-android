@@ -63,8 +63,8 @@ public class AlbumSlideDB {
 		        values.put("slide_small_img", albumSlide.getSlideSmallImg());
 		        values.put("create_time", albumSlide.getCreateTime());
 		        values.put("update_time", albumSlide.getUpdateTime());
-			
-		        db.insert(TB_ALBUM_SLIDE,  null, values);
+		        //insert or replace
+		        db.replace(TB_ALBUM_SLIDE,  null, values);
 			}
 			return albumSlideList.size();
 		}

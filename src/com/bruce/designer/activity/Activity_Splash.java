@@ -38,19 +38,8 @@ public class Activity_Splash extends BaseActivity {
 	/* 下载完成 */
 	private static final int DOWNLOAD_OVER = 2;
 	
-	// 提示标题
-	private String updateTitle = "发现新版本客户端";
-	// 提示语
-	private String updateMsg = "有最新的软件包哦，亲快下载吧~";
-	// 返回的安装包url
-	private String apkUrl = "http://softfile.3g.qq.com:8080/msoft/179/24659/43549/qq_hd_mini_1.4.apk";
-
 	private Dialog downloadPromptDialog;
 	private Dialog downloadingDialog;
-
-	/* 下载包安装路径 */
-	private static final String savePath = "/sdcard/updatedemo/";
-	private static final String saveFileName = savePath+ "UpdateDemoRelease.apk";
 
 	/* 进度条与通知ui刷新的handler和msg常量 */
 	private ProgressBar mProgress;
@@ -74,15 +63,25 @@ public class Activity_Splash extends BaseActivity {
 				needLogin = (Boolean) dataMap.get("needLogin");
 				
 				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
-				updateStatus = versionCheckResult.getUpdateStatus();//new Random(System.currentTimeMillis()).nextInt(3);
-				processDownloadDialog(updateStatus, apkUrl);
 				
+				versionCheckResult = new VersionCheckResult();
+				versionCheckResult.setUpdateStatus(1);
+				versionCheckResult.setUpdateTitle("title");
+				versionCheckResult.setUpdateRemark("content");
+				versionCheckResult.setUpdateUrl("http://gdown.baidu.com/data/wisegame/aaded26929762c22/WeChat_462.apk");
+				
+				updateStatus = versionCheckResult.getUpdateStatus();
+				
+				if(versionCheckResult!=null){
+					processUpdateResult(versionCheckResult);
+				}
 				break;
 			case DOWNLOADING:
 				mProgress.setProgress(progress);
 				break;
 			case DOWNLOAD_OVER:
-				installApk();
+				String apkFilePath = (String) msg.obj;
+				installApk(apkFilePath);
 				break;
 			default:
 				//出错了
@@ -124,18 +123,6 @@ public class Activity_Splash extends BaseActivity {
 			 }
 		 });
 		 thread.start();
-
-		// ImageButton wbLoginBtnView = (ImageButton)
-		// findViewById(R.id.wbLoginButton);
-		// wbLoginBtnView.setOnClickListener(new View.OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// Intent intent = new Intent(context, Activity_Main.class);
-		// startActivity(intent);
-		// finish();
-		// }
-		// });
 	}
 
 	/**
@@ -148,20 +135,21 @@ public class Activity_Splash extends BaseActivity {
 //	}
 
 	/**
-	 * 
-	 * 构造下载的提示框（建议更新）
-	 * @param updateStatus， 0无更新/1为建议更新/2为强制更新
-	 * @param apkUrl
+	 * 处理检查更新的结果，决定是否构造下载的提示框
+	 * @param versionCheckResult
 	 */
-	private void processDownloadDialog(int updateStatus, final String apkUrl) {
+	private void processUpdateResult(VersionCheckResult versionCheckResult) {
+		int updateStatus = versionCheckResult.getUpdateStatus();//0无更新/1为建议更新/2为强制更新
+		String title = versionCheckResult.getUpdateTitle();
+		String message = versionCheckResult.getUpdateRemark();
+		String apkUrl = versionCheckResult.getUpdateUrl();
+		
 		if (updateStatus == 1) {
-			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, "下次再说", ignoreListener);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, "立即体验", new DownloadListener(apkUrl), "下次再说", ignoreListener);
 		}else if (updateStatus == 2) {
-			downloadPromptDialog = UiUtil.showAlertDialog(context, updateTitle, updateMsg, "立即体验", downloadListener, null, null);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, "立即体验", new DownloadListener(apkUrl), null, null);
 		}else{
 			//无更新
-//			Activity_Login.show(context);
-//			finish();
 			jumpToNextActivity();
 			return;
 		}
@@ -180,22 +168,26 @@ public class Activity_Splash extends BaseActivity {
 		View downloadingView = inflater.inflate(R.layout.download_progress, null);
 		mProgress = (ProgressBar) downloadingView.findViewById(R.id.progress);
 		downloadingDialog = UiUtil.showAlertDialog(context, false, downloadingView, "客户端版本更新", null, "取消", quitDownloadListener, null, null);
-//		downloadingDialog = UiUtil.showAlertDialog(context, false, downloadingView, "客户端版本更新", null, null, null, null, null);
 		downloadingDialog.show();
 		//开启下载线程
 		downloadApk(apkUrl);
 	}
 
-	/**
-	 * 点击下载的listener
-	 */
-	private DialogInterface.OnClickListener downloadListener = new DialogInterface.OnClickListener() {
+	class DownloadListener implements  DialogInterface.OnClickListener{
+		
+		private String apkUrl;
+
+		public DownloadListener(String apkUrl){
+			this.apkUrl = apkUrl;
+		}
+		
 		@Override
-		public void onClick(DialogInterface dialog, int which) {
+		public void onClick(DialogInterface dialog, int arg1) {
 			dialog.dismiss();
 			showDownloadingDialog(apkUrl);
 		}
-	};
+		
+	}
 	
 	/**
 	 * 点击下次再说的listener
@@ -204,8 +196,6 @@ public class Activity_Splash extends BaseActivity {
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
 			dialog.dismiss();
-//			Activity_Login.show(context);
-//			finish();
 			jumpToNextActivity();
 		}
 	};
@@ -245,13 +235,14 @@ public class Activity_Splash extends BaseActivity {
 				conn.connect();
 				int length = conn.getContentLength();
 				InputStream is = conn.getInputStream();
-				File file = new File(savePath);
-				if (!file.exists()) {
-					file.mkdir();
+				
+				File downloadDir = context.getExternalFilesDir("/newVersion");
+				if (!downloadDir.exists()) {
+					downloadDir.mkdir();
 				}
-				String apkFile = saveFileName;
-				File ApkFile = new File(apkFile);
-				FileOutputStream fos = new FileOutputStream(ApkFile);
+				String apkFileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+				File apkFile = new File(downloadDir, apkFileName);
+				FileOutputStream fos = new FileOutputStream(apkFile);
 
 				int count = 0;
 				byte buf[] = new byte[1024];
@@ -262,8 +253,11 @@ public class Activity_Splash extends BaseActivity {
 					// 更新进度
 					handler.sendEmptyMessage(DOWNLOADING);
 					if (numread <= 0) {
+						String apkFilePath = apkFile.getAbsolutePath();
+						Message message = handler.obtainMessage(DOWNLOAD_OVER);
+						message.obj = apkFilePath;
 						// 下载完成通知安装
-						handler.sendEmptyMessage(DOWNLOAD_OVER);
+						message.sendToTarget();
 						break;
 					}
 					fos.write(buf, 0, numread);
@@ -275,7 +269,6 @@ public class Activity_Splash extends BaseActivity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 	};
 
@@ -293,10 +286,10 @@ public class Activity_Splash extends BaseActivity {
 	/**
 	 * 安装apk
 	 * 
-	 * @param url
+	 * @param apkFilePath
 	 */
-	private void installApk() {
-		File apkfile = new File(saveFileName);
+	private void installApk(String apkFilePath) {
+		File apkfile = new File(apkFilePath);
 		if (!apkfile.exists()) {
 			return;
 		}
@@ -308,7 +301,8 @@ public class Activity_Splash extends BaseActivity {
 	}
 	
 	/**
-	 * 跳转至下一activity(未登录需要跳到登录页，已登录则需要跳转到首页)
+	 * 根据登录状态跳转至下一activity
+	 * 未登录需要跳到登录页，已登录则需要跳转到首页
 	 */
 	public void jumpToNextActivity(){
 		if(needLogin){

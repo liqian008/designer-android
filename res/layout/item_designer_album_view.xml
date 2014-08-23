@@ -155,7 +155,6 @@
             android:singleLine="true"
             android:text="浏览"
             android:textAlignment="center"
-            android:clickable="false"
             android:textColor="@color/txt_dark_color"
             android:textSize="12.0sp" />
 
@@ -191,7 +190,6 @@
             android:paddingRight="8.0dp"
             android:singleLine="true"
             android:text="评论"
-            android:clickable="false"
             android:textColor="@color/txt_dark_color"
             android:textSize="12.0sp" />
 

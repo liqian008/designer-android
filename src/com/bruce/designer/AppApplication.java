@@ -1,6 +1,8 @@
 package com.bruce.designer;
 
+import com.baidu.frontia.FrontiaApplication;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
@@ -18,10 +20,11 @@ public class AppApplication extends Application {
 	private static int versionCode;
 	
 	private static UserPassport userPassport;
+	private static User hostUser;
 	
-//	private static float screendensity;
-//	private static int screenHeight;
-//	private static int screenWidth;
+	private static float screendensity;
+	private static int screenHeight;
+	private static int screenWidth;
 
 	/**
 	 * 其他全局量
@@ -33,6 +36,9 @@ public class AppApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 		application = this;
+		//代码方式init百度application
+		FrontiaApplication.initFrontiaApplication(application);
+		
 		init();
 		//Universal ImageLoader init
 		ImageLoader.getInstance().init(UniversalImageUtil.buildUniversalImageConfig(application));//全局初始化配置  
@@ -75,7 +81,7 @@ public class AppApplication extends Application {
 		return userPassport;
 	}
 
-	public static void setUserPassport(UserPassport userPassport) {
+	public synchronized static void setUserPassport(UserPassport userPassport) {
 		if(userPassport!=null){
 			//写入sp
 			SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
@@ -83,18 +89,43 @@ public class AppApplication extends Application {
 		}
 	}
 	
+	public static User getHostUser() {
+		if(hostUser==null){
+			//从sp中读取
+			hostUser = SharedPreferenceUtil.readObjectFromSp(User.class, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
+		}
+		return hostUser;
+	}
 
-//	public static float getScreendensity() {
-//		return screendensity;
-//	}
-//
-//	public static int getScreenHeight() {
-//		return screenHeight;
-//	}
-//
-//	public static int getScreenWidth() {
-//		return screenWidth;
-//	}
+	public synchronized static void setHostUser(User hostUser) {
+		if(hostUser!=null){
+			//写入sp
+			SharedPreferenceUtil.writeObjectToSp(hostUser, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
+			AppApplication.hostUser = hostUser;
+		}
+	}
+
+	public static float getScreendensity() {
+		return screendensity;
+	}
+
+	public static int getScreenHeight() {
+		return screenHeight;
+	}
+
+	public static int getScreenWidth() {
+		return screenWidth;
+	}
+	
+	/**
+	 * 判断是否是当前登录用户
+	 * @param userId
+	 * @return
+	 */
+	public static boolean isHost(int userId){
+		UserPassport userPassport = getUserPassport();
+		return (userPassport!=null&&Integer.valueOf(userId).equals(userPassport.getUserId()));
+	}
 
 	
 //	public static WindowManager.LayoutParams getwmParams() {

@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
@@ -18,7 +17,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
@@ -36,7 +34,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-public class Fragment_Hot_Albums extends Fragment{
+public class Fragment_Hot_Albums extends BaseFragment{
 
 	private static final int HANDLER_FLAG_TAB0 = 0;
 	private static final int HANDLER_FLAG_TAB1 = 1;
@@ -58,7 +56,7 @@ public class Fragment_Hot_Albums extends Fragment{
 	private ListView[] listViews = new ListView[TAB_NUM];
 	private DesignerAlbumsAdapter[] listViewAdapters = new DesignerAlbumsAdapter[TAB_NUM];
 	
-	private Activity context;
+	private Activity activity; 
 	private LayoutInflater inflater;
 	
 	private TextView titleView;
@@ -66,7 +64,7 @@ public class Fragment_Hot_Albums extends Fragment{
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		context = getActivity();
+		activity = getActivity();
 		this.inflater = inflater;
 		
 		View mainView = inflater.inflate(R.layout.fragment_hot_albums, null);
@@ -106,14 +104,14 @@ public class Fragment_Hot_Albums extends Fragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(context, null);
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null);
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
 			pagerViews.add(pageView);
 		}
 		//viewPager的适配器
-		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(context, pagerViews);
+		ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(activity, pagerViews);
 		viewPager.setAdapter(viewPagerAdapter);
 		viewPager.setOnPageChangeListener(viewPagerListener);
 		
@@ -155,23 +153,24 @@ public class Fragment_Hot_Albums extends Fragment{
 		//判断tab的上次刷新时间
 		long currentTime = System.currentTimeMillis();
 		String tabRefreshKey = getRefreshKey(currentTab);
-		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(context, tabRefreshKey, 0l);
+		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 		long interval = currentTime - lastRefreshTime;
 		//相应page上请求数据
 		List<Album> albumList = null;
 		if(currentTab==1){
-			albumList= AlbumDB.queryHotMonthly(context);//月热门
+			albumList= AlbumDB.queryHotMonthly(activity);//月热门
 		}else if(currentTab==2){
-			albumList= AlbumDB.queryHotYearly(context);//年热门
+			albumList= AlbumDB.queryHotYearly(activity);//年热门
 		}else{
-			albumList= AlbumDB.queryHotWeekly(context);//周热门
+			albumList= AlbumDB.queryHotWeekly(activity);//周热门
 		}
-		if(albumList!=null&&albumList.size()>0){
-			listViewAdapters[currentTab].setAlbumList(albumList);
-			listViewAdapters[currentTab].notifyDataSetChanged();
-			if(interval > TimeUtil.TIME_UNIT_MINUTE){
-				pullRefreshViews[currentTab].setRefreshing(false);
-			}
+		
+		
+		listViewAdapters[currentTab].setAlbumList(albumList);
+		listViewAdapters[currentTab].notifyDataSetChanged();
+		
+		if(albumList==null || albumList.size() ==0 || interval > TimeUtil.TIME_UNIT_MINUTE){
+			pullRefreshViews[currentTab].setRefreshing(false);
 		}
 	}
 	
@@ -209,7 +208,7 @@ public class Fragment_Hot_Albums extends Fragment{
 				int mode = 1;
 				AbstractApi api = new HotAlbumListApi(mode);
 				
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
 					message.obj = jsonResult.getData();
@@ -238,11 +237,11 @@ public class Fragment_Hot_Albums extends Fragment{
 						List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
 						if(albumList!=null&&albumList.size()>0){
 							
-							AlbumDB.deleteHotByTab(context, tabIndex);
-							AlbumDB.saveHotAlbumsByTab(context, albumList, tabIndex);
+							AlbumDB.deleteHotByTab(activity, tabIndex);
+							AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
 							
 							//缓存本次刷新的时间
-							SharedPreferenceUtil.putSharePre(context, getRefreshKey(tabIndex), System.currentTimeMillis());
+							SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
 							listViewAdapters[tabIndex].setAlbumList(albumList);
 							listViewAdapters[tabIndex].notifyDataSetChanged();
 						}
@@ -270,9 +269,6 @@ public class Fragment_Hot_Albums extends Fragment{
 						break;
 				}
 				break;
-			case R.id.btnSettings:
-				Activity_Settings.show(context);
-				break;
 			default:
 				break;
 			}
@@ -285,7 +281,7 @@ public class Fragment_Hot_Albums extends Fragment{
 	 * @return
 	 */
 	private static String getRefreshKey(int tabIndex){
-		return ConstantsKey.LAST_REFRESH_TIME_PREFIX + tabIndex;
+		return ConstantsKey.LAST_REFRESH_TIME_HOTALBUM_PREFIX + tabIndex;
 	}
 	
 	/**

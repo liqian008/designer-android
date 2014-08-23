@@ -88,6 +88,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private Integer designerId;
 	/*回复评论时的接收人，可能不是designerId*/
 	private int toId = 0;
+	/*评论tailId*/
 	private long commentsTailId = 0;
 	
 	private Handler handler = new Handler(){
@@ -192,7 +193,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		titleView.setText("作品辑");
 		
 		pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-		pullRefresh.setMode(Mode.PULL_FROM_START);
+		pullRefresh.setMode(Mode.BOTH);
 		pullRefresh.setOnRefreshListener(this);
 		commentListView = pullRefresh.getRefreshableView();
 		//为listview增加headerView (专辑基础信息)
@@ -239,60 +240,65 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		
 		Intent intent = getIntent();
 		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
-		albumId = album.getId();
-		designerId = album.getUserId();
-		//读取上个activity传入的albumId值
-		if(album!=null&&albumId!=null){
-			final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
-			if(authorInfo!=null){
-				View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
-				
-				//用户主页按钮的点击事件
-				OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
-					@Override
-					public void onSingleClick(View view) {
-						//跳转至个人资料页
-						Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+		if(album==null){
+			//TODO 如果是通过消息或push进来，只有一个albumId，无其他数据
+			
+		}else{//intent中传的是album
+			albumId = album.getId();
+			designerId = album.getUserId();
+			//读取上个activity传入的authorInfo值
+			if(album!=null&&albumId!=null){
+				final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
+				if(authorInfo!=null){
+					View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
+					
+					//用户主页按钮的点击事件
+					OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
+						@Override
+						public void onSingleClick(View view) {
+							//跳转至个人资料页
+							Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
+						}
+					};
+					designerView.setOnClickListener(userHomeOnclickListener);
+					if(btnUserHome!=null){
+						btnUserHome.setOnClickListener(userHomeOnclickListener);
 					}
-				};
-				designerView.setOnClickListener(userHomeOnclickListener);
-				if(btnUserHome!=null){
-					btnUserHome.setOnClickListener(userHomeOnclickListener);
+					
+					//显示设计师头像
+					ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+					designerNameView.setText(authorInfo.getDesignerNickname());
 				}
 				
-				//显示设计师头像
-				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				designerNameView.setText(authorInfo.getDesignerNickname());
+				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
+				albumTitleView.setText(album.getTitle());
+				albumContentView.setText(album.getRemark());
+				
+				//浏览，评论等交互数
+				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
+				btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
+				btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
+				btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
+				
+				//获取db中的图片列表
+				List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
+				if(albumSlideList!=null&&albumSlideList.size()>0){//展示db中数据
+					slideAdapter.setSlideList(albumSlideList);
+					slideAdapter.notifyDataSetChanged();
+				}
+				
+				//获取db中的评论列表
+				List<Comment> commentList= AlbumCommentDB.queryByAlbumId(context, albumId);
+				if(commentList!=null&&commentList.size()>0){//展示db中数据
+					commentsAdapter.setCommentList(commentList);
+					commentsAdapter.notifyDataSetChanged();
+				}
+				
+	//			//获取实时图片列表
+				getAlbumInfo(album.getId());
+				
+				pullRefresh.setRefreshing(false);
 			}
-			
-			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
-			albumTitleView.setText(album.getTitle());
-			albumContentView.setText(album.getRemark());
-			
-			//浏览，评论等交互数
-			btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
-			btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
-			btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
-			btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
-			
-			//获取db中的图片列表
-			List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
-			if(albumSlideList!=null&&albumSlideList.size()>0){//展示db中数据
-				slideAdapter.setSlideList(albumSlideList);
-				slideAdapter.notifyDataSetChanged();
-			}
-			//获取实时图片列表
-			getAlbumInfo(album.getId());
-			
-			//获取db中的评论列表
-			List<Comment> commentList= AlbumCommentDB.queryByAlbumId(context, albumId);
-			if(commentList!=null&&commentList.size()>0){//展示db中数据
-				commentsAdapter.setCommentList(commentList);
-				commentsAdapter.notifyDataSetChanged();
-			}
-			//获取实时评论列表
-			getAlbumComments(0);
-			
 		}
 	}
 		

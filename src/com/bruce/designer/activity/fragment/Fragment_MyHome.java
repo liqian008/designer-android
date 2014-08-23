@@ -1,12 +1,11 @@
 package com.bruce.designer.activity.fragment;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.content.Context;
+import android.app.DownloadManager.Query;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,12 +20,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_MyFavorite;
 import com.bruce.designer.activity.Activity_Settings;
-import com.bruce.designer.activity.Activity_UserInfo;
 import com.bruce.designer.activity.Activity_UserFans;
 import com.bruce.designer.activity.Activity_UserFollows;
+import com.bruce.designer.activity.Activity_UserInfo;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
@@ -49,12 +49,12 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  * @author liqian
  *
  */
-public class Fragment_MyHome extends Fragment implements OnRefreshListener2<ListView> {
+public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<ListView> {
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
 	
-	private Activity context;
+	private Activity activity; 
 	private LayoutInflater inflater;
 	
 	private TextView titleView;
@@ -90,9 +90,11 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 						int fansCount = (Integer) userinfoDataMap.get("fansCount");
 						int followsCount = (Integer) userinfoDataMap.get("followsCount");
 						if(userinfo!=null&&userinfo.getId()>0){
-							//缓存到sp
-							SharedPreferenceUtil.writeObjectToSp(userinfo, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
-
+							if(AppApplication.isHost(userinfo.getId())){
+								//缓存到sp
+								AppApplication.setHostUser(userinfo);
+							}
+							
 							titleView.setText(userinfo.getNickname());
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
@@ -145,7 +147,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		context = getActivity();
+		activity = getActivity();
 		this.inflater = inflater;
 		
 		View mainView = inflater.inflate(R.layout.activity_user_home, null);
@@ -172,14 +174,12 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		pullRefreshView.setMode(Mode.PULL_FROM_END);
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
-		albumListAdapter = new DesignerAlbumsAdapter(context, null);
+		albumListAdapter = new DesignerAlbumsAdapter(activity, null);
 		albumListView.setAdapter(albumListAdapter);
 		
 		//把个人资料的layout作为listview的header
-		LayoutInflater layoutInflate = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View headerView = layoutInflate.inflate(R.layout.user_home_head, null);
+		View headerView = inflater.inflate(R.layout.user_home_head, null);
 		albumListView.addHeaderView(headerView);
-		
 		
 		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
 		
@@ -193,7 +193,6 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		
 		
 		btnSendMsg = (Button)headerView.findViewById(R.id.btnSendMsg);
-//		btnSendMsg.setOnClickListener(listener);
 		btnSendMsg.setVisibility(View.GONE);
 		
 		btnMyFavorite = (Button)headerView.findViewById(R.id.btnMyFavorite);
@@ -203,15 +202,17 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
 		btnUserInfo.setOnClickListener(listener);
 		
-		//启动获取个人资料详情
-		getUserinfo(Config.HOST_ID);
-		//获取个人专辑
-		getAlbums(Config.HOST_ID, 0);
+//		//启动获取个人资料详情
+//		getUserinfo(Config.HOST_ID);
+//		//获取个人专辑
+//		getAlbums(Config.HOST_ID, 0);
+		
 	}
 	
 	@Override
 	public void onResume() {
 		super.onResume();
+		pullRefreshView.setRefreshing(false);
 	}
 	
 	private void getUserinfo(final int userId) {
@@ -222,7 +223,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 				Message message;
 				
 				UserInfoApi api = new UserInfoApi(userId);
-				ApiResult apiResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(activity, api);
 				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
 					message.obj = apiResult.getData();
@@ -242,7 +243,7 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 				Message message;
 				
 				AlbumListApi api = new AlbumListApi(Config.HOST_ID, albumTailId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
@@ -261,19 +262,19 @@ public class Fragment_MyHome extends Fragment implements OnRefreshListener2<List
 
 			switch (view.getId()) {
 			case R.id.btnSettings:
-				Activity_Settings.show(context);
+				Activity_Settings.show(activity);
 				break;
 			case R.id.followsContainer:
-				Activity_UserFollows.show(context, Config.HOST_ID);
+				Activity_UserFollows.show(activity, Config.HOST_ID);
 				break;
 			case R.id.fansContainer:
-				Activity_UserFans.show(context, Config.HOST_ID);
+				Activity_UserFans.show(activity, Config.HOST_ID);
 				break;
 			case R.id.btnMyFavorite:
-				Activity_MyFavorite.show(context);
+				Activity_MyFavorite.show(activity);
 				break;
 			case R.id.btnUserInfo:
-				Activity_UserInfo.show(context, Config.HOST_ID);
+				Activity_UserInfo.show(activity, Config.HOST_ID);
 				break;
 			default:
 				break;

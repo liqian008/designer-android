@@ -85,6 +85,9 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
 								oldAlbumList.addAll(albumList);
 							}else{//下拉加载，需覆盖原数据
+								//TODO saveToDB
+								
+								
 								oldAlbumList = null;
 								oldAlbumList = albumList;
 							}

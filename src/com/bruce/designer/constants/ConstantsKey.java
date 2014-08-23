@@ -27,7 +27,9 @@ public interface ConstantsKey {
 	public static final int BROADCAST_NETWORK_INVALID = 1;
 	public static final int BROADCAST_BACK_TO_LOGIN = 2;
 	
-	public static final String LAST_REFRESH_TIME_PREFIX = "last_refresh_prefix_";
+	public static final String LAST_REFRESH_TIME_MAIN_PREFIX = "last_refresh_main_prefix_";
+	public static final String LAST_REFRESH_TIME_HOTALBUM_PREFIX = "last_refresh_hotalbum_prefix_";
+	public static final String LAST_REFRESH_TIME_HOTDESIGNER_PREFIX = "last_refresh_hotdesigner_prefix_";
 	
 
 }

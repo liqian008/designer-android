@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
@@ -99,7 +100,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		context.startActivity(intent);
 	}
-	
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -211,7 +211,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		}
 		
 		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-		pullRefreshView.setMode(Mode.PULL_FROM_END);
+		pullRefreshView.setMode(Mode.BOTH);
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
 		albumListAdapter = new DesignerAlbumsAdapter(context, null);
@@ -234,7 +234,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
 		fansContainer.setOnClickListener(onclickListener);
 		
-		
 		albumsTabTitle = (TextView) headerView.findViewById(R.id.albumsTabTitle);
 		if(!isDesigner){
 			albumsTabTitle.setText("非设计师身份，无作品辑");
@@ -254,8 +253,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		btnSendMsg.setOnClickListener(onclickListener);
 		btnUserInfo.setOnClickListener(onclickListener);
 		
-		View followBtnContainer =  (View) headerView.findViewById(R.id.followBtnContainer);
-		if(queryUserId==Config.HOST_ID){//查看的用户为自己，需要隐藏交互按钮
+		View followBtnContainer = (View) headerView.findViewById(R.id.followBtnContainer);
+		if(AppApplication.isHost(queryUserId)){//查看的用户为自己，需要隐藏交互按钮
 			followBtnContainer.setVisibility(View.GONE);
 			btnSendMsg.setVisibility(View.GONE);
 		}else{
@@ -263,10 +262,11 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 			btnSendMsg.setVisibility(View.VISIBLE);
 		}
 		
-		//获取个人资料详情
-		getUserinfo(queryUserId);
-		//获取个人专辑
-		getAlbums(queryUserId, 0);
+//		//获取个人资料详情
+//		getUserinfo(queryUserId);
+//		//获取个人专辑
+//		getAlbums(queryUserId, 0);
+		pullRefreshView.setRefreshing(false);
 	}
 	
 	

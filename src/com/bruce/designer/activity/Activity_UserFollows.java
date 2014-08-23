@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostFollowApi;
@@ -45,7 +46,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 	
 	private FollowsListAdapter followsListAdapter;
 
-	private int userId;
+	private int queryUserId;
+	private boolean isHost;
 	
 	public static void show(Context context, int queryUserId){
 		Intent intent = new Intent(context, Activity_UserFollows.class);
@@ -60,13 +62,14 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		
 		Intent intent = getIntent();
 		//获取userid
-		userId =  intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		queryUserId = intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
+		isHost = AppApplication.isHost(queryUserId);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("TA的关注");
+		titleView.setText((isHost?"我":"TA") + "的关注");
 		
 		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		ListView followsListView = pullRefresh.getRefreshableView();
@@ -76,9 +79,9 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		followsListAdapter = new FollowsListAdapter(context, null, null);
 		followsListView.setAdapter(followsListAdapter);
 		
-		pullRefresh.setRefreshing(true);
+		pullRefresh.setRefreshing(false);
 		//获取关注列表
-		getFollows(userId);
+//		getFollows(queryUserId);
 	}
 	
 	
@@ -171,59 +174,66 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					Activity_UserHome.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
 				}
 			});
-			if(followUserMap!=null){
-				if(Boolean.TRUE.equals(followUserMap.get(followUserId))){
-					followViewHolder.btnFollow.setVisibility(View.GONE);
-					followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
-				}else if(Boolean.FALSE.equals(followUserMap.get(followUserId))){
-					followViewHolder.btnFollow.setVisibility(View.VISIBLE);
-					followViewHolder.btnUnfollow.setVisibility(View.GONE);
-				}
-			}
-			//关注事件
-			followViewHolder.btnFollow.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
-					followViewHolder.btnFollow.setVisibility(View.GONE);
-					new Thread(new Runnable(){
-						@Override
-						public void run() {
-							PostFollowApi api = new PostFollowApi(followUserId, 1);
-							ApiResult apiResult = ApiManager.invoke(context, api);
-							if(apiResult!=null&&apiResult.getResult()==1){
-								handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
-							}
-						}
-					}).start();
-				}
-			});
-			//取消关注事件
-			followViewHolder.btnUnfollow.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					followViewHolder.btnFollow.setVisibility(View.VISIBLE);
-					followViewHolder.btnUnfollow.setVisibility(View.GONE);
-					new Thread(new Runnable(){
-						@Override
-						public void run() {
-							PostFollowApi api = new PostFollowApi(followUserId, 0);
-							ApiResult apiResult = ApiManager.invoke(context, api);
-							if(apiResult!=null&&apiResult.getResult()==1){
-								handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
-							}
-						}
-					}).start();
-				}
-			});
 			
-			//取消关注事件
-			followViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
+			
+			if(AppApplication.isHost(followUserId)){//查看的用户为自己，需要隐藏交互按钮
+				
+			}else{
+				if(followUserMap!=null){
+					if(Boolean.TRUE.equals(followUserMap.get(followUserId))){
+						followViewHolder.btnFollow.setVisibility(View.GONE);
+						followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
+					}else if(Boolean.FALSE.equals(followUserMap.get(followUserId))){
+						followViewHolder.btnFollow.setVisibility(View.VISIBLE);
+						followViewHolder.btnUnfollow.setVisibility(View.GONE);
+					}
 				}
-			});
+				
+				//关注事件
+				followViewHolder.btnFollow.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
+						followViewHolder.btnFollow.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								PostFollowApi api = new PostFollowApi(followUserId, 1);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								if(apiResult!=null&&apiResult.getResult()==1){
+									handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
+				//取消关注事件
+				followViewHolder.btnUnfollow.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						followViewHolder.btnFollow.setVisibility(View.VISIBLE);
+						followViewHolder.btnUnfollow.setVisibility(View.GONE);
+						new Thread(new Runnable(){
+							@Override
+							public void run() {
+								PostFollowApi api = new PostFollowApi(followUserId, 0);
+								ApiResult apiResult = ApiManager.invoke(context, api);
+								if(apiResult!=null&&apiResult.getResult()==1){
+									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
+								}
+							}
+						}).start();
+					}
+				});
+				
+				//私信事件
+				followViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
+					}
+				});
+			}
 			return convertView;
 		}
 	}
@@ -239,7 +249,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 			public void run() {
 				Message message;
 				
-				UserFollowsApi api = new UserFollowsApi(userId);
+				UserFollowsApi api = new UserFollowsApi(queryUserId);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -303,7 +313,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//获取关注列表
-		getFollows(userId);
+		getFollows(queryUserId);
 	}
 	
 	/**
