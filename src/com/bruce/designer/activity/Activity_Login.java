@@ -9,11 +9,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract.CommonDataKinds.Nickname;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
@@ -27,6 +29,7 @@ import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuth;
@@ -56,6 +59,12 @@ public class Activity_Login extends BaseActivity{
 	private View snsLoginContainer;
 	private View bindLoginContainer;
 	
+	private EditText loginEmail;
+	private EditText loginNickname;
+	private EditText loginPassword;
+	private Button btnBind;
+	
+	
 	public static void show(Context context){
 		Intent intent = new Intent(context, Activity_Login.class);
 		context.startActivity(intent);
@@ -72,9 +81,14 @@ public class Activity_Login extends BaseActivity{
 		
 		ImageView wbLoginBtn = (ImageView) findViewById(R.id.wbLoginButton);
 		ImageView qqLoginButton = (ImageView) findViewById(R.id.qqLoginButton);
-		
 		wbLoginBtn.setOnClickListener(onClickListener);
 		qqLoginButton.setOnClickListener(onClickListener);
+		
+		loginEmail= (EditText)findViewById(R.id.loginEmailText);
+		loginNickname= (EditText)findViewById(R.id.loginNicknameText);
+		loginPassword= (EditText)findViewById(R.id.loginPasswordText);
+		btnBind= (Button)findViewById(R.id.btnBind);
+		btnBind.setOnClickListener(onClickListener);
 		
 		progressDialog = ProgressDialog.show(context, null, "努力登录中...", true, false);
 		progressDialog.dismiss();
@@ -222,12 +236,33 @@ public class Activity_Login extends BaseActivity{
 				}).start();
 				
 				break;
+			case R.id.btnBind: //绑定按钮
+				final String email = loginEmail.getText().toString();
+				final String nickname = loginNickname.getText().toString();
+				final String password = loginPassword.getText().toString();
+				//检查数据输入是否完整
+				if(!checkBindInput()){
+					break;
+				}
+				
+				new Thread(new Runnable() {//启动绑定用户的线程
+					@Override
+					public void run() {
+						BindWeiboApi api = new BindWeiboApi(email, nickname, password, "", "", "", 0l);
+						ApiResult jsonResult = ApiManager.invoke(context,new TestLoginApi());
+						if (jsonResult != null && jsonResult.getResult() == 1) {
+							Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
+							message.obj = jsonResult.getData();
+							message.sendToTarget();
+						}
+					}
+				}).start();
+				break;
 			default:
 				break;
 			}
 		}
 	};
-	
 	
 	
 	/**
@@ -256,7 +291,10 @@ public class Activity_Login extends BaseActivity{
 	}
     
     /**
-     * 
+     * 填写email绑定sina微博
+     * @param email
+     * @param nickname
+     * @param password
      * @param uid
      * @param accessToken
      * @param refreshToken
@@ -280,6 +318,29 @@ public class Activity_Login extends BaseActivity{
 		}).start();
 	}
     
+    /**
+     * 检查绑定输入
+     * @param field
+     * @return
+     */
+    private boolean checkBindInput(){
+		String emailVal = loginEmail.getText().toString();
+		if(StringUtils.isBlank(emailVal)){
+			UiUtil.showShortToast(context, "Email地址不合法");
+			return false;
+		}
+		String nicknameVal = loginNickname.getText().toString();
+		if(StringUtils.isBlank(nicknameVal)){
+			UiUtil.showShortToast(context, "昵称输入不能为空");
+			return false;
+		}
+		String passwordVal = loginPassword.getText().toString();
+		if(StringUtils.isBlank(passwordVal)){
+			UiUtil.showShortToast(context, "密码输入不能为空");
+			return false;
+    	}
+    	return true;
+    }
     
 	
 }

@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.RequestMethodEnum;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
@@ -56,8 +57,14 @@ public class BindWeiboApi extends AbstractApi{
 			jsonData = new JSONObject(dataStr);
 			String userPassportStr = jsonData.optString("userPassport");
 			UserPassport userPassport = JsonUtil.gson.fromJson(userPassportStr, UserPassport.class);
-			dataMap.put("userPassport", userPassport);
-			return ResponseBuilderUtil.buildSuccessResult(dataMap);
+			
+			String hostUserStr = jsonData.optString("hostUser");
+			User hostUser = JsonUtil.gson.fromJson(hostUserStr, User.class);
+			if(userPassport!=null&&hostUser!=null){
+				dataMap.put("userPassport", userPassport);
+				dataMap.put("hostUser", hostUser);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
+			}
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}

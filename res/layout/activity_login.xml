@@ -89,7 +89,11 @@
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/loginEmailIcon"
                 android:hint="请输入邮箱"
-                android:textSize="14dp" />
+                android:textSize="14dp" 
+                android:singleLine="true"
+				android:inputType="textEmailAddress"
+				android:maxLength="30"
+                />
         </RelativeLayout>
         
         <RelativeLayout
@@ -107,12 +111,15 @@
                 android:src="@drawable/login_nickname" />
 
             <EditText
-                android:id="@+id/loginNicinameText"
+                android:id="@+id/loginNicknameText"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/loginNicinameIcon"  
                 android:hint="请输入昵称"
-                android:textSize="14dp" />
+                android:textSize="14dp" 
+                android:singleLine="true"
+                android:maxLength="20"
+                />
         </RelativeLayout>
 
         <View
@@ -141,10 +148,15 @@
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/loginPasswordIcon"
                 android:hint="请输入密码"
-                android:textSize="14dp" />
+                android:textSize="14dp" 
+                android:singleLine="true"
+				android:inputType="textEmailAddress"
+				android:maxLength="20"
+                />
         </RelativeLayout>
 
         <Button
+            android:id="@+id/btnBind"
             android:layout_width="fill_parent"
             android:layout_height="40dp"
             android:layout_marginTop="2dp"
