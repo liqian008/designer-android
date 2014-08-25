@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_Settings;
+import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
@@ -65,7 +66,7 @@ public class Fragment_Main extends BaseFragment{
 	/*下拉控件*/
 	private PullToRefreshListView[] pullRefreshViews = new PullToRefreshListView[TAB_NUM];
 	private ListView[] listViews = new ListView[TAB_NUM];
-	private AlbumListAdapter[] listViewAdapters = new AlbumListAdapter[TAB_NUM];
+	private DesignerAlbumsAdapter[] listViewAdapters = new DesignerAlbumsAdapter[TAB_NUM];
 	
 	private ImageButton btnRefresh;
 	
@@ -123,7 +124,7 @@ public class Fragment_Main extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new AlbumListAdapter(activity, null, 0);
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null);
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -189,84 +190,6 @@ public class Fragment_Main extends BaseFragment{
 		}
 	}
 	
-	
-	class AlbumListAdapter extends BaseAdapter {
-		private List<Album> albumList;
-		private Context context;
-		
-		public AlbumListAdapter(Context context, List<Album> albumList, int style) {
-			this.context = context;
-			this.albumList = albumList;
-		}
-		
-		public void setAlbumList(List<Album> albumList) {
-			this.albumList = albumList;
-		}
-
-		public List<Album> getAlbumList() {
-			return albumList;
-		}
-
-		@Override
-		public int getCount() {
-			if (albumList != null) {
-				return albumList.size();
-			}
-			return 0;
-		}
-
-		@Override
-		public Album getItem(int position) {
-			if (albumList != null) {
-				return albumList.get(position);
-			}
-			return null;
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			AlbumViewHolder viewHolder = null;  
-			final Album album = getItem(position);
-			if(convertView==null){
-				viewHolder=new AlbumViewHolder();
-				//TODO 使用convertView
-				if(album!=null){
-//					View albumItemView = null;
-					convertView = LayoutInflater.from(context).inflate(R.layout.item_album_view, null);
-					viewHolder.albumItemView = convertView;
-					viewHolder.coverView = (ImageView) convertView.findViewById(R.id.cover_img);
-					//发布时间
-					viewHolder.pubtimeView = (TextView) convertView.findViewById(R.id.txtTime);
-					viewHolder.designerView = (View) convertView.findViewById(R.id.designerContainer); 
-					//设计师头像
-					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);
-					//设计师姓名
-					viewHolder.usernameView = (TextView) convertView.findViewById(R.id.txtUsername);
-					//专辑title
-					viewHolder.titleView = (TextView) convertView.findViewById(R.id.txtSticker);
-					viewHolder.contentView = (TextView) convertView.findViewById(R.id.txtContent);
-					viewHolder.btnBrowse = (Button) convertView.findViewById(R.id.btnBrowse);
-					viewHolder.btnLike = (Button) convertView.findViewById(R.id.btnLike);
-					viewHolder.btnComment = (Button) convertView.findViewById(R.id.btnComment);
-					viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
-					//评论数量
-					viewHolder.commentView = (TextView) convertView.findViewById(R.id.txtComment);
-					convertView.setTag(viewHolder);
-				}
-			}else{
-				viewHolder = (AlbumViewHolder) convertView.getTag();
-			}
-			//构造显示数据
-			viewHolder.fillDisplayData(context, album);
-			viewHolder.commentView.setVisibility(View.GONE);
-			return convertView;
-		}
-	}
 	
 	/**
 	 * 下拉刷新listener

@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -61,6 +62,8 @@ public class Fragment_Hot_Albums extends BaseFragment{
 	
 	private TextView titleView;
 	
+	private ImageButton btnRefresh;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -73,6 +76,12 @@ public class Fragment_Hot_Albums extends BaseFragment{
 	}
 	
 	private void initView(View mainView) {
+		//刷新按钮
+		btnRefresh = (ImageButton)mainView.findViewById(R.id.btnRefresh);
+		btnRefresh.setOnClickListener(listener);
+		btnRefresh.setVisibility(View.VISIBLE);
+		
+		
 		tabIndicators[0] = mainView.findViewById(R.id.tab_weekly_indicator);
 		tabIndicators[1] = mainView.findViewById(R.id.tab_monthly_indicator);
 		tabIndicators[2] = mainView.findViewById(R.id.tab_yearly_indicator);
