@@ -25,24 +25,26 @@ private Map<String, String> paramMap = null;
 	}
 
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			String fanListStr = jsonData.optString("fanList");
-			String fanMapStr = jsonData.optString("fanMap");
-			if(fanListStr!=null){
-				List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr, new TypeToken<List<UserFan>>() {}.getType());
-				if (fanList != null) {
-					Map<Integer, Boolean> fanMap =  JsonUtil.gson.fromJson(fanMapStr, new TypeToken<Map<Integer,Boolean>>() {}.getType());
-					dataMap.put("fanList", fanList);
-					dataMap.put("fanMap", fanMap);
-					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				String fanListStr = jsonData.optString("fanList");
+				String fanMapStr = jsonData.optString("fanMap");
+				if(fanListStr!=null){
+					List<UserFan> fanList = JsonUtil.gson.fromJson(fanListStr, new TypeToken<List<UserFan>>() {}.getType());
+					if (fanList != null) {
+						Map<Integer, Boolean> fanMap =  JsonUtil.gson.fromJson(fanMapStr, new TypeToken<Map<Integer,Boolean>>() {}.getType());
+						dataMap.put("fanList", fanList);
+						dataMap.put("fanMap", fanMap);
+						return ResponseBuilderUtil.buildSuccessResult(dataMap);
+					}
 				}
+			}catch (JSONException e) {
+				e.printStackTrace();
 			}
-		}catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -60,4 +62,11 @@ private Map<String, String> paramMap = null;
 		return "userFans.cmd";
 	}
 
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return false;
+	}
 }

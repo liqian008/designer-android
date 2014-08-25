@@ -104,6 +104,18 @@ public class AppApplication extends Application {
 			AppApplication.hostUser = hostUser;
 		}
 	}
+	
+	/**
+	 * 注销时清除sp的账户缓存
+	 */
+	public static void clearAccount(){
+		//写入sp
+		hostUser = null;
+		SharedPreferenceUtil.writeObjectToSp(hostUser, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
+		userPassport = null;
+		SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+	}
+	
 
 	public static float getScreendensity() {
 		return screendensity;

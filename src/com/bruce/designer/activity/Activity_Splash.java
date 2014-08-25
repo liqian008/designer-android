@@ -64,15 +64,14 @@ public class Activity_Splash extends BaseActivity {
 				
 				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
 				
-				versionCheckResult = new VersionCheckResult();
-				versionCheckResult.setUpdateStatus(1);
-				versionCheckResult.setUpdateTitle("title");
-				versionCheckResult.setUpdateRemark("content");
-				versionCheckResult.setUpdateUrl("http://gdown.baidu.com/data/wisegame/aaded26929762c22/WeChat_462.apk");
-				
-				updateStatus = versionCheckResult.getUpdateStatus();
+//				versionCheckResult = new VersionCheckResult();
+//				versionCheckResult.setUpdateStatus(1);
+//				versionCheckResult.setUpdateTitle("title");
+//				versionCheckResult.setUpdateRemark("content");
+//				versionCheckResult.setUpdateUrl("http://gdown.baidu.com/data/wisegame/aaded26929762c22/WeChat_462.apk");
 				
 				if(versionCheckResult!=null){
+					updateStatus = versionCheckResult.getUpdateStatus();
 					processUpdateResult(versionCheckResult);
 				}
 				break;

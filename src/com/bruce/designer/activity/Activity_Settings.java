@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -106,6 +107,7 @@ public class Activity_Settings extends BaseActivity {
 				clearDialog.show();
 				break;
 			case R.id.logout:
+				AppApplication.clearAccount();
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);
 				UiUtil.showShortToast(context, "注销登录成功");

@@ -150,7 +150,7 @@
                 android:hint="请输入密码"
                 android:textSize="14dp" 
                 android:singleLine="true"
-				android:inputType="textEmailAddress"
+				android:inputType="textPassword"
 				android:maxLength="20"
                 />
         </RelativeLayout>

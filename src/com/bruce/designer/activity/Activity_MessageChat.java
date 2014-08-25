@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
@@ -52,6 +53,9 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	private static final int HANDLER_FLAG_CHAT_LIST = 1;
 
 	protected static final int HANDLER_FLAG_CHAT_POST = 11;
+	
+	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
+	
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -169,7 +173,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 				
 				RelativeLayout messageContainer = (RelativeLayout) itemView.findViewById(R.id.messageContainer);
 				RelativeLayout myMessageContainer = (RelativeLayout) itemView.findViewById(R.id.myMessageContainer);
-				if(message.getFromId()!=Config.HOST_ID){//需要展示对方的对话消息
+				if(message.getFromId()!= HOST_ID){//需要展示对方的对话消息
 					
 					messageContainer.setVisibility(View.VISIBLE);
 					myMessageContainer.setVisibility(View.GONE);

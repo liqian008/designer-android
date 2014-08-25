@@ -57,24 +57,26 @@ public class AlbumCommentsApi extends AbstractApi {
 //	}
 
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			long fromTailId = jsonData.optLong("fromTailId");
-			long newTailId = jsonData.optLong("newTailId");
-			
-			String commentListStr = jsonData.getString("commentList");
-			if(commentListStr!=null){
-				List<Comment> commentList = JsonUtil.gson.fromJson(commentListStr, new TypeToken<List<Comment>>() {}.getType());
-				dataMap.put("commentList", commentList);
-				dataMap.put("fromTailId", fromTailId);
-				dataMap.put("newTailId", newTailId);
-				return ResponseBuilderUtil.buildSuccessResult(dataMap);
-			} 
-		}catch (JSONException e) {
-			e.printStackTrace();
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				long fromTailId = jsonData.optLong("fromTailId");
+				long newTailId = jsonData.optLong("newTailId");
+				
+				String commentListStr = jsonData.getString("commentList");
+				if(commentListStr!=null){
+					List<Comment> commentList = JsonUtil.gson.fromJson(commentListStr, new TypeToken<List<Comment>>() {}.getType());
+					dataMap.put("commentList", commentList);
+					dataMap.put("fromTailId", fromTailId);
+					dataMap.put("newTailId", newTailId);
+					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+				} 
+			}catch (JSONException e) {
+				e.printStackTrace();
+			}
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -91,4 +93,12 @@ public class AlbumCommentsApi extends AbstractApi {
 		return "albumComments.cmd";
 	}
 
+	
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return false;
+	}
 }

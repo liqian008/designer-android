@@ -39,7 +39,7 @@ public class TestApi extends AbstractApi {
 	}
 
 	@Override
-	protected ApiResult processResultData(String data) {
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
 		return null;
 	}
 

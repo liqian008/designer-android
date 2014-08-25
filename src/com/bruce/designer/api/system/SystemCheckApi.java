@@ -1,20 +1,16 @@
 package com.bruce.designer.api.system;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bruce.designer.api.AbstractApi;
-import com.bruce.designer.model.Album;
-import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * 系统检查API，在唯一入口splash页面进行调用，主要做两件事情
@@ -29,7 +25,8 @@ public class SystemCheckApi extends AbstractApi {
 	}
 	
 	@Override
-	protected ApiResult processResultData(String dataStr) {
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
 		JSONObject jsonData;
 		Map<String, Object> dataMap = new HashMap<String, Object>();
 		try {
@@ -46,6 +43,7 @@ public class SystemCheckApi extends AbstractApi {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
 
@@ -59,4 +57,11 @@ public class SystemCheckApi extends AbstractApi {
 		return "systemCheck.cmd";
 	}
 
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return false;
+	}
 }

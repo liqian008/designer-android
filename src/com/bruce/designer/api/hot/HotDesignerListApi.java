@@ -33,19 +33,21 @@ public class HotDesignerListApi extends AbstractApi{
 	}
 	
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			String hotDesignerListStr = jsonData.getString("hotDesignerList");
-			if(hotDesignerListStr!=null){
-				List<User> designerList = JsonUtil.gson.fromJson(hotDesignerListStr, new TypeToken<List<User>>(){}.getType());
-				dataMap.put("designerList", designerList);
-				return ResponseBuilderUtil.buildSuccessResult(dataMap);
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				String hotDesignerListStr = jsonData.getString("hotDesignerList");
+				if(hotDesignerListStr!=null){
+					List<User> designerList = JsonUtil.gson.fromJson(hotDesignerListStr, new TypeToken<List<User>>(){}.getType());
+					dataMap.put("designerList", designerList);
+					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -53,6 +55,14 @@ public class HotDesignerListApi extends AbstractApi{
 	@Override
 	protected String getApiMethodName() {
 		return "hotDesigners.cmd";
+	}
+	
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return false;
 	}
 
 }

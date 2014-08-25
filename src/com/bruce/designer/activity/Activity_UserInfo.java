@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserInfoApi;
@@ -28,6 +29,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 public class Activity_UserInfo extends BaseActivity {
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
+	
+	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
 	
 	private View titlebarView;
 
@@ -95,7 +98,7 @@ public class Activity_UserInfo extends BaseActivity {
 		introduceTextView = (TextView) findViewById(R.id.introduceTextView);
 		
 		User userinfo = SharedPreferenceUtil.readObjectFromSp(User.class, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
-		if(queryUserId==Config.HOST_ID&&(userinfo!=null&&userinfo.getId()!=null&&userinfo.getId()>0)){
+		if(queryUserId== HOST_ID &&(userinfo!=null&&userinfo.getId()!=null&&userinfo.getId()>0)){
 			//从sp中读取用户资料
 			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
 			Map<String, Object> dataMap = new HashMap<String, Object>();

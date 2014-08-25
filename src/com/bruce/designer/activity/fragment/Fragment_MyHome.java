@@ -54,6 +54,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
 	
+	
+	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
+	
 	private Activity activity; 
 	private LayoutInflater inflater;
 	
@@ -77,6 +80,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private DesignerAlbumsAdapter albumListAdapter; 
 	
 	private int albumTailId = 0;
+	
 	
 	private Handler handler = new Handler(){
 
@@ -203,9 +207,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnUserInfo.setOnClickListener(listener);
 		
 //		//启动获取个人资料详情
-//		getUserinfo(Config.HOST_ID);
+//		getUserinfo(hostId);
 //		//获取个人专辑
-//		getAlbums(Config.HOST_ID, 0);
+//		getAlbums(hostId, 0);
 		
 	}
 	
@@ -242,7 +246,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			public void run() {
 				Message message;
 				
-				AlbumListApi api = new AlbumListApi(Config.HOST_ID, albumTailId);
+				AlbumListApi api = new AlbumListApi(HOST_ID, albumTailId);
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -265,16 +269,16 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				Activity_Settings.show(activity);
 				break;
 			case R.id.followsContainer:
-				Activity_UserFollows.show(activity, Config.HOST_ID);
+				Activity_UserFollows.show(activity, HOST_ID);
 				break;
 			case R.id.fansContainer:
-				Activity_UserFans.show(activity, Config.HOST_ID);
+				Activity_UserFans.show(activity, HOST_ID);
 				break;
 			case R.id.btnMyFavorite:
 				Activity_MyFavorite.show(activity);
 				break;
 			case R.id.btnUserInfo:
-				Activity_UserInfo.show(activity, Config.HOST_ID);
+				Activity_UserInfo.show(activity, HOST_ID);
 				break;
 			default:
 				break;
@@ -288,9 +292,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//获取个人资料详情
-		getUserinfo(Config.HOST_ID);
+		getUserinfo(HOST_ID);
 		//获取个人专辑
-		getAlbums(Config.HOST_ID, 0);
+		getAlbums(HOST_ID, 0);
 	}
 	
 	/**
@@ -299,7 +303,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//加载更多专辑信息
-		getAlbums(Config.HOST_ID, albumTailId);
+		getAlbums(HOST_ID, albumTailId);
 	}
 	
 }

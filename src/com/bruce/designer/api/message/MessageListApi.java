@@ -26,25 +26,27 @@ private Map<String, String> paramMap = null;
 	}
 
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			String messageListStr = jsonData.optString("messageList");
-			long fromTailId = jsonData.optLong("fromTailId", 0);
-			long newTailId = jsonData.optLong("newTailId", 0);
-			if(messageListStr!=null){
-				List<Message> messageList = JsonUtil.gson.fromJson(messageListStr, new TypeToken<List<Message>>() {}.getType());
-				if (messageList != null) {
-					dataMap.put("messageList", messageList);
-					dataMap.put("fromTailId", fromTailId);
-					dataMap.put("newTailId", newTailId);
-					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				String messageListStr = jsonData.optString("messageList");
+				long fromTailId = jsonData.optLong("fromTailId", 0);
+				long newTailId = jsonData.optLong("newTailId", 0);
+				if(messageListStr!=null){
+					List<Message> messageList = JsonUtil.gson.fromJson(messageListStr, new TypeToken<List<Message>>() {}.getType());
+					if (messageList != null) {
+						dataMap.put("messageList", messageList);
+						dataMap.put("fromTailId", fromTailId);
+						dataMap.put("newTailId", newTailId);
+						return ResponseBuilderUtil.buildSuccessResult(dataMap);
+					}
 				}
+			}catch (JSONException e) {
+				e.printStackTrace();
 			}
-		}catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -62,4 +64,12 @@ private Map<String, String> paramMap = null;
 		return "messageList.cmd";
 	}
 
+	
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return true;
+	}
 }

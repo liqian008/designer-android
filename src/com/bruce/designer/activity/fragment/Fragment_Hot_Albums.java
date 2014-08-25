@@ -165,7 +165,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			albumList= AlbumDB.queryHotWeekly(activity);//周热门
 		}
 		
-		
+		//自动刷新
 		listViewAdapters[currentTab].setAlbumList(albumList);
 		listViewAdapters[currentTab].notifyDataSetChanged();
 		
@@ -205,7 +205,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			@Override
 			public void run() {
 				Message message;
-				int mode = 1;
+				int mode = mapModeByTabIndex(tabIndex);
 				AbstractApi api = new HotAlbumListApi(mode);
 				
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
@@ -218,6 +218,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
 				}
 			}
+
 		});
 		thread.start();
 	}
@@ -302,5 +303,15 @@ public class Fragment_Hot_Albums extends BaseFragment{
 		public void onPageScrolled(int arg0, float arg1, int arg2) {
 		}
 	};
+	
+	/**
+	 * 根据tabIndex匹配热门的mode
+	 * @param tabIndex
+	 * @return
+	 */
+	private int mapModeByTabIndex(int tabIndex) {
+		//0 hourly, 1 weeky, 2 weekly, 3 monthly, 4 yearly
+		return tabIndex +2;
+	}
 	
 }

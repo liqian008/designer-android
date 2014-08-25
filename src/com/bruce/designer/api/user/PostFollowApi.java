@@ -28,12 +28,21 @@ public class PostFollowApi extends AbstractApi {
 			dataMap.putAll(paramMap);
 		}
 	}
-	
+
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		return ResponseBuilderUtil.buildSuccessResult();
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if (result == 1) {
+			return ResponseBuilderUtil.buildSuccessResult();
+		} else {
+			return ResponseBuilderUtil.buildErrorResult(0);
+		}
 	}
 
-	
-
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return true;
+	}
 }

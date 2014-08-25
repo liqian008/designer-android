@@ -39,34 +39,36 @@ public class FavoriteAlbumsListApi extends AbstractApi{
 	}
 	
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			int fromTailId = jsonData.getInt("fromTailId");
-			int newTailId = jsonData.getInt("newTailId");
-			String favoriteListStr = jsonData.getString("favoriteList");
-			if(favoriteListStr!=null){
-				List<AlbumFavorite> favoriteList = JsonUtil.gson.fromJson(favoriteListStr, new TypeToken<List<AlbumFavorite>>(){}.getType());
-				//需要在此将转为albumList，送给ListView adapter
-				List<Album> albumList = new ArrayList<Album>();
-				if(favoriteList!=null&&favoriteList.size()>0){
-					for(AlbumFavorite favorite: favoriteList){
-						Album album = favorite.getAlbum();
-						if(album!=null){
-							albumList.add(album);
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				int fromTailId = jsonData.getInt("fromTailId");
+				int newTailId = jsonData.getInt("newTailId");
+				String favoriteListStr = jsonData.getString("favoriteList");
+				if(favoriteListStr!=null){
+					List<AlbumFavorite> favoriteList = JsonUtil.gson.fromJson(favoriteListStr, new TypeToken<List<AlbumFavorite>>(){}.getType());
+					//需要在此将转为albumList，送给ListView adapter
+					List<Album> albumList = new ArrayList<Album>();
+					if(favoriteList!=null&&favoriteList.size()>0){
+						for(AlbumFavorite favorite: favoriteList){
+							Album album = favorite.getAlbum();
+							if(album!=null){
+								albumList.add(album);
+							}
 						}
 					}
+					
+					dataMap.put("albumList", albumList);
+					dataMap.put("fromTailId", fromTailId);
+					dataMap.put("newTailId", newTailId);
+					return ResponseBuilderUtil.buildSuccessResult(dataMap);
 				}
-				
-				dataMap.put("albumList", albumList);
-				dataMap.put("fromTailId", fromTailId);
-				dataMap.put("newTailId", newTailId);
-				return ResponseBuilderUtil.buildSuccessResult(dataMap);
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -76,4 +78,11 @@ public class FavoriteAlbumsListApi extends AbstractApi{
 		return "favoriteAlbums.cmd";
 	}
 
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return true;
+	}
 }

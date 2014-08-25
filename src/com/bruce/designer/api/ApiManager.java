@@ -8,6 +8,8 @@ import android.content.Context;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.broadcast.BroadcastSender;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.exception.DesignerException;
+import com.bruce.designer.exception.ErrorCode;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.HttpClientUtil;
@@ -36,6 +38,15 @@ public class ApiManager {
 			BroadcastSender.networkUnavailable(context);
 			return errorResult;
 		}
+		
+		if(api.needAuth()&&AppApplication.getUserPassport().getUserId()<=10000){
+			//游客的操作检查
+			BroadcastSender.guestDenied(context);
+			return errorResult;
+		}
+		
+		
+		
 		String requestUri = api.getRequestUri();
 		Map<String, String> apiParamMap = api.getParamMap();
 		RequestMethodEnum requestMethod = api.getRequestMethod();
@@ -53,6 +64,10 @@ public class ApiManager {
 			if(response!=null){
 				//子类处理逻辑
 				return api.processResponse(response);
+			}
+		} catch (DesignerException e) {
+			if(e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM){//签名错误，需要重新登录
+				BroadcastSender.back2Login(context);
 			}
 		} catch (Exception e) {
 			//请求系统异常

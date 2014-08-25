@@ -20,6 +20,9 @@ public class DesignerReceiver extends BroadcastReceiver {
 			case ConstantsKey.BROADCAST_NETWORK_INVALID://无可用网络
 				UiUtil.showShortToast(context, "当前网络不可用");
 				break;
+			case ConstantsKey.BROADCAST_GUEST_DENIED://游客操作受限
+				UiUtil.showShortToast(context, "游客无法进行该操作，请先进行登录");
+				break;
 			case ConstantsKey.BROADCAST_BACK_TO_LOGIN://需返回至登录界面
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);

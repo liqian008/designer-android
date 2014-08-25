@@ -15,27 +15,32 @@ import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
- * weibo登录
- * 
+ * 绑定微博
  * @author liqian
- * 
+ *
  */
-public class WeiboLoginApi extends AbstractApi {
-
+public class OAuthRegisteApi extends AbstractApi{
+	
 	private Map<String, String> paramMap = null;
-
-	public WeiboLoginApi(String wbUid, String accessToken, String refreshToken,
-			long expiresTime) {
+	
+	public OAuthRegisteApi(String username, String nickname ,String password, String thirdpartyUid,  String thirdpartyUname, String accessToken, String refreshToken, long expiresTime){
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("weiboUid", String.valueOf(wbUid));
-		paramMap.put("weiboAccessToken", accessToken);
-		paramMap.put("weiboRefreshToken", refreshToken);
-		paramMap.put("weiboExpireIn", String.valueOf(expiresTime));
+		paramMap.put("thirdpartyType", String.valueOf(1));
+		
+		paramMap.put("username", username);
+		paramMap.put("nickname", nickname);
+		paramMap.put("password", password);
+				
+		paramMap.put("thirdpartyUid", String.valueOf(thirdpartyUid));
+		paramMap.put("thirdpartyUname", String.valueOf(thirdpartyUname));
+		paramMap.put("thirdpartyAccessToken", accessToken);
+		paramMap.put("thirdpartyRefreshToken", refreshToken);
+		paramMap.put("thirdpartyExpireIn", String.valueOf(expiresTime));
 	}
-
+	
 	@Override
 	protected String getApiMethodName() {
-		return "weiboLogin.cmd";
+		return "oauthRegiste.cmd";
 	}
 	
 	/**
@@ -45,39 +50,30 @@ public class WeiboLoginApi extends AbstractApi {
 	protected boolean needAuth(){
 		return false;
 	}
-
+	
 	@Override
 	protected void fillDataMap(Map<String, String> dataMap) {
-		if (paramMap != null) {
+		if(paramMap!=null){
 			dataMap.putAll(paramMap);
 		}
 	}
 
 	@Override
-	protected ApiResult processApiResult(int result, int errorcode,
-			String message, String dataStr) {
-		if (result == 1) {
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
 			JSONObject jsonData;
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			try {
 				jsonData = new JSONObject(dataStr);
 				String userPassportStr = jsonData.optString("userPassport");
-				UserPassport userPassport = JsonUtil.gson.fromJson(
-						userPassportStr, UserPassport.class);
-
+				UserPassport userPassport = JsonUtil.gson.fromJson(userPassportStr, UserPassport.class);
+				
 				String hostUserStr = jsonData.optString("hostUser");
 				User hostUser = JsonUtil.gson.fromJson(hostUserStr, User.class);
-				if (userPassport != null && hostUser != null) {
+				if(userPassport!=null&&hostUser!=null){
 					dataMap.put("userPassport", userPassport);
 					dataMap.put("hostUser", hostUser);
 					return ResponseBuilderUtil.buildSuccessResult(dataMap);
-				}else{//没有用户登录信息
-					boolean needBind = jsonData.optBoolean("needBind");
-					if (needBind) {
-						dataMap.put("needBind", needBind);
-						dataMap.put("thirdpartyUname",  jsonData.optString("thirdpartyUname"));
-						return ResponseBuilderUtil.buildSuccessResult(dataMap);
-					}
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
@@ -85,5 +81,7 @@ public class WeiboLoginApi extends AbstractApi {
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
+
+	
 
 }

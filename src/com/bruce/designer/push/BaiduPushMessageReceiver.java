@@ -11,7 +11,6 @@ import android.text.TextUtils;
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UiUtil;
-import com.sina.weibo.sdk.utils.UIUtils;
 
 /**
  * Push消息处理receiver。请编写您需要的回调函数， 一般来说： onBind是必须的，用来处理startWork返回值；
@@ -58,7 +57,7 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
             String userId, String channelId, String requestId) {
         String responseString = "onBind errorCode=" + errorCode + " appid="  + appid + " userId=" + userId + " channelId=" + channelId  + " requestId=" + requestId;
         LogUtil.d(responseString);
-        UiUtil.showLongToast(context, responseString);
+//        UiUtil.showLongToast(context, responseString);
         
         // 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
         if (errorCode == 0) {

@@ -158,7 +158,7 @@ public class Activity_Main extends BaseActivity {
 	 * @param context
 	 */
 	private void initBaiduPush(Context context) {
-		PushSettings.enableDebugMode(context, true);
+//		PushSettings.enableDebugMode(context, true);
 		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "api_key"));
 	}
 	

@@ -6,9 +6,8 @@ public class Config {
 	
 	public static final boolean DEBUG = true;
 	
-	/*当前登录人uid*/
-	public static int HOST_ID = 100009; 
-	
+	/*游客身份的uid*/
+	public static int GUEST_USER_ID = 100000;
 	
 	/*客户端versionName*/
 	public static final String APP_VERSION_NAME = AppApplication.getVersionName();

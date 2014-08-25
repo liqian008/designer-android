@@ -25,7 +25,9 @@ public interface ConstantsKey {
 	public static final String BUNDLE_BROADCAST_KEY = "bundle_broadcast";
 	
 	public static final int BROADCAST_NETWORK_INVALID = 1;
-	public static final int BROADCAST_BACK_TO_LOGIN = 2;
+	
+	public static final int BROADCAST_GUEST_DENIED = 11;
+	public static final int BROADCAST_BACK_TO_LOGIN = 12;
 	
 	public static final String LAST_REFRESH_TIME_MAIN_PREFIX = "last_refresh_main_prefix_";
 	public static final String LAST_REFRESH_TIME_HOTALBUM_PREFIX = "last_refresh_hotalbum_prefix_";

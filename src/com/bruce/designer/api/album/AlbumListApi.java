@@ -34,23 +34,25 @@ public class AlbumListApi extends AbstractApi{
 	}
 	
 	@Override
-	protected ApiResult processResultData(String dataStr) {
-		JSONObject jsonData;
-		Map<String, Object> dataMap = new HashMap<String, Object>();
-		try {
-			jsonData = new JSONObject(dataStr);
-			int fromTailId = jsonData.optInt("fromTailId", 0);
-			int newTailId = jsonData.optInt("newTailId", 0);
-			String albumListStr = jsonData.getString("albumList");
-			if(albumListStr!=null){
-				List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-				dataMap.put("fromTailId", fromTailId);
-				dataMap.put("newTailId", newTailId);
-				dataMap.put("albumList", albumList);
-				return ResponseBuilderUtil.buildSuccessResult(dataMap);
+	protected ApiResult processApiResult(int result, int errorcode, String message, String dataStr) {
+		if(result==1){
+			JSONObject jsonData;
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			try {
+				jsonData = new JSONObject(dataStr);
+				int fromTailId = jsonData.optInt("fromTailId", 0);
+				int newTailId = jsonData.optInt("newTailId", 0);
+				String albumListStr = jsonData.getString("albumList");
+				if(albumListStr!=null){
+					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
+					dataMap.put("fromTailId", fromTailId);
+					dataMap.put("newTailId", newTailId);
+					dataMap.put("albumList", albumList);
+					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
-		} catch (JSONException e) {
-			e.printStackTrace();
 		}
 		return ResponseBuilderUtil.buildErrorResult(0);
 	}
@@ -60,4 +62,11 @@ public class AlbumListApi extends AbstractApi{
 		return "latestAlbum.cmd";
 	}
 
+	/**
+	 * 此api是否需要登录用户才能操作
+	 * @return
+	 */
+	protected boolean needAuth(){
+		return false;
+	}
 }
