@@ -35,7 +35,7 @@ public class WeiboLoginApi extends AbstractApi {
 
 	@Override
 	protected String getApiMethodName() {
-		return "weiboLogin.cmd";
+		return "weibo2Login.cmd";
 	}
 	
 	/**
