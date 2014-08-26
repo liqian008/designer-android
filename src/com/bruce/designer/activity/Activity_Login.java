@@ -84,8 +84,10 @@ public class Activity_Login extends BaseActivity{
 		bindLoginContainer = findViewById(R.id.bindLoginContainer);
 		
 		ImageView wbLoginBtn = (ImageView) findViewById(R.id.wbLoginButton);
+		ImageView guestLoginButton = (ImageView) findViewById(R.id.guestLoginButton);
 		ImageView qqLoginButton = (ImageView) findViewById(R.id.qqLoginButton);
 		wbLoginBtn.setOnClickListener(onClickListener);
+		guestLoginButton.setOnClickListener(onClickListener);
 		qqLoginButton.setOnClickListener(onClickListener);
 		
 		loginEmail= (EditText)findViewById(R.id.loginEmailText);
@@ -229,10 +231,8 @@ public class Activity_Login extends BaseActivity{
 				//SSO登录
 				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
 				mSsoHandler.authorize(new AuthListener());
-				
-//				UiUtil.showShortToast(context, "微博登录功能未开放，请点击下方【直接登录】按钮");
 				break;
-			case R.id.qqLoginButton: //暂时被当做【游客登录】按钮
+			case R.id.guestLoginButton: //【游客登录】按钮
 				progressDialog.show();
 				new Thread(new Runnable() {
 					@Override

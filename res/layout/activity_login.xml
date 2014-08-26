@@ -32,12 +32,30 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="18dp"
             android:src="@drawable/button_login_weibo" />
-
-        <ImageView
+        
+         <ImageView
+            android:id="@+id/weixinLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            android:src="@drawable/button_login_weixin"
+            android:visibility="gone"
+             />
+         
+         <ImageView
             android:id="@+id/qqLoginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/button_login_qq" />
+            android:layout_marginBottom="18dp"
+            android:src="@drawable/button_login_qq" 
+            android:visibility="gone"
+            />
+
+        <ImageView
+            android:id="@+id/guestLoginButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/button_login_guest" />
     </LinearLayout>
     
     

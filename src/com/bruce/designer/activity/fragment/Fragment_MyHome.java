@@ -5,11 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.DownloadManager.Query;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,12 +29,11 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -74,6 +71,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private Button btnMyFavorite;
 	private Button btnSendMsg;
 	private Button btnUserInfo;
+//	private Button btnPubAlbum;//发布新作品
 	
 	private ImageButton btnSettings;
 	private PullToRefreshListView pullRefreshView;
@@ -203,6 +201,10 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnMyFavorite.setOnClickListener(listener);
 		btnMyFavorite.setVisibility(View.VISIBLE);
 
+//		btnPubAlbum = (Button)headerView.findViewById(R.id.btnPubAlbum);
+//		btnPubAlbum.setVisibility(View.VISIBLE);
+//		btnPubAlbum.setOnClickListener(listener);
+		
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
 		btnUserInfo.setOnClickListener(listener);
 		
@@ -277,6 +279,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			case R.id.btnMyFavorite:
 				Activity_MyFavorite.show(activity);
 				break;
+//			case R.id.btnPubAlbum:
+//				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");
+//				break;
 			case R.id.btnUserInfo:
 				Activity_UserInfo.show(activity, HOST_ID);
 				break;

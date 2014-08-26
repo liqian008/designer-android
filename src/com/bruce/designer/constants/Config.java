@@ -19,7 +19,7 @@ public class Config {
 	public static final String APP_SECRET_KEY = "1qaz2wsx";
 	
 	//online mcap api	
-	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn/designer-mcap";
+	public static final String JINWAN_DOMAIN = "http://mobile.jinwanr.com.cn";
 	//test mcap api
 //	public static final String JINWAN_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
 	
@@ -27,7 +27,7 @@ public class Config {
 	public static final String JINWAN_API_PREFIX = JINWAN_DOMAIN + "/api";
 	
 	
-	public static final String JINWAN_API_ALBUMS = JINWAN_API_PREFIX + "/moreAlbums.json";
+//	public static final String JINWAN_API_ALBUMS = JINWAN_API_PREFIX + "/moreAlbums.json";
 	
 	/*SP的默认Config*/
 	public static final String SP_CONFIG_DEFAULT = "CONFIG";

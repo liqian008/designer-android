@@ -26,7 +26,6 @@ import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -63,6 +62,10 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	
 	private View followsContainer;
 	private View fansContainer;
+//	private View albumsContainer;
+	
+	/*专辑个数*/
+	private int albumsCount = 0;
 	/*粉丝个数*/
 	private int fansCount = 0;
 	/*关注人个数*/
@@ -73,6 +76,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	private Button btnSendMsg;
 	private Button btnUserInfo;
 	
+	private TextView albumsNumView;
 	private TextView followsNumView;
 	private TextView fansNumView;
 	
@@ -109,6 +113,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
 					if(userinfoDataMap!=null){
 						User userinfo = (User) userinfoDataMap.get("userinfo");
+						albumsCount = (Integer) userinfoDataMap.get("albumsCount");
 						fansCount = (Integer) userinfoDataMap.get("fansCount");
 						followsCount = (Integer) userinfoDataMap.get("followsCount");
 						boolean hasFollowed = (Boolean) userinfoDataMap.get("hasFollowed");
@@ -128,6 +133,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 							}else{
 								titleView.setText("用户");
 							}
+							albumsNumView.setText(String.valueOf(albumsCount));
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
 						}
@@ -230,14 +236,18 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
 		nicknameView.setText(queryUserNickname);
 		
-		fansContainer = (View) headerView.findViewById(R.id.fansContainer);
-		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
-		fansContainer.setOnClickListener(onclickListener);
 		
 		albumsTabTitle = (TextView) headerView.findViewById(R.id.albumsTabTitle);
 		if(!isDesigner){
 			albumsTabTitle.setText("非设计师身份，无作品辑");
 		}
+		
+//		albumsContainer = (View) headerView.findViewById(R.id.albumsContainer);
+		albumsNumView = (TextView) headerView.findViewById(R.id.txtAlbumsNum);
+		
+		fansContainer = (View) headerView.findViewById(R.id.fansContainer);
+		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
+		fansContainer.setOnClickListener(onclickListener);
 		
 		followsContainer = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
