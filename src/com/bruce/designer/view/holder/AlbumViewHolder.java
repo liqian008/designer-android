@@ -61,7 +61,7 @@ public class AlbumViewHolder {
 	public void fillDisplayData(final Context context, final Album album){
 		if(album!=null){
 			//构造显示数据
-			pubtimeView.setText("5天前");
+			pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 			
 			final AlbumAuthorInfo authorInfo = album.getAuthorInfo();
 			//用户主页按钮的点击事件
@@ -81,7 +81,7 @@ public class AlbumViewHolder {
 				//显示头像
 				ImageLoader.getInstance().displayImage(authorInfo.getDesignerAvatar(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 				//显示昵称
-				usernameView.setText("无名");
+				usernameView.setText(authorInfo.getDesignerNickname());
 			}
 			
 			//专辑title

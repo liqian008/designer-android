@@ -285,7 +285,7 @@ public class Activity_Login extends BaseActivity{
 					message.obj = apiResult.getData();
 					message.sendToTarget();
 				}else{//数据异常
-					UiUtil.showShortToast(context, "登录失败，请重试");
+//					UiUtil.showShortToast(context, "登录失败，请重试");
 				}
 			}
 		}).start();

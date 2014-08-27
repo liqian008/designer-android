@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="white">#ffffffff</color>
     <color name="black">#ff000000</color>
     <color name="black2c">#ff2c2c2c</color>
     <color name="blue">#ff0000ff</color>
@@ -85,7 +86,10 @@
     <item type="color" name="vpi__bright_foreground_holo_light">@color/vpi__background_holo_dark</item>
     <item type="color" name="vpi__bright_foreground_inverse_holo_dark">@color/vpi__bright_foreground_holo_light</item>
     <item type="color" name="vpi__bright_foreground_inverse_holo_light">@color/vpi__bright_foreground_holo_dark</item>
-    <color name="white">#ffffffff</color>
-   
+    
+    
+    
+    <color name="share_item_bg_p">#495353</color>
+	<color name="share_item_bg_n">#2f3737</color>
     
 </resources>

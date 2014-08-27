@@ -219,7 +219,6 @@
 		  android:screenOrientation="portrait" />
         shareSdk end -->
         
-        
     </application>
 
 </manifest>
