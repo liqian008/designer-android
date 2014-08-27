@@ -1,6 +1,7 @@
 package com.bruce.designer.util;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -30,10 +31,9 @@ import android.graphics.BitmapFactory;
 
 public class HttpClientUtil {
 
-	private static final int REQUEST_TIMEOUT = 10*1000;//设置请求超时10秒钟  
-	private static final int SO_TIMEOUT = 10*1000;  //设置等待数据超时时间10秒钟 
+	private static final int REQUEST_TIMEOUT = 10 * 1000;// 设置请求超时10秒钟
+	private static final int SO_TIMEOUT = 10 * 1000; // 设置等待数据超时时间10秒钟
 
-	
 	/**
 	 * http get请求
 	 * 
@@ -57,9 +57,9 @@ public class HttpClientUtil {
 		if (sb != null && !"".equals(sb.toString())) {
 			url = url + sb.replace(0, 1, "?");
 		}
-		
-		HttpParams httpParameters = buildHttpParam(); 
-		
+
+		HttpParams httpParameters = buildHttpParam();
+
 		LogUtil.v("========url======" + url);
 		HttpGet httpGet = new HttpGet(url);
 		HttpClient client = new DefaultHttpClient(httpParameters);
@@ -82,8 +82,8 @@ public class HttpClientUtil {
 	 */
 	public static String httpPost(String url, Map<String, String> paramMap)
 			throws Exception {
-		HttpParams httpParameters = buildHttpParam(); 
-		
+		HttpParams httpParameters = buildHttpParam();
+
 		HttpPost httpPost = new HttpPost(url);
 		HttpClient client = new DefaultHttpClient(httpParameters);
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -116,8 +116,8 @@ public class HttpClientUtil {
 	 */
 	public static String httpPostJson(String url, String jsonStr)
 			throws Exception {
-		HttpParams httpParameters = buildHttpParam(); 
-		
+		HttpParams httpParameters = buildHttpParam();
+
 		HttpPost httpPost = new HttpPost(url);
 		HttpClient client = new DefaultHttpClient(httpParameters);
 		httpPost.addHeader("Content-Type", "application/json");
@@ -132,6 +132,62 @@ public class HttpClientUtil {
 		LogUtil.d("----------" + response.getStatusLine().getStatusCode());
 
 		return null;
+	}
+
+	/**
+	 * 获取输入流
+	 * 
+	 * @param resourceUrl
+	 * @return
+	 */
+	public static InputStream getNetworkInputStream(String resourceUrl) {
+		try {
+			URL url = new URL(resourceUrl);
+			URLConnection conn = url.openConnection();
+			conn.connect();
+			InputStream is = conn.getInputStream();
+			resourceUrl = null;
+			return is;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static byte[] getBytesFromUrl(String imageUrl) {
+		byte[] bytes = null;
+		try {
+			InputStream is = getNetworkInputStream(imageUrl);
+			byte[] buffer = new byte[1024];
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			int i = 0;
+			while ((i = is.read(buffer)) != -1) {
+				bos.write(buffer, 0, i);
+			}
+			bytes = bos.toByteArray();
+			is.close();
+			bos.close();
+			is = null;
+			bos = null;
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+		}
+		return bytes;
+	}
+
+	/**
+	 * 构造httpClient的参数
+	 * 
+	 * @return
+	 */
+	private static HttpParams buildHttpParam() {
+		HttpParams httpParameters = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(httpParameters,
+				REQUEST_TIMEOUT);// 设置请求超时10秒
+		HttpConnectionParams.setSoTimeout(httpParameters, SO_TIMEOUT); // 设置等待数据超时10秒
+		HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
+		return httpParameters;
 	}
 
 	/**
@@ -158,38 +214,6 @@ public class HttpClientUtil {
 			e.printStackTrace();
 		}
 		return null;
-	}
-	
-	/**
-	 * 获取输入流
-	 * @param resourceUrl
-	 * @return
-	 */
-	public static InputStream getNetworkInputStream(String resourceUrl) {
-		try {
-			URL url = new URL(resourceUrl);
-			URLConnection conn = url.openConnection();
-			conn.connect();
-			InputStream is = conn.getInputStream();
-			resourceUrl = null;
-			return is;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	
-	/**
-	 * 构造httpClient的参数
-	 * @return
-	 */
-	private static HttpParams buildHttpParam() {
-		HttpParams httpParameters = new BasicHttpParams();   
-		HttpConnectionParams.setConnectionTimeout(httpParameters, REQUEST_TIMEOUT);//设置请求超时10秒  
-		HttpConnectionParams.setSoTimeout(httpParameters, SO_TIMEOUT); //设置等待数据超时10秒  
-		HttpConnectionParams.setSocketBufferSize(httpParameters, 8192);
-		return httpParameters;
 	}
 
 }

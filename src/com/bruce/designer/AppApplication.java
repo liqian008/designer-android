@@ -4,11 +4,15 @@ import com.baidu.frontia.FrontiaApplication;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
+import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -31,6 +35,7 @@ public class AppApplication extends Application {
 	 */
 	private static AppApplication application;
 	private static Handler uiHandler = new Handler();
+	private static IWXAPI wxApi; 
 
 	@Override
 	public void onCreate() {
@@ -40,6 +45,11 @@ public class AppApplication extends Application {
 		FrontiaApplication.initFrontiaApplication(application);
 		
 		init();
+		
+		//init weixin share
+		wxApi = initWxApi(application);
+		
+		
 		//Universal ImageLoader init
 		ImageLoader.getInstance().init(UniversalImageUtil.buildUniversalImageConfig(application));//全局初始化配置  
 	}
@@ -129,6 +139,10 @@ public class AppApplication extends Application {
 		return screenWidth;
 	}
 	
+	public static IWXAPI getWxApi() {
+		return wxApi;
+	}
+
 	/**
 	 * 判断是否是当前登录用户
 	 * @param userId
@@ -140,8 +154,12 @@ public class AppApplication extends Application {
 	}
 
 	
-//	public static WindowManager.LayoutParams getwmParams() {
-//		return wmParams;
-//	}
+	public IWXAPI initWxApi(Context context){
+		String wxAppId = ApplicationUtil.getMetaValue(context, "WeixinOpen_APP_ID");
+		IWXAPI api = WXAPIFactory.createWXAPI(context, wxAppId);
+		api.registerApp(wxAppId);
+		return api;
+	}
+	
 
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:orientation="vertical" >
 
     <LinearLayout
         android:id="@+id/pop_layout"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@drawable/share_menu_bg"
@@ -15,7 +15,7 @@
         android:orientation="vertical" >
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:orientation="horizontal" >
@@ -29,6 +29,7 @@
                 android:orientation="vertical" >
 
                 <ImageView
+                    android:id="@+id/shareToWxTimeline"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:src="@drawable/share_wechat_timeline_icon" />
@@ -50,6 +51,7 @@
                 android:orientation="vertical" >
 
                 <ImageView
+                    android:id="@+id/shareToWxFriend"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:src="@drawable/share_wechat_icon" />
@@ -72,8 +74,8 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/shareBtnBack"
-            android:layout_width="fill_parent"
+            android:id="@+id/shareBtnCancel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dip"
             android:layout_marginLeft="20dip"

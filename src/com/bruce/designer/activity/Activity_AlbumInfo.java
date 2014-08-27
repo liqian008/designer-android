@@ -42,7 +42,7 @@ import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
-import com.bruce.designer.view.ShareMenuView;
+import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -433,8 +433,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				postFavorite(albumId, designerId);
 				break;
 			case R.id.btnShare:
-				ShareMenuView menuView = new ShareMenuView(context, null);
-				menuView.showAtLocation(findViewById(R.id.commentPanel), Gravity.BOTTOM|Gravity.CENTER_HORIZONTAL, 0, 0);
+				SharePanelView sharePanel = new SharePanelView(context, null);
+				sharePanel.show(findViewById(R.id.commentPanel));
 				break;
 			default:
 				break;

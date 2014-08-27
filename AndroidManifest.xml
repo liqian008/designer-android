@@ -47,6 +47,8 @@
         <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr" />
         <!-- baiduStat 您从百度网站获取的 APP	KEY  -->
         <meta-data android:name="BaiduMobAd_STAT_ID" android:value="540d890b4c" /> 
+         <!-- 微信开放平台的appid  -->
+        <meta-data android:name="WeixinOpen_APP_ID" android:value="540d890b4c" /> 
         
         
         <!-- baiduPush 在百度开发者中心查询应用的API Key -->
