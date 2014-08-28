@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -31,7 +30,6 @@ import com.bruce.designer.api.album.PostCommentApi;
 import com.bruce.designer.api.album.PostFavoriteApi;
 import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
@@ -54,8 +52,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListener2<ListView>{
 	
 	private static final int HANDLER_FLAG_INFO = 1;
-	private static final int HANDLER_FLAG_SLIDE = 2;
-	private static final int HANDLER_FLAG_COMMENTS = 3;
+	private static final int HANDLER_FLAG_COMMENTS = 2;
 	
 	private static final int HANDLER_FLAG_COMMENT_POST = 11;
 	private static final int HANDLER_FLAG_LIKE_POST = 21;
@@ -100,11 +97,22 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			switch(msg.what){
-				case HANDLER_FLAG_SLIDE:
+			case HANDLER_FLAG_INFO:
 					Map<String, Object> albumDataMap = (Map<String, Object>) msg.obj;
 					if(albumDataMap!=null){
 						Album albumInfo = (Album) albumDataMap.get("albumInfo");
 						List<AlbumSlide> slideList = albumInfo.getSlideList();
+						boolean isLiked = albumInfo.isLike();
+						boolean isFavorited = albumInfo.isFavorite();
+						if(!isLiked){
+							btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
+							btnLike.setOnClickListener(onclickListener);
+						}
+						if(!isFavorited){
+							btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
+							btnFavorite.setOnClickListener(onclickListener);
+						}
+						
 						//先将slide列表存入db
 						AlbumSlideDB.deleteByAlbumId(context, albumId);
 						AlbumSlideDB.save(context, slideList);
@@ -222,9 +230,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
 		btnShare = (Button) albumInfoView.findViewById(R.id.btnShare);
 		
-		btnLike.setOnClickListener(onclickListener);
 		btnComment.setOnClickListener(onclickListener);
-		btnFavorite.setOnClickListener(onclickListener);
 		btnShare.setOnClickListener(onclickListener);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
@@ -304,7 +310,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					commentsAdapter.notifyDataSetChanged();
 				}
 				
-	//			//获取实时图片列表
+				//获取实时图片列表
 				getAlbumInfo(album.getId());
 				
 				pullRefresh.setRefreshing(false);
@@ -323,7 +329,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
+					message = handler.obtainMessage(HANDLER_FLAG_INFO);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}else{//发送失败消息
@@ -432,13 +438,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				//启动线程发布评论
 				postComment(designerId, toId, commentInput.getText().toString());
 				break;
+			case R.id.btnComment:
+				break;
 			case R.id.btnLike:
 				postLike(albumId, designerId);
-				break;
-			case R.id.btnComment:
+				btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_like), null,null,null);
+				btnLike.setOnClickListener(null);
 				break;
 			case R.id.btnFavorite:
 				postFavorite(albumId, designerId);
+				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorite), null,null,null);
+				btnFavorite.setOnClickListener(null);
 				break;
 			case R.id.btnShare:
 				//构造分享对象
