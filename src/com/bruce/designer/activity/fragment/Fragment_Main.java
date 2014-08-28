@@ -26,11 +26,14 @@ import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.listener.OnSharedListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.SharedInfo;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -53,6 +56,7 @@ public class Fragment_Main extends BaseFragment{
 	/* 各tab的tailId*/
 	private int[] tabAlbumTailIds = new int[TAB_NUM];
 	
+	private View mainView; 
 	private ViewPager viewPager;
 	private View[] tabViews = new View[TAB_NUM];
 	private View[] tabIndicators = new View[TAB_NUM];
@@ -74,7 +78,7 @@ public class Fragment_Main extends BaseFragment{
 		activity = getActivity();
 		this.inflater = inflater;
 		
-		View mainView = inflater.inflate(R.layout.fragment_main, null);
+		mainView = inflater.inflate(R.layout.fragment_main, null);
 		initView(mainView);
 		return mainView;
 	}
@@ -118,7 +122,7 @@ public class Fragment_Main extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null);
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, onSharedListener);
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -355,6 +359,15 @@ public class Fragment_Main extends BaseFragment{
 
 		@Override
 		public void onPageScrolled(int arg0, float arg1, int arg2) {
+		}
+	};
+	
+	
+	private OnSharedListener onSharedListener = new OnSharedListener(){
+		@Override
+		public void onShare(SharedInfo sharedInfo) {
+			SharePanelView sharePanel = new SharePanelView(activity, sharedInfo);
+			sharePanel.show(mainView);
 		}
 	};
 	

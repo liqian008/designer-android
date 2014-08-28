@@ -19,6 +19,9 @@ public class AlbumBase implements Serializable{
 	
 	private boolean isFavorite;
 
+	/*专辑在mobile端的url*/
+	private String itemMobileUrl;
+	
 	private List<String> tagList;
 
 	private List<AlbumSlide> slideList;
@@ -96,5 +99,14 @@ public class AlbumBase implements Serializable{
 	public void setAuthorInfo(AlbumAuthorInfo authorInfo) {
 		this.authorInfo = authorInfo;
 	}
-	
+
+	public String getItemMobileUrl() {
+		return itemMobileUrl;
+	}
+
+	public void setItemMobileUrl(String itemMobileUrl) {
+		this.itemMobileUrl = itemMobileUrl;
+	}
+
 }
+

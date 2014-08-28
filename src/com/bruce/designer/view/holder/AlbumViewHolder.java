@@ -2,24 +2,25 @@ package com.bruce.designer.view.holder;
 
 import java.util.List;
 
-import com.bruce.designer.activity.Activity_AlbumInfo;
-import com.bruce.designer.activity.Activity_UserHome;
-import com.bruce.designer.adapter.AlbumSlidesAdapter;
-import com.bruce.designer.listener.OnSingleClickListener;
-import com.bruce.designer.model.Album; 
-import com.bruce.designer.model.AlbumAuthorInfo;
-import com.bruce.designer.model.AlbumSlide;
-import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UniversalImageUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import android.content.Context;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bruce.designer.activity.Activity_AlbumInfo;
+import com.bruce.designer.activity.Activity_UserHome;
+import com.bruce.designer.adapter.AlbumSlidesAdapter;
+import com.bruce.designer.listener.OnSingleClickListener;
+import com.bruce.designer.model.Album;
+import com.bruce.designer.model.AlbumAuthorInfo;
+import com.bruce.designer.model.AlbumSlide;
+import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UniversalImageUtil;
+import com.bruce.designer.view.SharePanelView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class AlbumViewHolder {
 	

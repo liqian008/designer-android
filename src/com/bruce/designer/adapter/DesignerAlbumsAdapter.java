@@ -13,8 +13,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.constants.Config;
+import com.bruce.designer.listener.OnSharedListener;
+import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.AlbumSlide;
+import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.view.SharePanelView;
 import com.bruce.designer.view.holder.AlbumViewHolder;
 
 /**
@@ -25,10 +29,18 @@ import com.bruce.designer.view.holder.AlbumViewHolder;
 public class DesignerAlbumsAdapter extends BaseAdapter {
 		private List<Album> albumList;
 		private Context context;
+		private OnSharedListener onShareListener; 
 		
 		public DesignerAlbumsAdapter(Context context, List<Album> albumList) {
 			this.context = context;
 			this.albumList = albumList;
+		}
+		
+		
+		public DesignerAlbumsAdapter(Context context, List<Album> albumList, OnSharedListener onShareListener) {
+			this.context = context;
+			this.albumList = albumList;
+			this.onShareListener = onShareListener;
 		}
 		
 		public void setAlbumList(List<Album> albumList) {
@@ -89,6 +101,7 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					viewHolder.btnLike = (Button) convertView.findViewById(R.id.btnLike);
 					viewHolder.btnComment = (Button) convertView.findViewById(R.id.btnComment);
 					viewHolder.btnFavorite = (Button) convertView.findViewById(R.id.btnFavorite);
+					viewHolder.btnShare = (Button) convertView.findViewById(R.id.btnShare);
 					//评论数量
 					viewHolder.commentView = (TextView) convertView.findViewById(R.id.txtComment);
 					
@@ -101,6 +114,19 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 			}
 			//构造显示数据
 			viewHolder.fillDisplayData(context, album);
+			
+			if(onShareListener!=null){//将分享事件传出，交由外层处理逻辑
+				//构造分享对象
+				String itemMobileUrl = album.getItemMobileUrl();
+				final SharedInfo sharedInfo = new SharedInfo(album.getTitle(), album.getRemark(), itemMobileUrl, album.getCoverSmallImg());
+				viewHolder.btnShare.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						onShareListener.onShare(sharedInfo);
+					}
+				});
+			}
+			
 			return convertView;
 		}
 	}

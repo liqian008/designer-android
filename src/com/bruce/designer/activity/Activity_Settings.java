@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.UiUtil;
 
@@ -25,6 +27,7 @@ public class Activity_Settings extends BaseActivity {
 	private TextView titleView;
 	private View aboutUsView;
 	private View clearCacheView;
+	private View websiteView;
 
 	private Button btnLogout;
 
@@ -53,6 +56,9 @@ public class Activity_Settings extends BaseActivity {
 
 		clearCacheView = findViewById(R.id.clearCache);
 		clearCacheView.setOnClickListener(listener);
+		
+		websiteView = findViewById(R.id.websiteView);
+		websiteView.setOnClickListener(listener);
 
 		btnLogout = (Button) findViewById(R.id.logout);
 		btnLogout.setOnClickListener(listener);
@@ -105,6 +111,14 @@ public class Activity_Settings extends BaseActivity {
 				
 				AlertDialog clearDialog = UiUtil.showAlertDialog(context, "清除缓存", "根据缓存文件大小，清理时间从几秒到几分钟不等，请耐心等待", "清理", null, "取消", null);
 				clearDialog.show();
+				break;
+			case R.id.websiteView:
+				//启动web浏览器访问主页
+				Intent intent = new Intent();        
+				intent.setAction("android.intent.action.VIEW");
+				Uri content_url = Uri.parse(Config.JINWAN_WEB_DOMAIN);
+				intent.setData(content_url);  
+				startActivity(intent);
 				break;
 			case R.id.logout:
 				AppApplication.clearAccount();

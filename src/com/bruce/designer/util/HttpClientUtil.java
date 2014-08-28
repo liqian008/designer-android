@@ -157,6 +157,7 @@ public class HttpClientUtil {
 	public static byte[] getBytesFromUrl(String imageUrl) {
 		byte[] bytes = null;
 		try {
+			LogUtil.v("shareImageUrl", imageUrl);
 			InputStream is = getNetworkInputStream(imageUrl);
 			byte[] buffer = new byte[1024];
 			ByteArrayOutputStream bos = new ByteArrayOutputStream();

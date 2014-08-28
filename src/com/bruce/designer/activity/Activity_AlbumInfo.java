@@ -31,6 +31,7 @@ import com.bruce.designer.api.album.PostCommentApi;
 import com.bruce.designer.api.album.PostFavoriteApi;
 import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
@@ -40,6 +41,7 @@ import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.SharedInfo;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
@@ -78,6 +80,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private Button btnFavorite;
 	private Button btnShare;
 	
+	private SharedInfo sharedInfo;
 	
 	private PullToRefreshListView pullRefresh;
 	private ListView commentListView;
@@ -248,8 +251,13 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		}else{//intent中传的是album
 			albumId = album.getId();
 			designerId = album.getUserId();
+			
 			//读取上个activity传入的authorInfo值
 			if(album!=null&&albumId!=null){
+				//构造分享对象
+				String itemMobileUrl = album.getItemMobileUrl();
+				sharedInfo = new SharedInfo(album.getTitle(), album.getRemark(), itemMobileUrl, album.getCoverSmallImg());
+				
 				final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 				if(authorInfo!=null){
 					View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
@@ -433,7 +441,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				postFavorite(albumId, designerId);
 				break;
 			case R.id.btnShare:
-				SharePanelView sharePanel = new SharePanelView(context, null);
+				//构造分享对象
+				SharePanelView sharePanel = new SharePanelView(context, sharedInfo);
 				sharePanel.show(findViewById(R.id.commentPanel));
 				break;
 			default:

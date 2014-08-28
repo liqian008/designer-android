@@ -20,6 +20,7 @@ import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.share.SharedInfo;
 import com.bruce.designer.util.HttpClientUtil;
+import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UiUtil;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
@@ -32,7 +33,7 @@ public class SharePanelView extends PopupWindow {
 	
 	private Context context;
 	private Button shareBtnCancel;
-	private View mMenuView;
+	private View contentView;
 	private ImageView shareToWxFriend;
 	private ImageView shareToWxTimeline;
 	private SharedInfo shareInfo;
@@ -42,6 +43,7 @@ public class SharePanelView extends PopupWindow {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
 			case HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH://图片下载完成
+				
 				SharedInfo shareInfo = (SharedInfo) msg.obj;
 				WXWebpageObject webpage = new WXWebpageObject();
 				webpage.webpageUrl = shareInfo.getUrl();
@@ -49,13 +51,13 @@ public class SharePanelView extends PopupWindow {
 				wxMessage.title = shareInfo.getTitle();
 				wxMessage.description = shareInfo.getContent();
 				wxMessage.thumbData = shareInfo.getBytes();
-
+				
 				SendMessageToWX.Req req = new SendMessageToWX.Req();
 				req.message = wxMessage;
 				req.scene = 1;
+//				UiUtil.showShortToast(context, "调用微信API");
 				AppApplication.getWxApi().sendReq(req);
 				break;
-
 			default:
 				break;
 			}
@@ -68,21 +70,21 @@ public class SharePanelView extends PopupWindow {
 		this.shareInfo = shareInfo;
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		mMenuView = inflater.inflate(R.layout.share_panel, null);
+		contentView = inflater.inflate(R.layout.share_panel, null);
 		// 取消按钮
-		shareBtnCancel = (Button) mMenuView.findViewById(R.id.shareBtnCancel);
-		shareBtnCancel = (Button) mMenuView.findViewById(R.id.shareBtnCancel);
+		shareBtnCancel = (Button) contentView.findViewById(R.id.shareBtnCancel);
+		shareBtnCancel = (Button) contentView.findViewById(R.id.shareBtnCancel);
 		shareBtnCancel.setOnClickListener(onClickListener);
 
-		shareToWxFriend = (ImageView) mMenuView
+		shareToWxFriend = (ImageView) contentView
 				.findViewById(R.id.shareToWxFriend);
-		shareToWxTimeline = (ImageView) mMenuView
+		shareToWxTimeline = (ImageView) contentView
 				.findViewById(R.id.shareToWxTimeline);
 		shareToWxFriend.setOnClickListener(onClickListener);
 		shareToWxTimeline.setOnClickListener(onClickListener);
 
 		// 设置SelectPicPopupWindow的View
-		this.setContentView(mMenuView);
+		this.setContentView(contentView);
 		// 设置SelectPicPopupWindow弹出窗体的宽
 		this.setWidth(LayoutParams.MATCH_PARENT);
 		// 设置SelectPicPopupWindow弹出窗体的高
@@ -97,9 +99,9 @@ public class SharePanelView extends PopupWindow {
 		this.setBackgroundDrawable(dw);
 		// mMenuView添加OnTouchListener监听判断获取触屏位置如果在选择框外面则销毁弹出框
 
-		mMenuView.setOnTouchListener(new OnTouchListener() {
+		contentView.setOnTouchListener(new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				int height = mMenuView.findViewById(R.id.pop_layout).getTop();
+				int height = contentView.findViewById(R.id.pop_layout).getTop();
 				int y = (int) event.getY();
 				if (event.getAction() == MotionEvent.ACTION_UP) {
 					if (y < height) {
@@ -125,7 +127,7 @@ public class SharePanelView extends PopupWindow {
 		//需要先启动线程下载图片
 		
 		if (shareInfo != null) {
-			Thread thread = new Thread(new ImageDownloadThread(shareInfo.getImageUrl()));
+			Thread thread = new Thread(new ImageDownloadThread(shareInfo));
 			thread.start();
 		}
 	}
@@ -134,10 +136,10 @@ public class SharePanelView extends PopupWindow {
 
 		@Override
 		public void onSingleClick(View v) {
+			dismiss();
 			switch (v.getId()) {
 			case R.id.shareBtnCancel:
 				// 隐藏分享菜单消失
-				dismiss();
 				break;
 			case R.id.shareToWxTimeline:
 				if (shareInfo != null) {
@@ -158,16 +160,22 @@ public class SharePanelView extends PopupWindow {
 	};
 
 	class ImageDownloadThread implements Runnable{
-		private String imageUrl;
-		private ImageDownloadThread(String imageUrl){
-			this.imageUrl = imageUrl;
+		private SharedInfo shareInfo;
+		
+		private ImageDownloadThread(SharedInfo shareInfo){
+			this.shareInfo = shareInfo;
 		}
+		
 		@Override
 		public void run() {
-			byte[] imageBytes = HttpClientUtil.getBytesFromUrl(imageUrl);
-			Message message = shareHandler.obtainMessage(HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH);
-			message.obj = imageBytes;
-			message.sendToTarget();
+			LogUtil.d("shareImageUrl: "+shareInfo.getImageUrl());
+			byte[] imageBytes = HttpClientUtil.getBytesFromUrl(shareInfo.getImageUrl());
+			if(imageBytes!=null){
+				Message message = shareHandler.obtainMessage(HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH);
+				shareInfo.setBytes(imageBytes);
+				message.obj = shareInfo;
+				message.sendToTarget();
+			}
 		}
 		
 	}
