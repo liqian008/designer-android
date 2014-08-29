@@ -35,7 +35,7 @@ public class WeiboLoginApi extends AbstractApi {
 
 	@Override
 	protected String getApiMethodName() {
-		return "weibo2Login.cmd";
+		return "weiboLogin.cmd";
 	}
 	
 	/**
@@ -76,6 +76,7 @@ public class WeiboLoginApi extends AbstractApi {
 					if (needBind) {
 						dataMap.put("needBind", needBind);
 						dataMap.put("thirdpartyUname",  jsonData.optString("thirdpartyUname"));
+						dataMap.put("thirdpartyAvatar",  jsonData.optString("thirdpartyAvatar"));
 						return ResponseBuilderUtil.buildSuccessResult(dataMap);
 					}
 				}

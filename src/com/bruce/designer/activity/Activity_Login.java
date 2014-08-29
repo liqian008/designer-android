@@ -65,6 +65,7 @@ public class Activity_Login extends BaseActivity{
 	
 	private String uid;
 	private String uname;
+	private String uavatar;
 	private String accessToken;
 	private String refreshToken;
 	private long expiresTime;
@@ -187,8 +188,10 @@ public class Activity_Login extends BaseActivity{
 					}else{//db未查到，认为是新用户，则必须要进行绑定
 						boolean needBind = (Boolean) dataMap.get("needBind");
 						uname = (String) dataMap.get("thirdpartyUname");
+						uavatar = (String) dataMap.get("thirdpartyAvatar");
 						if(needBind){
 							uname = uname==null?"":uname;
+							uavatar = uavatar==null?"":uavatar;
 							
 							loginNickname.setText(uname);
 							UiUtil.showShortToast(context, "您好，首次登录需要绑定本站账户");
@@ -307,7 +310,7 @@ public class Activity_Login extends BaseActivity{
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				OAuthRegisteApi api = new OAuthRegisteApi(email, nickname, password, uid, uname, accessToken, refreshToken, expiresTime);
+				OAuthRegisteApi api = new OAuthRegisteApi(email, nickname, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
 				ApiResult apiResult = ApiManager.invoke(context, api);
 				if(apiResult!=null&&apiResult.getResult()==1){
 					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);

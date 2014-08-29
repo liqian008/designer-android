@@ -23,7 +23,7 @@ public class OAuthRegisteApi extends AbstractApi{
 	
 	private Map<String, String> paramMap = null;
 	
-	public OAuthRegisteApi(String username, String nickname ,String password, String thirdpartyUid,  String thirdpartyUname, String accessToken, String refreshToken, long expiresTime){
+	public OAuthRegisteApi(String username, String nickname ,String password, String thirdpartyUid,  String thirdpartyUname,  String thirdpartyAvatar, String accessToken, String refreshToken, long expiresTime){
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("thirdpartyType", String.valueOf(1));
 		
@@ -33,6 +33,7 @@ public class OAuthRegisteApi extends AbstractApi{
 				
 		paramMap.put("thirdpartyUid", String.valueOf(thirdpartyUid));
 		paramMap.put("thirdpartyUname", String.valueOf(thirdpartyUname));
+		paramMap.put("thirdpartyAvatar", String.valueOf(thirdpartyAvatar));
 		paramMap.put("thirdpartyAccessToken", accessToken);
 		paramMap.put("thirdpartyRefreshToken", refreshToken);
 		paramMap.put("thirdpartyExpireIn", String.valueOf(expiresTime));
