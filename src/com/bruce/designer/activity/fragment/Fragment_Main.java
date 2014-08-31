@@ -23,6 +23,7 @@ import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
+import com.bruce.designer.api.album.AlbumRecommendApi;
 import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
@@ -223,10 +224,12 @@ public class Fragment_Main extends BaseFragment{
 			public void run() {
 				Message message;
 				AbstractApi api = null;
-				if(tabIndex==2){
+				if(tabIndex==1){
+					api = new AlbumListApi(0, albumTailId);
+				}else if(tabIndex==2){
 					api = new FollowAlbumListApi(albumTailId);
 				}else{
-					api = new AlbumListApi(0, albumTailId);
+					api = new AlbumRecommendApi();
 				}
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
