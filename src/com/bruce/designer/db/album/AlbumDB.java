@@ -35,15 +35,15 @@ public class AlbumDB {
 	public static final String TB_HOT_ALBUM_YEARLY = "tb_hot_album_yearly";
 	
 	public static List<Album> queryAllLatest(Context context) {
-		return queryAll(context, TB_ALBUM_LATEST);
+		return queryAll(context, TB_ALBUM_LATEST, true);
 	}
 	
 	public static List<Album> queryAllRecommend(Context context) {
-		return queryAll(context, TB_ALBUM_RECOMMEND);
+		return queryAll(context, TB_ALBUM_RECOMMEND, true);
 	}
 	
 	public static List<Album> queryAllFollow(Context context) {
-		return queryAll(context, TB_ALBUM_FOLLOW);
+		return queryAll(context, TB_ALBUM_FOLLOW, true);
 	}
 	
 	public static List<Album> queryHotWeekly(Context context) {

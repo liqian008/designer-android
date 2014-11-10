@@ -17,6 +17,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
@@ -88,7 +89,17 @@ public class AlbumViewHolder {
 			//专辑title
 			titleView.setText(album.getTitle());
 			//专辑描述
-			contentView.setText(album.getRemark());
+			String remark = album.getRemark();
+			if(!StringUtils.isBlank(remark)){
+				remark = remark.replace("\r", "");
+				remark = remark.replace("\n", "");
+				if(remark.length()>30){
+					remark = remark.substring(0, 29);
+				}
+			}else{
+				remark = album.getTitle();
+			}
+			contentView.setText(remark +"......查看详情");
 			
 			//专辑统计
 			btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");

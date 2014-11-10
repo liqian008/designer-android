@@ -40,6 +40,7 @@ import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
@@ -288,7 +289,24 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 				albumTitleView.setText(album.getTitle());
-				albumContentView.setText(album.getRemark());
+//				albumContentView.setText(album.getRemark());
+				//专辑描述
+				String remark = album.getRemark();
+				if(!StringUtils.isBlank(remark)){
+					remark = remark.replace("\r", "");
+					remark = remark.replace("\n", "");
+					if(remark.length()>30){
+						remark = remark.substring(0, 29);
+					}
+				}else{
+					remark = album.getTitle();
+				}
+				albumContentView.setText(remark +"......查看详情");
+				albumContentView.setOnClickListener(new OnSingleClickListener() {
+					public void onSingleClick(View v) {
+						albumContentView.setText(album.getRemark());
+					}
+				});
 				
 				//浏览，评论等交互数
 				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");

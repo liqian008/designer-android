@@ -13,12 +13,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSharedListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.share.SharedInfo;
-import com.bruce.designer.view.SharePanelView;
 import com.bruce.designer.view.holder.AlbumViewHolder;
 
 /**

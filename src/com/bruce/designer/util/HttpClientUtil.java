@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +18,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -44,21 +46,27 @@ public class HttpClientUtil {
 	 */
 	public static String httpGet(String url, Map<String, String> paramMap)
 			throws Exception {
-		StringBuilder sb = null;
+		String queryString = null;
+//		StringBuilder sb = null;
 		if (paramMap != null && paramMap.size() > 0) {
-			sb = new StringBuilder();
+//			sb = new StringBuilder();
+			List<NameValuePair> paramList = new LinkedList<NameValuePair>();
 			for (Entry<String, String> entry : paramMap.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
-				sb.append("&");
-				sb.append(key + "=" + value);
+				paramList.add(new BasicNameValuePair(key, value));
 			}
+			queryString = URLEncodedUtils.format(paramList, HTTP.UTF_8);
 		}
-		if (sb != null && !"".equals(sb.toString())) {
-			url = url + sb.replace(0, 1, "?");
-		}
-
 		HttpParams httpParameters = buildHttpParam();
+		
+		if(queryString!=null){
+			String concator = "?";//默认连接符
+			if(url.indexOf(concator)>0){//url中不含?号
+				concator = "&";//url中含?号，连接符改为&
+			}
+			url = url +concator+ queryString;
+		}
 
 		LogUtil.v("========url======" + url);
 		HttpGet httpGet = new HttpGet(url);
