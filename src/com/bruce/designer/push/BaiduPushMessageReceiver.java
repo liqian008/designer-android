@@ -9,7 +9,13 @@ import android.content.Context;
 import android.text.TextUtils;
 
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
+import com.bruce.designer.AppApplication;
+import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.user.BindPushTokenApi;
+import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
 
 /**
@@ -53,17 +59,36 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
      * @return none
      */
     @Override
-    public void onBind(Context context, int errorCode, String appid,
-            String userId, String channelId, String requestId) {
+    public void onBind(final Context context, int errorCode, String appid, String userId, String channelId, String requestId) {
         String responseString = "onBind errorCode=" + errorCode + " appid="  + appid + " userId=" + userId + " channelId=" + channelId  + " requestId=" + requestId;
         LogUtil.d(responseString);
-//        UiUtil.showLongToast(context, responseString);
+        UiUtil.showLongToast(context, responseString);
         
         // 绑定成功，设置已绑定flag，可以有效的减少不必要的绑定请求
         if (errorCode == 0) {
-        	//需要绑定用户&pushToken
+        	final String pushToken = channelId;
+        	//将pushToken写入至sp中
+        	SharedPreferenceUtil.writeObjectToSp(channelId, Config.SP_KEY_BAIDUPUSH);
+        	
+        	boolean isGuest = AppApplication.isGuest();
+        	LogUtil.d("isGuest: "+ isGuest);
+        	if(!isGuest){
+	        	//发起线程，请求用户绑定pushToken
+	        	new Thread(new Runnable() {
+					@Override
+					public void run() {
+						BindPushTokenApi api = new BindPushTokenApi(pushToken);
+						ApiResult apiResult = ApiManager.invoke(context, api);
+						if(apiResult!=null&&apiResult.getResult()==1){
+							LogUtil.d("绑定结果： "+apiResult.getResult());
+						}
+					}
+				}).start();
+        	}
         }
         // Demo更新界面展示代码，应用请在这里加入自己的处理逻辑
+        
+        
     }
 
     /**
@@ -100,14 +125,10 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
     /**
      * 接收通知点击的函数。注：推送通知被用户点击前，应用无法通过接口获取通知的内容。
      * 
-     * @param context
-     *            上下文
-     * @param title
-     *            推送的通知的标题
-     * @param description
-     *            推送的通知的描述
-     * @param customContentString
-     *            自定义内容，为空或者json字符串
+     * @param context 上下文
+     * @param title 推送的通知的标题
+     * @param description 推送的通知的描述
+     * @param customContentString 自定义内容，为空或者json字符串
      */
     @Override
     public void onNotificationClicked(Context context, String title,

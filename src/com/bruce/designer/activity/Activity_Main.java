@@ -14,7 +14,6 @@ import android.widget.ImageButton;
 
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
-import com.baidu.android.pushservice.PushSettings;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -83,6 +82,10 @@ public class Activity_Main extends BaseActivity {
 					AppManager.getInstance().exitApp(context);
 				}
 			}
+		}else if (keyCode == KeyEvent.KEYCODE_MENU) {
+			// 物理菜单键进入设置界面
+			Intent intent = new Intent(context, Activity_Settings.class);
+			startActivity(intent);
 		} else {
 			flag = super.onKeyUp(keyCode, event);
 		}
@@ -159,7 +162,7 @@ public class Activity_Main extends BaseActivity {
 	 */
 	private void initBaiduPush(Context context) {
 //		PushSettings.enableDebugMode(context, true);
-		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "api_key"));
+		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "baidu_push_api_key"));
 	}
 	
 }

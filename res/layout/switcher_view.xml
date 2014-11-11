@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.bruce.designer.view.SwitcherView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+
+    <ImageView
+        android:id="@+id/switcher_bg_on"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:background="@drawable/switcher_bg_on"/>
+
+    <ImageView
+        android:id="@+id/switcher_bg_off"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:background="@drawable/switcher_bg_off"
+         />
+	
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/switcher_tx_on"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="开"
+            android:paddingLeft="4dp"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/switcher_tx_off"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="关"
+            android:paddingRight="4dp"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/switcher_slide"
+        android:layout_margin="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:background="@drawable/switcher"
+        />
+
+</com.bruce.designer.view.SwitcherView>

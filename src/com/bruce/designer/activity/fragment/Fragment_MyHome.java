@@ -33,7 +33,6 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;

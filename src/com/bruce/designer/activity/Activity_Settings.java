@@ -121,6 +121,9 @@ public class Activity_Settings extends BaseActivity {
 				startActivity(intent);
 				break;
 			case R.id.logout:
+				//TODO 发起线程禁用pushToken
+				
+				//清除本机的登录信息
 				AppApplication.clearAccount();
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);

@@ -116,6 +116,27 @@ public class AppApplication extends Application {
 	}
 	
 	/**
+	 * 判断当前用户是否是游客
+	 * @return
+	 */
+	public static boolean isGuest(){
+		UserPassport userPassport= getUserPassport();
+		if(userPassport!=null&&userPassport.getUserId()>0){
+			return isGuest(userPassport.getUserId());
+		}
+		return true;
+	}
+	
+	/**
+	 * 判断指定的用户是否是游客
+	 * @param userId
+	 * @return
+	 */
+	public static boolean isGuest(int userId){
+		return userId <= Config.GUEST_USER_ID;
+	}
+	
+	/**
 	 * 注销时清除sp的账户缓存
 	 */
 	public static void clearAccount(){

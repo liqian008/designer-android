@@ -39,7 +39,7 @@ public class ApiManager {
 			return errorResult;
 		}
 		
-		if(api.needAuth()&&AppApplication.getUserPassport().getUserId()<=100000){
+		if(api.needAuth()&&AppApplication.isGuest()){
 			//游客的操作检查
 			BroadcastSender.guestDenied(context);
 			return errorResult;

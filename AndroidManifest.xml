@@ -50,9 +50,8 @@
          <!-- 微信开放平台的appid，可使用登录、分享功能 -->
         <meta-data android:name="WeixinOpen_APP_ID" android:value="wxf8aa7055983d73e4" /> 
         
-        
         <!-- baiduPush 在百度开发者中心查询应用的API Key -->
-        <meta-data android:name="api_key" android:value="BnuBegfG0xLaQ8mGm6KlEbLl" />
+        <meta-data android:name="baidu_push_api_key" android:value="BnuBegfG0xLaQ8mGm6KlEbLl" />
 
 		<!--
         <activity 

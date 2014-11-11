@@ -37,10 +37,12 @@ public class Config {
 	public static final String SP_CONFIG_DEFAULT = "CONFIG";
 	/*SP的账户Config*/
 	public static final String SP_CONFIG_ACCOUNT = "ACCOUNT";
-	/*SP的key*/
+	/*SP中userPassport的key*/
 	public static final String SP_KEY_USERPASSPORT = "USER_PASSPORT";
-	/*SP的key*/
+	/*SP中userInfo的key*/
 	public static final String SP_KEY_USERINFO = "USER_INFO";
+	/*SP中push的key*/
+	public static final String SP_KEY_BAIDUPUSH = "BAIDU_PUSH";
 	
 	
 	
