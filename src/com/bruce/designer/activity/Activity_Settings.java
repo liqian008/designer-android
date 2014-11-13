@@ -14,12 +14,17 @@ import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.baidu.android.pushservice.PushManager;
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.view.SwitcherView;
+import com.bruce.designer.view.SwitcherView.OnChangedListener;
 
 public class Activity_Settings extends BaseActivity {
 
@@ -28,6 +33,7 @@ public class Activity_Settings extends BaseActivity {
 	private View aboutUsView;
 	private View clearCacheView;
 	private View websiteView;
+	private SwitcherView pushSwitcher;
 
 	private Button btnLogout;
 
@@ -62,6 +68,27 @@ public class Activity_Settings extends BaseActivity {
 
 		btnLogout = (Button) findViewById(R.id.logout);
 		btnLogout.setOnClickListener(listener);
+		
+		pushSwitcher = (SwitcherView)findViewById(R.id.push_settings_switcher);
+		//初始化push的选项值
+		boolean pushOn = SharedPreferenceUtil.getSharePreBoolean(context, Config.SP_KEY_BAIDU_PUSH, false);
+		pushSwitcher.setCheckState(pushOn);
+		
+		pushSwitcher.OnChangedListener(new OnChangedListener() {
+			@Override
+			public void OnChanged(boolean checkState) {
+				if (checkState) {
+					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , true);
+					UiUtil.showShortToast(context,"消息推送开启");
+					PushManager.resumeWork(context);
+				} else {
+					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , false);
+					PushManager.stopWork(context);
+					UiUtil.showShortToast(context, "消息推送关闭");
+				}
+				StatService.onEvent(context, "设置消息推送", "新状态: "+checkState);
+			}
+		});
 	}
 
 	
@@ -122,6 +149,7 @@ public class Activity_Settings extends BaseActivity {
 				break;
 			case R.id.logout:
 				//TODO 发起线程禁用pushToken
+				PushManager.stopWork(context);
 				
 				//清除本机的登录信息
 				AppApplication.clearAccount();
@@ -134,4 +162,8 @@ public class Activity_Settings extends BaseActivity {
 			}
 		}
 	};
+	
+	
+	
+	
 }

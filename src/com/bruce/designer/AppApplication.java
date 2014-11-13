@@ -18,7 +18,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 
-public class AppApplication extends Application {
+public class AppApplication extends FrontiaApplication {
 
 	private static String versionName;
 	private static int versionCode;

@@ -97,6 +97,33 @@ public class SharedPreferenceUtil {
 		long value = sp.getLong(name, defaultVal);// 如果该字段没对应值，则取出defaultVal
 		return value;
 	}
+	
+	/**
+	 * 取出config中name字段对应的boolean类型的值
+	 * 
+	 * @param mContext
+	 * @param name
+	 * @param defaultVal
+	 * @return
+	 */
+	public static boolean getSharePreBoolean(Context mContext, String name, boolean defaultVal) {
+		return getSharePreBoolean(mContext, Config.SP_CONFIG_DEFAULT, name, defaultVal);
+	}
+
+	/**
+	 * 取出config中name字段对应的boolean类型的值
+	 * 
+	 * @param mContext
+	 * @param config
+	 * @param name
+	 * @param defaultVal
+	 * @return
+	 */
+	public static boolean getSharePreBoolean(Context mContext, String config, String name, boolean defaultVal) {
+		SharedPreferences sp = (SharedPreferences) mContext.getSharedPreferences(config, Context.MODE_PRIVATE);
+		boolean value = sp.getBoolean(name, defaultVal);// 如果该字段没对应值，则取出defaultVal
+		return value;
+	}
 
 	/**
 	 * 保存string类型的value到config中的name字段
@@ -174,6 +201,34 @@ public class SharedPreferenceUtil {
 				.getSharedPreferences(config, Context.MODE_PRIVATE);
 		sp.edit().putLong(name, value).commit();
 	}
+	
+	/**
+	 * 保存int类型的value到config中的name字段
+	 * 
+	 * @param mContext
+	 * @param name
+	 * @param value
+	 */
+	public static void putSharePre(Context mContext, String name, boolean value) {
+		putSharePre(mContext, Config.SP_CONFIG_DEFAULT, name, value);
+	}
+
+	/**
+	 * 保存int类型的value到config中的name字段
+	 * 
+	 * @param mContext
+	 * @param config
+	 * @param name
+	 * @param value
+	 */
+	public static void putSharePre(Context mContext, String config, String name, boolean value) {
+		SharedPreferences sp = (SharedPreferences) mContext
+				.getSharedPreferences(config, Context.MODE_PRIVATE);
+		sp.edit().putBoolean(name, value).commit();
+	}
+	
+	
+	
 
 	/**
 	 * 清除sp

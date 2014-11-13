@@ -16,9 +16,10 @@ public class BindPushTokenApi extends AbstractApi {
 		return "bindPushToken.cmd";
 	}
 
-	public BindPushTokenApi(String pushToken) {
+	public BindPushTokenApi(String pushChannelId, String pushUserId) {
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("pushToken", pushToken);
+		paramMap.put("pushChannelId", pushChannelId);
+		paramMap.put("pushUserId", pushUserId);
 	}
 
 	@Override

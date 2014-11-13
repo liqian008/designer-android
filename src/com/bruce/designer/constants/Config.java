@@ -42,7 +42,7 @@ public class Config {
 	/*SP中userInfo的key*/
 	public static final String SP_KEY_USERINFO = "USER_INFO";
 	/*SP中push的key*/
-	public static final String SP_KEY_BAIDUPUSH = "BAIDU_PUSH";
+	public static final String SP_KEY_BAIDU_PUSH = "BAIDU_PUSH";
 	
 	
 	

@@ -38,7 +38,7 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
-                    android:text="消息提醒" />
+                    android:text="消息推送" />
                 
                 <include
                         android:id="@+id/push_settings_switcher"
