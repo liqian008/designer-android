@@ -12,6 +12,11 @@ import com.bruce.designer.model.result.ApiResult;
 
 public abstract class AbstractApi {
 	
+	/*是否是多媒体请求*/
+	protected boolean multipart = false;
+	
+	protected byte[] multipartData = null;
+	
 	/**
 	 * api url
 	 * @return
@@ -71,8 +76,25 @@ public abstract class AbstractApi {
 		//交由子类处理业务数据
 		return processApiResult(result, errorcode, message, dataStr);
 	}
-	
-	
+
+	public boolean isMultipart() {
+		return multipart;
+	}
+
+	public void setMultipart(boolean multipart) {
+		this.multipart = multipart;
+	}
+
+	public byte[] getMultipartData() {
+		if(isMultipart()){
+			return multipartData;
+		}
+		return null;
+	}
+
+	public void setMultipartData(byte[] multipartData) {
+		this.multipartData = multipartData;
+	}
 	
 //	public final ApiResult processResponse(String response) throws Exception{
 //		int errorcode = 0;
@@ -99,5 +121,7 @@ public abstract class AbstractApi {
 //		}
 //		return apiResult;
 //	}
+	
+	
 	
 }

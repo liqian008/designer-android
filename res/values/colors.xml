@@ -91,5 +91,8 @@
     
     <color name="share_item_bg_p">#495353</color>
 	<color name="share_item_bg_n">#2f3737</color>
+	
+	
+	<color name="avatar_modify_background">#737373</color>
     
 </resources>

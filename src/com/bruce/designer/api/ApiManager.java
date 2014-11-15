@@ -46,19 +46,23 @@ public class ApiManager {
 		}
 		
 		
-		
-		String requestUri = api.getRequestUri();
-		Map<String, String> apiParamMap = api.getParamMap();
-		RequestMethodEnum requestMethod = api.getRequestMethod();
-		
-		//构造完整请求参数
-		Map<String, String> fullParamMap = buildFullParam(apiParamMap);
-		String response = null;
 		try {
-			if(RequestMethodEnum.GET.equals(requestMethod)){
-				response = HttpClientUtil.httpGet(requestUri, fullParamMap);
+			String requestUri = api.getRequestUri();
+			String response = null;
+			//判断是否是multipart请求
+			if(!api.isMultipart()){
+				Map<String, String> apiParamMap = api.getParamMap();
+				RequestMethodEnum requestMethod = api.getRequestMethod();
+				
+				//构造完整请求参数
+				Map<String, String> fullParamMap = buildFullParam(apiParamMap);
+				if(RequestMethodEnum.GET.equals(requestMethod)){
+					response = HttpClientUtil.httpGet(requestUri, fullParamMap);
+				}else{
+					response = HttpClientUtil.httpPost(requestUri, fullParamMap);
+				}
 			}else{
-				response = HttpClientUtil.httpPost(requestUri, fullParamMap);
+				response = HttpClientUtil.httpPostImage(requestUri, api.getMultipartData());
 			}
 			//对返回结果做通用性检查（主要检查sig参数及session失效），两种情况下都认为失败
 			if(response!=null){
