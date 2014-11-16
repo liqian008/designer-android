@@ -79,14 +79,31 @@
             android:src="@drawable/tab_icon_hot" />
         -->
 
-        <ImageButton
-            android:id="@+id/btnTabMsgbox"
+        <RelativeLayout
+            android:id="@+id/unreadNumContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerHorizontal="true"
-            android:layout_weight="1.0"
-            android:background="@drawable/main_tab_bg"
-            android:src="@drawable/tab_icon_msgbox" />
+            android:layout_weight="1" >
+
+            <ImageButton
+                android:id="@+id/btnTabMsgbox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1.0"
+                android:background="@drawable/main_tab_bg"
+                android:src="@drawable/tab_icon_msgbox" />
+
+            <ImageView
+                android:id="@+id/unreadMsgIndicator"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_alignRight="@+id/btnTabMsgbox"
+                android:layout_marginRight="18.0dip"
+                android:layout_marginTop="12.0dip"
+                android:src="@drawable/unread_msg_bg"
+                android:visibility="gone" />
+        </RelativeLayout>
 
         <ImageButton
             android:id="@+id/btnTabHome"

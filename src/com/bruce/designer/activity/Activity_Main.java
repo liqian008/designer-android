@@ -11,16 +11,18 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.activity.fragment.Fragment_Msgbox.MessageListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.UiUtil;
 
-public class Activity_Main extends BaseActivity {
+public class Activity_Main extends BaseActivity implements MessageListener{
 	
 	private static final int TAB_NUM = 4;
 	private long lastQuitTime = 0;
@@ -32,6 +34,8 @@ public class Activity_Main extends BaseActivity {
 	private FragmentTransaction fragmentTransaction;
 	
 	private ImageButton[] footerTabs = new ImageButton[TAB_NUM];
+	
+	private ImageView unreadMsgIndicator;
 	
 	
 	public static void show(Context context){
@@ -46,6 +50,8 @@ public class Activity_Main extends BaseActivity {
 		setContentView(R.layout.activity_main);
 		//初始化baiduPush
 		initBaiduPush(context);
+		
+		unreadMsgIndicator = (ImageView)findViewById(R.id.unreadMsgIndicator);
 		
 		fragmentManager = getSupportFragmentManager();
         mFragments[0] = fragmentManager.findFragmentById(R.id.fragment_main);
@@ -163,6 +169,24 @@ public class Activity_Main extends BaseActivity {
 	private void initBaiduPush(Context context) {
 //		PushSettings.enableDebugMode(context, true);
 		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "baidu_push_api_key"));
+	}
+
+	
+	/**
+	 * 处理有未读消息时
+	 */
+	@Override
+	public void unreadMsgNotify() {
+		if(unreadMsgIndicator!=null){
+			unreadMsgIndicator.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	@Override
+	public void unreadMsgClear() {
+		if(unreadMsgIndicator!=null){
+			unreadMsgIndicator.setVisibility(View.GONE);
+		}
 	}
 	
 }

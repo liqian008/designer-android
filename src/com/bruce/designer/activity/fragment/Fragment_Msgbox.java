@@ -38,7 +38,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<ListView> {
 	
-	private static final int HANDLER_FLAG_USERBOX = 1;
+	private static final int HANDLER_FLAG_MSGBOX = 1;
 	
 	private View titlebarView;
 
@@ -51,6 +51,9 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	private LayoutInflater inflater;
 	
 	private PullToRefreshListView pullRefreshView; 
+	
+	public MessageListener messageListener;
+	
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -90,6 +93,13 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 //		getMessageBox(0);
 		pullRefreshView.setRefreshing(false);
 	}
+	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		messageListener = (MessageListener) activity;
+	}
+	
 	
 	class MessageBoxAdapter extends BaseAdapter {
 
@@ -192,10 +202,9 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	}
 	
 	/**
-	 * 获取关注列表
-	 * @param xxxId
+	 * 获取消息列表
 	 */
-	private void getMessageBox(final int xxxId) {
+	private void getMessageBox() {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
@@ -205,7 +214,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_USERBOX);
+					message = handler.obtainMessage(HANDLER_FLAG_MSGBOX);
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}
@@ -218,12 +227,23 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
 			switch(msg.what){
-				case HANDLER_FLAG_USERBOX:
+				case HANDLER_FLAG_MSGBOX:
 					pullRefreshView.onRefreshComplete();
 					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
 					if(userFansDataMap!=null){
 						List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
 						if(messageBoxList!=null&&messageBoxList.size()>0){
+							//判断是否有未读消息
+							boolean hasUnreadMsg = false;
+							for(Message message: messageBoxList){
+								if(message.getUnread()!=null&&message.getUnread()>0){
+									hasUnreadMsg = true;//有未读消息
+									break;
+								}
+							}
+							if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
+								messageListener.unreadMsgNotify();
+							}
 							messageBoxAdapter.setMessageBoxList(messageBoxList);
 							messageBoxAdapter.notifyDataSetChanged();
 						}
@@ -249,7 +269,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//获取消息列表
-		getMessageBox(0);
+		getMessageBox();
 	}
 
 
@@ -271,4 +291,11 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		//头像
 		public ImageView msgAvatrView;
 	}
+	
+	
+	public interface MessageListener {
+		public void unreadMsgNotify();
+		public void unreadMsgClear();
+	}
+
 }

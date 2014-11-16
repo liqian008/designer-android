@@ -39,7 +39,6 @@ import com.bruce.designer.crop.ModifyAvatarDialog;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.ImageUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
@@ -57,8 +56,8 @@ public class Activity_UserInfo extends BaseActivity {
 			.getUserId();
 
 	// 修改头像部分的定义-开始
-	private static final int FLAG_CHOOSE_IMG = 5;
-	private static final int FLAG_CHOOSE_PHONE = 6;
+	private static final int FLAG_CHOOSE_ALBUM = 5;
+	private static final int FLAG_CHOOSE_CAMERA = 6;
 	private static final int FLAG_MODIFY_FINISH = 7;
 	private static String localTempImageFileName = "";
 
@@ -188,7 +187,7 @@ public class Activity_UserInfo extends BaseActivity {
 						Intent intent = new Intent();
 						intent.setAction(Intent.ACTION_PICK);
 						intent.setType("image/*");
-						startActivityForResult(intent, FLAG_CHOOSE_IMG);
+						startActivityForResult(intent, FLAG_CHOOSE_ALBUM);
 					}
 
 					// 选择相机拍照
@@ -210,7 +209,7 @@ public class Activity_UserInfo extends BaseActivity {
 								Uri u = Uri.fromFile(f);
 								intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
 								intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
-								startActivityForResult(intent, FLAG_CHOOSE_PHONE);
+								startActivityForResult(intent, FLAG_CHOOSE_CAMERA);
 							} catch (ActivityNotFoundException e) {
 								//
 							}
@@ -257,7 +256,7 @@ public class Activity_UserInfo extends BaseActivity {
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if (requestCode == FLAG_CHOOSE_IMG && resultCode == RESULT_OK) {
+		if (requestCode == FLAG_CHOOSE_ALBUM && resultCode == RESULT_OK) {
 			if (intent != null) {
 				Uri uri = intent.getData();
 				if (!TextUtils.isEmpty(uri.getAuthority())) {
@@ -267,8 +266,7 @@ public class Activity_UserInfo extends BaseActivity {
 						return;
 					}
 					cursor.moveToFirst();
-					String path = cursor.getString(cursor
-							.getColumnIndex(MediaStore.Images.Media.DATA));
+					String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
 					cursor.close();
 					LogUtil.d("path=" + path);
 					Intent newIntent = new Intent(this, Activity_CropAvatar.class);
@@ -281,7 +279,7 @@ public class Activity_UserInfo extends BaseActivity {
 					startActivityForResult(newIntent, FLAG_MODIFY_FINISH);
 				}
 			}
-		} else if (requestCode == FLAG_CHOOSE_PHONE && resultCode == RESULT_OK) {
+		} else if (requestCode == FLAG_CHOOSE_CAMERA && resultCode == RESULT_OK) {
 			File f = new File(FILE_PIC_SCREENSHOT,localTempImageFileName);
 			Intent newIntent = new Intent(this, Activity_CropAvatar.class);
 			newIntent.putExtra("path", f.getAbsolutePath());

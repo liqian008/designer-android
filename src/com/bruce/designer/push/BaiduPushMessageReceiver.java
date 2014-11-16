@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.baidu.frontia.api.FrontiaPushMessageReceiver;
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.BindPushTokenApi;
 import com.bruce.designer.model.result.ApiResult;
@@ -74,8 +75,8 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
         final String pushChannelId = channelId;
     	final String pushUserId = userId;
     	
-        boolean isGuest = false;//AppApplication.isGuest();
-    	LogUtil.d("isGuest: "+ isGuest);
+        boolean isGuest = AppApplication.isGuest();
+    	LogUtil.d("push bind success —— isGuest: "+ isGuest);
     	if(!isGuest){
         	//发起线程，请求用户绑定pushToken
         	new Thread(new Runnable() {
@@ -107,7 +108,7 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
         String messageString = "透传消息 message=\"" + message
                 + "\" customContentString=" + customContentString;
         Log.d(TAG, messageString);
-        UiUtil.showLongToast(context, messageString);
+        //UiUtil.showLongToast(context, messageString);
 
         // 自定义内容获取方式，mykey和myvalue对应透传消息推送时自定义内容中设置的键和值
         if (!TextUtils.isEmpty(customContentString)) {
@@ -145,7 +146,7 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
         String notifyString = "通知点击 title=\"" + title + "\" description=\""
                 + description + "\" customContent=" + customContentString;
         Log.d(TAG, notifyString);
-        UiUtil.showLongToast(context, notifyString);
+        //UiUtil.showLongToast(context, notifyString);
 
         // 自定义内容获取方式，mykey和myvalue对应通知推送时自定义内容中设置的键和值
         if (!TextUtils.isEmpty(customContentString)) {

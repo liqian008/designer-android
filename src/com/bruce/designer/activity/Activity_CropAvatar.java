@@ -1,6 +1,5 @@
 package com.bruce.designer.activity;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,31 +22,30 @@ import com.bruce.designer.R;
 import com.bruce.designer.crop.CropImage;
 import com.bruce.designer.crop.CropImageView;
 
-
 /**
  * 头像裁剪界面
- *
+ * 
  */
-public class Activity_CropAvatar extends Activity implements OnClickListener{
-	
+public class Activity_CropAvatar extends Activity implements OnClickListener {
+
 	private CropImageView mImageView;
 	private Bitmap mBitmap;
-	
+
 	private CropImage mCrop;
-	
+
 	private Button mSave;
-	private Button mCancel,rotateLeft,rotateRight;
+	private Button mCancel, rotateLeft, rotateRight;
 	private String mPath = "CropImageActivity";
 	private String TAG = "";
 	public int screenWidth = 0;
 	public int screenHeight = 0;
-	
+
 	private ProgressBar mProgressBar;
-	
+
 	public static final int SHOW_PROGRESS = 2000;
 
 	public static final int REMOVE_PROGRESS = 2001;
-	private Handler mHandler = new Handler(){
+	private Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 
@@ -63,92 +61,96 @@ public class Activity_CropAvatar extends Activity implements OnClickListener{
 
 		}
 	};
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_modify_avatar);
-        
-        init();
-    }
-    @Override
-    protected void onStop(){
-    	super.onStop();
-    	if(mBitmap!=null){
-    		mBitmap=null;
-    	}
-    }
-    
-    private void init()
-    {
-    	getWindowWH();
-    	mPath = getIntent().getStringExtra("path");
-    	Log.i(TAG, "得到的图片的路径是 = " + mPath);
-        mImageView = (CropImageView) findViewById(R.id.gl_modify_avatar_image);
-        mSave = (Button) this.findViewById(R.id.gl_modify_avatar_save);
-        mCancel = (Button) this.findViewById(R.id.gl_modify_avatar_cancel);
-        rotateLeft = (Button) this.findViewById(R.id.gl_modify_avatar_rotate_left);
-        rotateRight = (Button) this.findViewById(R.id.gl_modify_avatar_rotate_right);
-        mSave.setOnClickListener(this);
-        mCancel.setOnClickListener(this);
-        rotateLeft.setOnClickListener(this);
-        rotateRight.setOnClickListener(this);
-        try{
-            mBitmap = createBitmap(mPath,screenWidth,screenHeight);
-            if(mBitmap==null){
-            	Toast.makeText(Activity_CropAvatar.this, "没有找到图片", 0).show();
-    			finish();
-            }else{
-            	resetImageView(mBitmap);
-            }
-        }catch (Exception e) {
-        	Toast.makeText(Activity_CropAvatar.this, "没有找到图片", 0).show();
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_modify_avatar);
+
+		init();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (mBitmap != null) {
+			mBitmap = null;
+		}
+	}
+
+	private void init() {
+		getWindowWH();
+		mPath = getIntent().getStringExtra("path");
+		Log.i(TAG, "得到的图片的路径是 = " + mPath);
+		mImageView = (CropImageView) findViewById(R.id.gl_modify_avatar_image);
+		mSave = (Button) this.findViewById(R.id.gl_modify_avatar_save);
+		mCancel = (Button) this.findViewById(R.id.gl_modify_avatar_cancel);
+		rotateLeft = (Button) this
+				.findViewById(R.id.gl_modify_avatar_rotate_left);
+		rotateRight = (Button) this
+				.findViewById(R.id.gl_modify_avatar_rotate_right);
+		mSave.setOnClickListener(this);
+		mCancel.setOnClickListener(this);
+		rotateLeft.setOnClickListener(this);
+		rotateRight.setOnClickListener(this);
+		try {
+			mBitmap = createBitmap(mPath, screenWidth, screenHeight);
+			if (mBitmap == null) {
+				Toast.makeText(Activity_CropAvatar.this, "没有找到图片", 0).show();
+				finish();
+			} else {
+				resetImageView(mBitmap);
+			}
+		} catch (Exception e) {
+			Toast.makeText(Activity_CropAvatar.this, "没有找到图片", 0).show();
 			finish();
 		}
-        addProgressbar();       
-    }
-    /**
-     * 获取屏幕的高和宽
-     */
-    private void getWindowWH(){
-		DisplayMetrics dm=new DisplayMetrics();
-		getWindowManager().getDefaultDisplay().getMetrics(dm);
-		screenWidth=dm.widthPixels;
-		screenHeight=dm.heightPixels;
+		addProgressbar();
 	}
-    private void resetImageView(Bitmap b){
-    	 mImageView.clear();
-    	 mImageView.setImageBitmap(b);
-         mImageView.setImageBitmapResetBase(b, true);
-         mCrop = new CropImage(this, mImageView,mHandler);
-         mCrop.crop(b);
-    }
-    
-    public void onClick(View v)
-    {
-    	switch (v.getId())
-    	{
-    	case R.id.gl_modify_avatar_cancel:
-//    		mCrop.cropCancel();
-    		finish();
-    		break;
-    	case R.id.gl_modify_avatar_save:
-    		String path = mCrop.saveToLocal(mCrop.cropAndSave());
-    		Log.i(TAG, "截取后图片的路径是 = " + path);
-    		Intent intent = new Intent();
-    		intent.putExtra("path", path);
-    		setResult(RESULT_OK, intent);
-    		finish();
-    		break;
-    	case R.id.gl_modify_avatar_rotate_left:
-    		mCrop.startRotate(270.f);
-    		break;
-    	case R.id.gl_modify_avatar_rotate_right:
-    		mCrop.startRotate(90.f);
-    		break;
-    		
-    	}
-    }
-    protected void addProgressbar() {
+
+	/**
+	 * 获取屏幕的高和宽
+	 */
+	private void getWindowWH() {
+		DisplayMetrics dm = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(dm);
+		screenWidth = dm.widthPixels;
+		screenHeight = dm.heightPixels;
+	}
+
+	private void resetImageView(Bitmap b) {
+		mImageView.clear();
+		mImageView.setImageBitmap(b);
+		mImageView.setImageBitmapResetBase(b, true);
+		mCrop = new CropImage(this, mImageView, mHandler);
+		mCrop.crop(b);
+	}
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.gl_modify_avatar_cancel:
+			// mCrop.cropCancel();
+			finish();
+			break;
+		case R.id.gl_modify_avatar_save:
+			String path = mCrop.saveToLocal(mCrop.cropAndSave());
+			Log.i(TAG, "截取后图片的路径是 = " + path);
+			Intent intent = new Intent();
+			intent.putExtra("path", path);
+			setResult(RESULT_OK, intent);
+			finish();
+			break;
+		case R.id.gl_modify_avatar_rotate_left:
+			mCrop.startRotate(270.f);
+			break;
+		case R.id.gl_modify_avatar_rotate_right:
+			mCrop.startRotate(90.f);
+			break;
+
+		}
+	}
+
+	protected void addProgressbar() {
 		mProgressBar = new ProgressBar(this);
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -156,9 +158,9 @@ public class Activity_CropAvatar extends Activity implements OnClickListener{
 		addContentView(mProgressBar, params);
 		mProgressBar.setVisibility(View.INVISIBLE);
 	}
-    
-    public Bitmap createBitmap(String path,int w,int h){
-    	try{
+
+	public Bitmap createBitmap(String path, int w, int h) {
+		try {
 			BitmapFactory.Options opts = new BitmapFactory.Options();
 			opts.inJustDecodeBounds = true;
 			// 这里是整个方法的关键，inJustDecodeBounds设为true时将不为图片分配内存。
@@ -196,6 +198,6 @@ public class Activity_CropAvatar extends Activity implements OnClickListener{
 			// TODO: handle exception
 			return null;
 		}
-    }
-   
+	}
+
 }

@@ -201,11 +201,10 @@ public class CropImage
     	try
 		{
 			FileOutputStream fos = new FileOutputStream(path);
-			bm.compress(CompressFormat.JPEG, 75, fos);
+			bm.compress(CompressFormat.JPEG, 95, fos);
 			fos.flush();
 			fos.close();
-		} catch (FileNotFoundException e)
-		{
+		} catch (FileNotFoundException e){
 			e.printStackTrace();
 			return null;
 		} catch (IOException e)
