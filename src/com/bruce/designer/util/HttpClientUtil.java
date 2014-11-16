@@ -2,10 +2,10 @@ package com.bruce.designer.util;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,9 +21,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -154,20 +154,30 @@ public class HttpClientUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String httpPostImage(String url, byte[] data) throws Exception {
-		if(url!=null&&data!=null){
-			MultipartEntity multipartEntity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE,
-					"----------ThIs_Is_tHe_bouNdaRY_$", Charset.defaultCharset());
-			if(data!=null&&data.length>0){
-				multipartEntity.addPart("image", new ByteArrayBody(data,"image/png", "image.jpg"));
+	public static String httpPostImage(String url, Map<String, String> paramMap, String imagePath, byte[] data) throws Exception {
+		HttpParams httpParameters = buildHttpParam();
+		// 封装请求参数  
+		MultipartEntity mpEntity = new MultipartEntity();
+		if (paramMap != null && !paramMap.isEmpty()) {
+			for (Map.Entry<String, String> entry : paramMap.entrySet()) {
+				StringBody par = new StringBody(entry.getValue());
+				mpEntity.addPart(entry.getKey(), par);
 			}
-			
-			HttpPost request = new HttpPost(url);
-			request.setEntity(multipartEntity);
-			request.addHeader("Content-Type", "multipart/form-data; charset=utf-8; boundary=----------ThIs_Is_tHe_bouNdaRY_$");
-	
-			DefaultHttpClient httpClient = new DefaultHttpClient();
-			HttpResponse response = httpClient.execute(request);
+		}
+
+		// 图片
+		File file = new File(imagePath);
+		if (file.exists()) {
+			FileBody filebody = new FileBody(new File(imagePath));
+			mpEntity.addPart("image", filebody);
+			// 使用HttpPost对象设置发送的URL路径
+
+			HttpPost post = new HttpPost(url);
+			// 发送请求体
+			post.setEntity(mpEntity);
+			// 创建一个浏览器对象，以把POST对象向服务器发送，并返回响应消息
+			DefaultHttpClient httpClient = new DefaultHttpClient(httpParameters);
+			HttpResponse response = httpClient.execute(post);
 			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 				// 请求成功
 				String string = EntityUtils.toString(response.getEntity());

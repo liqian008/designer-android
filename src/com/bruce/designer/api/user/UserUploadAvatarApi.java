@@ -13,8 +13,10 @@ import com.bruce.designer.util.ResponseBuilderUtil;
  */
 public class UserUploadAvatarApi extends AbstractApi{
 	
-	public UserUploadAvatarApi(byte[] multipartData){
-		this.multipartData = multipartData;
+	public UserUploadAvatarApi(String avatarPath, byte[] multipartData){
+		multipart = true;
+		//this.multipartData = multipartData;
+		filePath = avatarPath;
 	}
 	
 	@Override

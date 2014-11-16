@@ -294,12 +294,12 @@ public class Activity_UserInfo extends BaseActivity {
 				avatarView.setImageBitmap(b);
 				//展示processBar
 				UiUtil.showShortToast(context, "正在上传新头像，请稍等");
-				final byte[] imageData = ImageUtil.bitmap2Bytes(b);
+				//final byte[] imageData = ImageUtil.bitmap2Bytes(b);
 				//提交更新头像api请求，更新成功后，清除processBar
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						UserUploadAvatarApi api = new UserUploadAvatarApi(imageData);
+						UserUploadAvatarApi api = new UserUploadAvatarApi(path, null);
 						ApiResult apiResult = ApiManager.invoke(context, api);
 						Message message = null;
 						if (apiResult != null && apiResult.getResult() == 1) {

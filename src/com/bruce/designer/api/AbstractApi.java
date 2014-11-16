@@ -15,7 +15,9 @@ public abstract class AbstractApi {
 	/*是否是多媒体请求*/
 	protected boolean multipart = false;
 	
-	protected byte[] multipartData = null;
+	//protected byte[] multipartData = null;
+	protected String filePath;
+	
 	
 	/**
 	 * api url
@@ -85,15 +87,23 @@ public abstract class AbstractApi {
 		this.multipart = multipart;
 	}
 
-	public byte[] getMultipartData() {
-		if(isMultipart()){
-			return multipartData;
-		}
-		return null;
+//	public byte[] getMultipartData() {
+//		if(isMultipart()){
+//			return multipartData;
+//		}
+//		return null;
+//	}
+//
+//	public void setMultipartData(byte[] multipartData) {
+//		this.multipartData = multipartData;
+//	}
+
+	public String getFilePath() {
+		return filePath;
 	}
 
-	public void setMultipartData(byte[] multipartData) {
-		this.multipartData = multipartData;
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
 	}
 	
 //	public final ApiResult processResponse(String response) throws Exception{
@@ -121,7 +131,6 @@ public abstract class AbstractApi {
 //		}
 //		return apiResult;
 //	}
-	
 	
 	
 }
