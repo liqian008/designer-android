@@ -26,36 +26,34 @@
                 android:gravity="center_vertical"
                 android:paddingLeft="10dp"
                 android:text="设置" />
-			
-			
-			<RelativeLayout
-                style="@style/style_settings_item_container"
-                >
+
+            <RelativeLayout
+                android:id="@+id/pushSetting"
+                style="@style/style_settings_item_container" >
 
                 <TextView
-                    android:id="@+id/pushSetting"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:text="消息推送" />
-                
+
                 <include
-                        android:id="@+id/push_settings_switcher"
-                        style="@style/style_settings_switcher"
-                        layout="@layout/switcher_view" />
+                    android:id="@+id/push_settings_switcher"
+                    style="@style/style_settings_switcher"
+                    layout="@layout/switcher_view" />
             </RelativeLayout>
-            
-			 <LinearLayout
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
                 android:background="#fff2f2f2" />
-            
+
             <RelativeLayout
-               style="@style/style_settings_item_container">
+                android:id="@+id/aboutUs"
+                style="@style/style_settings_item_container" >
 
                 <TextView
-                    android:id="@+id/aboutUs"
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
@@ -66,8 +64,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="10.0dip"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
 
@@ -77,10 +75,10 @@
                 android:background="#fff2f2f2" />
 
             <RelativeLayout
-                 style="@style/style_settings_item_container">
+                android:id="@+id/clearCache"
+                style="@style/style_settings_item_container" >
 
                 <TextView
-                    android:id="@+id/clearCache"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_white_bg"
@@ -91,12 +89,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="10.0dip"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
-            
-            
+
             
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -104,32 +101,56 @@
                 android:background="#fff2f2f2" />
 
             <RelativeLayout
-                style="@style/style_settings_item_container">
+                android:id="@+id/mpView"
+                style="@style/style_settings_item_container" >
 
                 <TextView
-                    android:id="@+id/websiteView"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
-                    
+                    android:text="微信公众账号" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10.0dip"
+                    android:src="@drawable/btn_explore_more" />
+            </RelativeLayout>
+            
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="1.0px"
+                android:background="#fff2f2f2" />
+
+            <RelativeLayout
+                android:id="@+id/websiteView"
+                style="@style/style_settings_item_container" >
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_white_bg"
+                    android:gravity="center_vertical"
                     android:text="访问 [网页版] 金玩儿网" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
-                    android:layout_marginRight="10.0dip"
                     android:layout_centerVertical="true"
+                    android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
-            
-             <LinearLayout
+
+            <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
                 android:background="#fff2f2f2" />
 
-            <!-- 
+            <!--
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
@@ -156,7 +177,8 @@
                     android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
-			-->
+            -->
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
@@ -170,13 +192,12 @@
                     android:id="@+id/logout"
                     android:layout_width="fill_parent"
                     android:layout_height="45.0dip"
-                    android:background="@drawable/button_red_bg"
                     android:layout_margin="10dp"
+                    android:background="@drawable/button_red_bg"
                     android:text="注销登录"
                     android:textColor="#ffffffff"
                     android:textSize="18.0sp" />
             </RelativeLayout>
-
         </LinearLayout>
     </ScrollView>
 

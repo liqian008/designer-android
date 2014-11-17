@@ -88,11 +88,10 @@
     <item type="color" name="vpi__bright_foreground_inverse_holo_light">@color/vpi__bright_foreground_holo_dark</item>
     
     
-    
     <color name="share_item_bg_p">#495353</color>
 	<color name="share_item_bg_n">#2f3737</color>
 	
 	
-	<color name="avatar_modify_background">#737373</color>
+	<color name="avatar_modify_background">#a3a3a3</color>
     
 </resources>

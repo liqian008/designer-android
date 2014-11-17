@@ -71,18 +71,18 @@ public class Activity_Settings extends BaseActivity {
 		
 		pushSwitcher = (SwitcherView)findViewById(R.id.push_settings_switcher);
 		//初始化push的选项值
-		boolean pushOn = SharedPreferenceUtil.getSharePreBoolean(context, Config.SP_KEY_BAIDU_PUSH, false);
-		pushSwitcher.setCheckState(pushOn);
+		long pushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH, 31L);
+		pushSwitcher.setCheckState(pushMask!=0);
 		
 		pushSwitcher.OnChangedListener(new OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
 				if (checkState) {
-					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , true);
+					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
 					UiUtil.showShortToast(context,"消息推送开启");
 					PushManager.resumeWork(context);
 				} else {
-					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , false);
+					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , 0L);
 					PushManager.stopWork(context);
 					UiUtil.showShortToast(context, "消息推送关闭");
 				}

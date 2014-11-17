@@ -183,8 +183,8 @@ public class CropImage
 //        }
 
 //        Rect dr = mCrop.mDrawRect;
-        int width = 70;//dr.width(); // modify by yc
-        int height = 70;//dr.height();
+        int width = r.width()>400?400:r.width();//dr.width(); // modify by yc
+        int height = r.height()>400?400:r.height();//dr.height();
         Bitmap croppedImage = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
         {
             Canvas canvas = new Canvas(croppedImage);
@@ -201,7 +201,7 @@ public class CropImage
     	try
 		{
 			FileOutputStream fos = new FileOutputStream(path);
-			bm.compress(CompressFormat.JPEG, 95, fos);
+			bm.compress(CompressFormat.JPEG, 90, fos);
 			fos.flush();
 			fos.close();
 		} catch (FileNotFoundException e){

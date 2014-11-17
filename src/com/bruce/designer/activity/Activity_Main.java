@@ -18,8 +18,10 @@ import com.baidu.android.pushservice.PushManager;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.fragment.Fragment_Msgbox.MessageListener;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.ApplicationUtil;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
 
 public class Activity_Main extends BaseActivity implements MessageListener{
@@ -169,6 +171,11 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 	private void initBaiduPush(Context context) {
 //		PushSettings.enableDebugMode(context, true);
 		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "baidu_push_api_key"));
+		//读取push的settings
+		long pushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
+		if(pushMask==0l){//用户关闭push，则关闭push
+			PushManager.stopWork(context);
+		}
 	}
 
 	

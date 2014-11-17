@@ -14,9 +14,10 @@ import android.widget.RelativeLayout;
 
 import com.bruce.designer.R;
 
-public class SwitcherView extends RelativeLayout implements OnClickListener, AnimationListener {
-	
-	private ImageView bg_on, bg_off, slide;
+public class SwitcherView extends RelativeLayout implements OnClickListener,
+		AnimationListener {
+
+	private ImageView bgOn, bgOff, slide;
 	private boolean ischg, ison;
 	private OnChangedListener listener;
 
@@ -37,8 +38,8 @@ public class SwitcherView extends RelativeLayout implements OnClickListener, Ani
 	@Override
 	protected void onFinishInflate() {
 		super.onFinishInflate();
-		bg_on = (ImageView) this.findViewById(R.id.switcher_bg_on);
-		bg_off = (ImageView) this.findViewById(R.id.switcher_bg_off);
+		bgOn = (ImageView) this.findViewById(R.id.switcher_bg_on);
+		bgOff = (ImageView) this.findViewById(R.id.switcher_bg_off);
 		slide = (ImageView) this.findViewById(R.id.switcher_slide);
 	}
 
@@ -47,10 +48,10 @@ public class SwitcherView extends RelativeLayout implements OnClickListener, Ani
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		super.onLayout(changed, l, t, r, b);
-		int left = bg_on.getLeft();
-		int top = bg_on.getTop();
-		int right = bg_on.getRight();
-		int bottom = bg_on.getBottom();
+		int left = bgOn.getLeft();
+		int top = bgOn.getTop();
+		int right = bgOn.getRight();
+		int bottom = bgOn.getBottom();
 		offside = (right - left) / 2;
 		if (ison) {
 			slide.layout(left + offside, top, right, bottom);
@@ -59,9 +60,9 @@ public class SwitcherView extends RelativeLayout implements OnClickListener, Ani
 		}
 
 		if (ison) {
-			bg_off.setVisibility(INVISIBLE);
+			bgOff.setVisibility(INVISIBLE);
 		} else {
-			bg_off.setVisibility(VISIBLE);
+			bgOff.setVisibility(VISIBLE);
 		}
 	}
 
@@ -90,14 +91,14 @@ public class SwitcherView extends RelativeLayout implements OnClickListener, Ani
 		alpha.setDuration(ANIMATIONTIME);
 		translat.setAnimationListener(this);
 		slide.startAnimation(translat);
-		bg_off.startAnimation(alpha);
+		bgOff.startAnimation(alpha);
 
 	}
 
 	@Override
 	public void onAnimationEnd(Animation animation) {
 		slide.clearAnimation();
-		bg_off.clearAnimation();
+		bgOff.clearAnimation();
 		requestLayout();
 		ischg = false;
 		if (listener != null) {

@@ -287,6 +287,10 @@ public class Activity_UserInfo extends BaseActivity {
 		}else if (requestCode == FLAG_MODIFY_FINISH && resultCode == RESULT_OK) {
 			if (intent != null) {
 				final String path = intent.getStringExtra("path");
+				
+				File file = new File(path);
+				LogUtil.d( "截取到的文件大小是 = " + file.length());
+				
 				LogUtil.d( "截取到的图片路径是 = " + path);
 				Bitmap b = BitmapFactory.decodeFile(path);
 				avatarView.setImageBitmap(b);

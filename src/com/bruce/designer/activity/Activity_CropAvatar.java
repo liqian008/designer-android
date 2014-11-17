@@ -58,7 +58,6 @@ public class Activity_CropAvatar extends Activity implements OnClickListener {
 				mProgressBar.setVisibility(View.INVISIBLE);
 				break;
 			}
-
 		}
 	};
 

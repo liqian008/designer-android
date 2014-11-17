@@ -36,10 +36,10 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="100dp" 
-            android:text="网站主页: jinwanr.com.cn"
+            android:text="访问网站: jinwanr.com.cn"
             android:textSize="13sp"
             />
-
+	
     </RelativeLayout>
 
 </LinearLayout>

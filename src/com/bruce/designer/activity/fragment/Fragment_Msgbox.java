@@ -238,11 +238,12 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 							for(Message message: messageBoxList){
 								if(message.getUnread()!=null&&message.getUnread()>0){
 									hasUnreadMsg = true;//有未读消息
-									break;
 								}
 							}
 							if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
 								messageListener.unreadMsgNotify();
+							}else{
+								messageListener.unreadMsgClear();
 							}
 							messageBoxAdapter.setMessageBoxList(messageBoxList);
 							messageBoxAdapter.notifyDataSetChanged();
