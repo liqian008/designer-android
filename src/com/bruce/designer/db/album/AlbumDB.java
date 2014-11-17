@@ -215,6 +215,60 @@ public class AlbumDB {
 	}
 	
 	
+	public static int updateLikeStatus(Context context, int albumId, int likeStatus) {
+		updateLikeStatus(context, TB_ALBUM_LATEST, albumId, likeStatus);
+		updateLikeStatus(context, TB_ALBUM_RECOMMEND, albumId, likeStatus);
+		updateLikeStatus(context, TB_ALBUM_FOLLOW, albumId, likeStatus);
+		updateLikeStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, likeStatus);
+		updateLikeStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, likeStatus);
+		updateLikeStatus(context, TB_HOT_ALBUM_YEARLY, albumId, likeStatus);
+		return 1;
+	}
+	
+	/**
+	 * 更新是否赞的状态
+	 * @param context
+	 * @param tableName
+	 * @param albumId
+	 * @param likeStatus
+	 * @return
+	 */
+	public static int updateLikeStatus(Context context, String tableName, int albumId, int likeStatus) {
+		SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+		ContentValues values = new ContentValues();  
+		//数据准备
+		values.put("is_like", likeStatus);  
+		return db.update(tableName, values, "id=?", new String[]{String.valueOf(albumId)});
+	}
+	
+	
+	public static int updateFavoriteStatus(Context context, int albumId, int favoriteStatus) {
+		updateFavoriteStatus(context, TB_ALBUM_LATEST, albumId, favoriteStatus);
+		updateFavoriteStatus(context, TB_ALBUM_RECOMMEND, albumId, favoriteStatus);
+		updateFavoriteStatus(context, TB_ALBUM_FOLLOW, albumId, favoriteStatus);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, favoriteStatus);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, favoriteStatus);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_YEARLY, albumId, favoriteStatus);
+		return 1;
+	}
+	
+	/**
+	 * 更新是否收藏的状态
+	 * @param context
+	 * @param tableName
+	 * @param albumId
+	 * @param favoriteStatus
+	 * @return
+	 */
+	public static int updateFavoriteStatus(Context context, String tableName, int albumId, int favoriteStatus) {
+		SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
+		ContentValues values = new ContentValues();  
+		//数据准备
+		values.put("is_favorite", favoriteStatus);
+		return db.update(tableName, values, "id=?", new String[]{String.valueOf(albumId)});
+	}
+	
+	
 	public static int deleteByTab(Context context, int tabIndex){
 		switch(tabIndex){
 		case 0:	return delete(context, TB_ALBUM_RECOMMEND);

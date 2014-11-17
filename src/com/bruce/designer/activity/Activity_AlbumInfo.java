@@ -32,6 +32,7 @@ import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
+import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
@@ -95,6 +96,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private int toId = 0;
 	/*评论tailId*/
 	private long commentsTailId = 0;
+	
+	private InputMethodManager inputManager;
 	
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
@@ -167,12 +170,12 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					NotificationBuilder.createNotification(context, "评论成功...");
 					commentInput.setText("");//清空评论框内容
 					//隐藏软键盘
-					InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 					inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
 					//重新加载评论列表
 					getAlbumComments(0);
 					break;
 				case HANDLER_FLAG_LIKE_POST: //赞成功
+					AlbumDB.updateLikeStatus(context, albumId, 1);//更新db状态
 					NotificationBuilder.createNotification(context, "赞操作成功...");
 					isLike = false;
 					break;
@@ -180,10 +183,12 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 //					NotificationBuilder.createNotification(context, "取消赞成功...");
 //					break;
 				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
+					AlbumDB.updateFavoriteStatus(context, albumId, 1);//更新db状态
 					NotificationBuilder.createNotification(context, "收藏成功...");
 					isFavorite = true;
 					break;
 				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+					AlbumDB.updateFavoriteStatus(context, albumId, 0);//更新db状态
 					NotificationBuilder.createNotification(context, "取消收藏成功...");
 					isFavorite = false;
 					break;
@@ -207,6 +212,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		
+		
 		setContentView(R.layout.activity_album_info);
 		
 		//init view
@@ -455,13 +463,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			viewHolder.commentContentView.setText(comment.getComment());
 			viewHolder.commentTimeView.setText(TimeUtil.displayTime(comment.getCreateTime()));
 			
-			//头像&点击事件
+			//评论事件
 			viewHolder.commentItemView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View v) {
 					toId = comment.getFromId();
 //					UiUtil.showShortToast(context, "toId: "+ toId);
 					commentInput.setText("回复"+comment.getNickname()+": ");
+					commentInput.requestFocus();
+					commentInput.setSelection(commentInput.length());
+					//弹起软键盘
+					inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 				}
 			});
 			//头像&点击事件
@@ -486,6 +498,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				postComment(designerId, toId, commentInput.getText().toString());
 				break;
 			case R.id.btnComment:
+				commentInput.requestFocus();
+				commentInput.setSelection(commentInput.length());
+				//弹起软键盘
+				inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 				break;
 			case R.id.btnLike:
 				if(!isLike){

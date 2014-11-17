@@ -18,9 +18,10 @@ import android.widget.ImageView;
  * 图片工具类
  */
 public class ImageUtil {
-	
+
 	/**
 	 * 从流中获取bitmap，指定压缩尺寸
+	 * 
 	 * @param inputStream
 	 * @param maxWidth
 	 * @param maxHeight
@@ -65,9 +66,10 @@ public class ImageUtil {
 			return decodeByteArray(data, 0, data.length, maxWidth, maxHeight);
 		}
 	}
-	
+
 	/**
 	 * 从文件中获取bitmap，指定压缩尺寸
+	 * 
 	 * @param path
 	 * @param maxWidth
 	 * @param maxHeight
@@ -84,9 +86,10 @@ public class ImageUtil {
 		return BitmapFactory.decodeFile(path,
 				generalOptions(options, maxWidth, maxHeight));
 	}
-	
+
 	/**
 	 * 从文件中获取bitmap，使用原图
+	 * 
 	 * @param path
 	 * @return
 	 */
@@ -103,7 +106,7 @@ public class ImageUtil {
 		options.inSampleSize = 1;
 		return BitmapFactory.decodeFile(path, options);
 	}
-	
+
 	/**
 	 * 
 	 * @param resources
@@ -120,9 +123,10 @@ public class ImageUtil {
 		return BitmapFactory.decodeResource(resources, resId,
 				generalOptions(options, maxWidth, maxHeight));
 	}
-	
+
 	/**
 	 * 从字节数组中获取bitmap，支持缩放
+	 * 
 	 * @param data
 	 * @param offset
 	 * @param length
@@ -141,9 +145,10 @@ public class ImageUtil {
 		return BitmapFactory.decodeByteArray(data, offset, length,
 				generalOptions(options, maxWidth, maxHeight));
 	}
-	
+
 	/**
 	 * 构造压缩参数
+	 * 
 	 * @param options
 	 * @param maxWidth
 	 * @param maxHeight
@@ -174,6 +179,7 @@ public class ImageUtil {
 
 	/**
 	 * imageview中的bitmap是否可用
+	 * 
 	 * @param imageView
 	 * @return
 	 */
@@ -193,6 +199,7 @@ public class ImageUtil {
 
 	/**
 	 * 将bitmap转为byte数组，默认质量为80%
+	 * 
 	 * @param bitmap
 	 * @return
 	 */
@@ -202,6 +209,7 @@ public class ImageUtil {
 
 	/**
 	 * 将bitmap转为byte数组
+	 * 
 	 * @param bitmap
 	 * @param quality
 	 * @return
@@ -219,9 +227,10 @@ public class ImageUtil {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * 将drawable转为bitmap
+	 * 
 	 * @param drawable
 	 * @return
 	 */
@@ -241,5 +250,13 @@ public class ImageUtil {
 		// 把 drawable 内容画到画布中
 		drawable.draw(canvas);
 		return bitmap;
+	}
+
+	public static Bitmap bytes2Bimap(byte[] b) {
+		if (b!=null&&b.length != 0) {
+			return BitmapFactory.decodeByteArray(b, 0, b.length);
+		} else {
+			return null;
+		}
 	}
 }

@@ -22,6 +22,7 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.AlignmentSpan;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -30,6 +31,7 @@ import android.widget.Toast;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
+import com.bruce.designer.activity.fragment.Fragment_MyHome;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.api.user.UserUploadAvatarApi;
@@ -39,6 +41,7 @@ import com.bruce.designer.crop.ModifyAvatarDialog;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.ImageUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
@@ -52,8 +55,7 @@ public class Activity_UserInfo extends BaseActivity {
 	private static final int HANDLER_FLAG_AVATAR_UPLOAD_FAILED = 11;
 	
 
-	private static final int HOST_ID = AppApplication.getUserPassport()
-			.getUserId();
+	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
 
 	// 修改头像部分的定义-开始
 	private static final int FLAG_CHOOSE_ALBUM = 5;
@@ -77,12 +79,11 @@ public class Activity_UserInfo extends BaseActivity {
 	private ImageView avatarView;
 	private TextView modifyAvatarView;
 
-	private TextView nicknameView;
-	private TextView emailTextView;
-	private TextView shopTextView;
-	private TextView introduceTextView;
+	private TextView nicknameView, emailTextView, shopTextView, introduceTextView;
 
 	private int queryUserId;
+	/*头像的数据*/
+	private byte[] avatarData;
 
 	public static void show(Context context, int queryUserId) {
 		Intent intent = new Intent(context, Activity_UserInfo.class);
@@ -173,8 +174,12 @@ public class Activity_UserInfo extends BaseActivity {
 		@Override
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
-			
 			case R.id.titlebar_return:
+				if(avatarData!=null&&avatarData.length>0){
+					Intent intent = new Intent();
+					intent.putExtra("avatarData", avatarData);
+					setResult(Fragment_MyHome.RESULT_CODE_AVATAR_CHANGED, intent);
+				}
 				finish();
 				break;
 			case R.id.modifyAvatar:// 点击更换头像
@@ -296,7 +301,7 @@ public class Activity_UserInfo extends BaseActivity {
 				avatarView.setImageBitmap(b);
 				//展示processBar
 				UiUtil.showShortToast(context, "正在上传新头像，请稍等");
-				//final byte[] imageData = ImageUtil.bitmap2Bytes(b);
+				avatarData = ImageUtil.bitmap2Bytes(b);
 				//提交更新头像api请求，更新成功后，清除processBar
 				new Thread(new Runnable() {
 					@Override
@@ -314,5 +319,12 @@ public class Activity_UserInfo extends BaseActivity {
 				}).start();
 			}
 		}
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+//		boolean flag = true;
+		
+		return super.onKeyDown(keyCode, event);
 	}
 }

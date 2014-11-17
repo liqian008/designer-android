@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -29,10 +30,13 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.ImageUtil;
+import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -50,6 +54,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
 	
+	public static final int REQUEST_CODE_USERINFO = 100;
+	public static final int RESULT_CODE_AVATAR_CHANGED = 200;
 	
 	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
 	
@@ -61,15 +67,11 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	/*设计师头像*/
 	private ImageView avatarView;
 	
-	private View followsView;
-	private View fansView;
+	private View followsView, fansView;
 	
-	private TextView followsNumView;
-	private TextView fansNumView;
+	private TextView followsNumView, fansNumView;
 	
-	private Button btnMyFavorite;
-	private Button btnSendMsg;
-	private Button btnUserInfo;
+	private Button btnMyFavorite, btnSendMsg, btnUserInfo;
 //	private Button btnPubAlbum;//发布新作品
 	
 	private ImageButton btnSettings;
@@ -77,7 +79,6 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private DesignerAlbumsAdapter albumListAdapter; 
 	
 	private int albumTailId = 0;
-	
 	
 	private Handler handler = new Handler(){
 
@@ -282,7 +283,10 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 //				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");
 //				break;
 			case R.id.btnUserInfo:
-				Activity_UserInfo.show(activity, HOST_ID);
+				//Activity_UserInfo.show(activity, HOST_ID);
+				Intent intent = new Intent(activity, Activity_UserInfo.class);
+				intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
+				startActivityForResult(intent, REQUEST_CODE_USERINFO);
 				break;
 			default:
 				break;
@@ -310,4 +314,19 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		getAlbums(HOST_ID, albumTailId);
 	}
 	
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		if(requestCode==REQUEST_CODE_USERINFO){//如果是来自userInfo的回调
+			//检查是否有头像变更
+			if(resultCode==RESULT_CODE_AVATAR_CHANGED){
+				LogUtil.d("1111111111111111");
+				byte[] avatarBytes = intent.getByteArrayExtra("avatarData");
+				if(avatarBytes!=null&&avatarBytes.length>0){
+					avatarView.setImageBitmap(ImageUtil.bytes2Bimap(avatarBytes));
+				}
+			}
+		}
+	}
 }
