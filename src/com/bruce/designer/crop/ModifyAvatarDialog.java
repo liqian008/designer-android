@@ -12,43 +12,44 @@ import com.bruce.designer.R;
 
 public class ModifyAvatarDialog extends Dialog implements OnClickListener {
 
-	private LayoutInflater factory;
-	
-	private Button mImg;
+	private LayoutInflater inflater;
 
-	private Button mPhone;
+	private Button mAlbum;
+
+	private Button mCamera;
 
 	private Button mCancel;
 
 	public ModifyAvatarDialog(Context context) {
 		super(context);
-		factory = LayoutInflater.from(context);
+		inflater = LayoutInflater.from(context);
 	}
 
 	public ModifyAvatarDialog(Context context, int theme) {
 		super(context, theme);
-		factory = LayoutInflater.from(context);
+		inflater = LayoutInflater.from(context);
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.setContentView(factory.inflate(R.layout.avatar_modify_choose_dialog, null));
-		mImg = (Button) this.findViewById(R.id.gl_choose_img);
-		mPhone = (Button) this.findViewById(R.id.gl_choose_phone);
+		this.setContentView(inflater.inflate(
+				R.layout.avatar_modify_choose_dialog, null));
+		mAlbum = (Button) this.findViewById(R.id.gl_choose_album);
+		mCamera = (Button) this.findViewById(R.id.gl_choose_camera);
 		mCancel = (Button) this.findViewById(R.id.gl_choose_cancel);
-		mImg.setOnClickListener(this);
-		mPhone.setOnClickListener(this);
+		mAlbum.setOnClickListener(this);
+		mCamera.setOnClickListener(this);
 		mCancel.setOnClickListener(this);
 	}
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
-		case R.id.gl_choose_img:
+		case R.id.gl_choose_album:
 			doGoToImg();
 			break;
-		case R.id.gl_choose_phone:
+		case R.id.gl_choose_camera:
 			doGoToPhone();
 			break;
 		case R.id.gl_choose_cancel:
@@ -56,9 +57,10 @@ public class ModifyAvatarDialog extends Dialog implements OnClickListener {
 			break;
 		}
 	}
-	
-	public void doGoToImg(){
+
+	public void doGoToImg() {
 	}
-	public void doGoToPhone(){
+
+	public void doGoToPhone() {
 	}
 }

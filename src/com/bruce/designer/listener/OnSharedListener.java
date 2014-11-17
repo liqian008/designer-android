@@ -1,9 +1,9 @@
 package com.bruce.designer.listener;
 
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
 
 public interface OnSharedListener {
 	
-	public void onShare(SharedInfo sharedInfo);
+	public void onShare(GenericSharedInfo sharedInfo);
 	
 }

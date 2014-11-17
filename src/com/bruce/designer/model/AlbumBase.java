@@ -1,7 +1,10 @@
 package com.bruce.designer.model;
 
 import java.io.Serializable;
+import java.security.GeneralSecurityException;
 import java.util.List;
+
+import com.bruce.designer.model.share.GenericSharedInfo;
 
 public class AlbumBase implements Serializable{
 
@@ -27,6 +30,8 @@ public class AlbumBase implements Serializable{
 	private List<AlbumSlide> slideList;
 
 	private AlbumAuthorInfo authorInfo;
+	
+	private GenericSharedInfo genericSharedInfo;
 	
 	public long getBrowseCount() {
 		return browseCount;
@@ -106,6 +111,14 @@ public class AlbumBase implements Serializable{
 
 	public void setItemMobileUrl(String itemMobileUrl) {
 		this.itemMobileUrl = itemMobileUrl;
+	}
+
+	public GenericSharedInfo getGenericSharedInfo() {
+		return genericSharedInfo;
+	}
+
+	public void setGenericSharedInfo(GenericSharedInfo genericSharedInfo) {
+		this.genericSharedInfo = genericSharedInfo;
 	}
 
 }

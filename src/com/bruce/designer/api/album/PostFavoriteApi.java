@@ -15,7 +15,13 @@ import com.bruce.designer.util.ResponseBuilderUtil;
 public class PostFavoriteApi extends AbstractApi { 
 
 	private Map<String, String> paramMap = null;
-
+	
+	/**
+	 * 
+	 * @param albumId
+	 * @param designerId
+	 * @param mode  1为收藏，0为取消收藏
+	 */
 	public PostFavoriteApi(int albumId, int designerId, int mode) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));

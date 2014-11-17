@@ -12,6 +12,8 @@ import com.bruce.designer.db.DBHelper;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
+import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.util.StringUtils;
 
 public class AlbumDB {
 	
@@ -88,6 +90,10 @@ public class AlbumDB {
 			album.setLikeCount(cursor.getInt(cursor.getColumnIndex("like_count")));
 			album.setFavoriteCount(cursor.getInt(cursor.getColumnIndex("favorite_count")));
 			
+			int isLike = cursor.getInt(cursor.getColumnIndex("is_like")); 
+			album.setLike(isLike==1);
+			int isFavorite = cursor.getInt(cursor.getColumnIndex("is_favorite")); 
+			album.setFavorite(isFavorite==1);
 			
 			String designerAvatar = cursor.getString(cursor.getColumnIndex("designer_avatar"));
 			String designerNickname = cursor.getString(cursor.getColumnIndex("designer_nickname"));
@@ -103,6 +109,19 @@ public class AlbumDB {
 			if(initSlides){
 				List<AlbumSlide> albumSlideList = AlbumSlideDB.queryByAlbumId(context, album.getId());
 				album.setSlideList(albumSlideList);
+			}
+			
+			//加载微信分享内容设定
+			String wxShareTitle = (cursor.getString(cursor.getColumnIndex("wx_share_title")));
+			String wxShareContent =(cursor.getString(cursor.getColumnIndex("wx_share_content")));
+			String wxShareLink =(cursor.getString(cursor.getColumnIndex("wx_share_link")));
+			String wxShareIconUrl =(cursor.getString(cursor.getColumnIndex("wx_share_icon_url")));
+			
+			if(!StringUtils.isBlank(wxShareTitle)&&!StringUtils.isBlank(wxShareContent)&&!StringUtils.isBlank(wxShareLink)&&!StringUtils.isBlank(wxShareIconUrl)){
+				GenericSharedInfo genericSharedInfo = new GenericSharedInfo();
+				GenericSharedInfo.WxSharedInfo wxSharedInfo = new GenericSharedInfo.WxSharedInfo(wxShareTitle, wxShareContent, wxShareIconUrl, wxShareLink);
+				genericSharedInfo.setWxSharedInfo(wxSharedInfo);
+				album.setGenericSharedInfo(genericSharedInfo);
 			}
 			albumList.add(album);
 		}
@@ -150,6 +169,9 @@ public class AlbumDB {
 		        values.put("like_count", album.getLikeCount());
 		        values.put("favorite_count", album.getFavoriteCount());
 		        
+		        values.put("is_like", album.isLike()?1:0);
+		        values.put("is_favorite", album.isFavorite()?1:0);
+		        
 		        AlbumAuthorInfo authorInfo = album.getAuthorInfo();
 		        if(authorInfo!=null){
 		        	values.put("designer_avatar", album.getAuthorInfo().getDesignerAvatar());
@@ -158,6 +180,21 @@ public class AlbumDB {
 		        	int followStatus = album.getAuthorInfo().isFollowed()?1:0;
 		        	values.put("designer_follow_status", followStatus);
 		        }
+		        
+		        //保存分享信息
+		        //微信分享
+				if(album.getGenericSharedInfo()!=null&&album.getGenericSharedInfo().getWxSharedInfo()!=null){
+					 values.put("wx_share_title", album.getGenericSharedInfo().getWxSharedInfo().getTitle());
+					 values.put("wx_share_content", album.getGenericSharedInfo().getWxSharedInfo().getContent());
+					 values.put("wx_share_icon_url", album.getGenericSharedInfo().getWxSharedInfo().getIconUrl());
+					 values.put("wx_share_link", album.getGenericSharedInfo().getWxSharedInfo().getLink());
+				}
+				//微薄分享
+				if(album.getGenericSharedInfo()!=null&&album.getGenericSharedInfo().getWeiboSharedInfo()!=null){
+					 values.put("weibo_share_content", album.getGenericSharedInfo().getWeiboSharedInfo().getContent());
+					 values.put("weibo_share_icon_url", album.getGenericSharedInfo().getWeiboSharedInfo().getIconUrl());
+					 values.put("weibo_share_link", album.getGenericSharedInfo().getWeiboSharedInfo().getLink());
+				}
 		        
 		        values.put("create_time", album.getCreateTime());
 		        values.put("update_time", album.getUpdateTime());
@@ -170,6 +207,7 @@ public class AlbumDB {
 		        	AlbumSlideDB.save(context, albumSlideList);
 		        }
 		        
+		       
 			}
 			return albumList.size();
 		}

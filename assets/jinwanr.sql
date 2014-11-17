@@ -14,11 +14,23 @@ CREATE TABLE `tb_album_latest` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
-
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 0,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -40,10 +52,23 @@ CREATE TABLE `tb_album_recommend` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 0,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -64,10 +89,23 @@ CREATE TABLE `tb_album_follow` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 1,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -90,10 +128,23 @@ CREATE TABLE `tb_hot_album_weekly` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 1,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -115,10 +166,23 @@ CREATE TABLE `tb_hot_album_monthly` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 1,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -140,10 +204,23 @@ CREATE TABLE `tb_hot_album_yearly` (
   `comment_count` integer NOT NULL,
   `like_count` integer NOT NULL,
   `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
 
   `designer_avatar` text DEFAULT '',
   `designer_nickname` text DEFAULT '',
   `designer_follow_status` integer default 1,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -160,6 +237,25 @@ CREATE TABLE `tb_album_mine` (
   `cover_large_img` text DEFAULT '',
   `cover_medium_img`text DEFAULT '',
   `cover_small_img` text DEFAULT '',
+  
+  `browse_count` integer NOT NULL,
+  `comment_count` integer NOT NULL,
+  `like_count` integer NOT NULL,
+  `favorite_count` integer NOT NULL,
+  
+  `is_favorite` integer default 0,
+  `is_like` integer default 0,
+  
+  `wx_share_title` text DEFAULT '',
+  `wx_share_content` text DEFAULT '',
+  `wx_share_icon_url` text DEFAULT '',
+  `wx_share_link` text DEFAULT '',
+  
+  `weibo_share_title` text DEFAULT '',
+  `weibo_share_content` text DEFAULT '',
+  `weibo_share_icon_url` text DEFAULT '',
+  `weibo_share_link` text DEFAULT '',
+  
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
 );

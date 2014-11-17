@@ -31,7 +31,7 @@ import com.bruce.designer.listener.OnSharedListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.view.SharePanelView;
@@ -368,7 +368,7 @@ public class Fragment_Main extends BaseFragment{
 	
 	private OnSharedListener onSharedListener = new OnSharedListener(){
 		@Override
-		public void onShare(SharedInfo sharedInfo) {
+		public void onShare(GenericSharedInfo sharedInfo) {
 			SharePanelView sharePanel = new SharePanelView(activity, sharedInfo);
 			sharePanel.show(mainView);
 		}

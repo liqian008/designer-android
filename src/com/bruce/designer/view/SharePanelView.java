@@ -18,7 +18,7 @@ import android.widget.PopupWindow;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSingleClickListener;
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UiUtil;
@@ -36,21 +36,21 @@ public class SharePanelView extends PopupWindow {
 	private View contentView;
 	private ImageView shareToWxFriend;
 	private ImageView shareToWxTimeline;
-	private SharedInfo shareInfo;
+	private GenericSharedInfo generalSharedInfo;
 	
 	
 	Handler shareHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
-			case HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH://图片下载完成
+			case HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH://图片下载完成(微信专用)
 				
-				SharedInfo shareInfo = (SharedInfo) msg.obj;
+				GenericSharedInfo.WxSharedInfo wxSharedInfo = (GenericSharedInfo.WxSharedInfo) msg.obj;
 				WXWebpageObject webpage = new WXWebpageObject();
-				webpage.webpageUrl = shareInfo.getUrl();
+				webpage.webpageUrl = wxSharedInfo.getLink();
 				WXMediaMessage wxMessage = new WXMediaMessage(webpage);
-				wxMessage.title = shareInfo.getTitle();
-				wxMessage.description = shareInfo.getContent();
-				wxMessage.thumbData = shareInfo.getBytes();
+				wxMessage.title = wxSharedInfo.getTitle();
+				wxMessage.description = wxSharedInfo.getContent();
+				wxMessage.thumbData = wxSharedInfo.getIconBytes();
 				
 				SendMessageToWX.Req req = new SendMessageToWX.Req();
 				req.message = wxMessage;
@@ -64,10 +64,10 @@ public class SharePanelView extends PopupWindow {
 		};
 	};
 
-	public SharePanelView(Context context, SharedInfo shareInfo) {
+	public SharePanelView(Context context, GenericSharedInfo generalSharedInfo) {
 		super(context);
 		this.context = context;
-		this.shareInfo = shareInfo;
+		this.generalSharedInfo = generalSharedInfo;
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		contentView = inflater.inflate(R.layout.share_panel, null);
@@ -120,14 +120,13 @@ public class SharePanelView extends PopupWindow {
 	/**
 	 * 分享到微信
 	 * 
-	 * @param shareInfo
+	 * @param sharedInfo
 	 * @param shareScene
 	 */
-	public void shareToWx(SharedInfo shareInfo, int shareScene) {
+	public void shareToWx(GenericSharedInfo sharedInfo, int shareScene) {
 		//需要先启动线程下载图片
-		
-		if (shareInfo != null) {
-			Thread thread = new Thread(new ImageDownloadThread(shareInfo));
+		if (sharedInfo != null) {
+			Thread thread = new Thread(new ImageDownloadThread(sharedInfo.getWxSharedInfo()));
 			thread.start();
 		}
 	}
@@ -142,15 +141,15 @@ public class SharePanelView extends PopupWindow {
 				// 隐藏分享菜单消失
 				break;
 			case R.id.shareToWxTimeline:
-				if (shareInfo != null) {
+				if (generalSharedInfo != null) {
 					UiUtil.showShortToast(context, "分享到朋友圈");
-					shareToWx(shareInfo, SendMessageToWX.Req.WXSceneTimeline);
+					shareToWx(generalSharedInfo, SendMessageToWX.Req.WXSceneTimeline);
 				}
 				break;
 			case R.id.shareToWxFriend:
-				if (shareInfo != null) {
+				if (generalSharedInfo != null) {
 					UiUtil.showShortToast(context, "分享给朋友");
-					shareToWx(shareInfo, SendMessageToWX.Req.WXSceneSession);
+					shareToWx(generalSharedInfo, SendMessageToWX.Req.WXSceneSession);
 				}
 				break;
 			default:
@@ -160,24 +159,25 @@ public class SharePanelView extends PopupWindow {
 	};
 
 	class ImageDownloadThread implements Runnable{
-		private SharedInfo shareInfo;
+		private GenericSharedInfo.WxSharedInfo generalWxSharedInfo;
 		
-		private ImageDownloadThread(SharedInfo shareInfo){
-			this.shareInfo = shareInfo;
+		private ImageDownloadThread(GenericSharedInfo.WxSharedInfo generalWxSharedInfo){
+			this.generalWxSharedInfo = generalWxSharedInfo;
 		}
 		
 		@Override
 		public void run() {
-			LogUtil.d("shareImageUrl: "+shareInfo.getImageUrl());
-			byte[] imageBytes = HttpClientUtil.getBytesFromUrl(shareInfo.getImageUrl());
-			if(imageBytes!=null){
-				Message message = shareHandler.obtainMessage(HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH);
-				shareInfo.setBytes(imageBytes);
-				message.obj = shareInfo;
-				message.sendToTarget();
+			if(generalSharedInfo!=null){
+				LogUtil.d("shareImageUrl: "+generalWxSharedInfo.getIconUrl());
+				byte[] imageBytes = HttpClientUtil.getBytesFromUrl(generalWxSharedInfo.getIconUrl());
+				if(imageBytes!=null){
+					Message message = shareHandler.obtainMessage(HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH);
+					generalWxSharedInfo.setIconBytes(imageBytes);
+					message.obj = generalWxSharedInfo;
+					message.sendToTarget();
+				}
 			}
 		}
-		
 	}
 	
 }

@@ -1,22 +1,22 @@
 package com.bruce.designer;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Handler;
+
 import com.baidu.frontia.FrontiaApplication;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
-
-import android.app.Application;
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Handler;
 
 public class AppApplication extends FrontiaApplication {
 

@@ -16,7 +16,8 @@ import com.bruce.designer.R;
 import com.bruce.designer.listener.OnSharedListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.model.share.SharedInfoBuilder;
 import com.bruce.designer.view.holder.AlbumViewHolder;
 
 /**
@@ -76,7 +77,7 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 			final Album album = getItem(position);
 			if(convertView==null){
 				viewHolder=new AlbumViewHolder();
-				//TODO 使用convertView
+				//使用convertView
 				if(album!=null){
 //					View albumItemView = null;
 					convertView = LayoutInflater.from(context).inflate(R.layout.item_designer_album_view, null);
@@ -115,12 +116,12 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 			
 			if(onShareListener!=null){//将分享事件传出，交由外层处理逻辑
 				//构造分享对象
-				String itemMobileUrl = album.getItemMobileUrl();
-				final SharedInfo sharedInfo = new SharedInfo(album.getTitle(), album.getRemark(), itemMobileUrl, album.getCoverSmallImg());
+				final GenericSharedInfo generalSharedInfo = album.getGenericSharedInfo(); 
+				
 				viewHolder.btnShare.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
-						onShareListener.onShare(sharedInfo);
+						onShareListener.onShare(generalSharedInfo);
 					}
 				});
 			}

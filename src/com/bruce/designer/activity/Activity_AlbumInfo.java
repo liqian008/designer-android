@@ -39,9 +39,10 @@ import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -57,7 +58,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	private static final int HANDLER_FLAG_COMMENT_POST = 11;
 	private static final int HANDLER_FLAG_LIKE_POST = 21;
+	private static final int HANDLER_FLAG_UNLIKE_POST = 22;
 	private static final int HANDLER_FLAG_FAVORITE_POST = 31;
+	private static final int HANDLER_FLAG_UNFAVORITE_POST = 32;
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -69,16 +72,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	private TextView albumContentView;
 	
 	private TextView commentView;
+	/*按钮*/
+	private Button btnUserHome, btnBrowse, btnLike, btnComment, btnFavorite, btnShare;
 	
-	private Button btnUserHome;
-	
-	private Button btnBrowse;
-	private Button btnLike;
-	private Button btnComment;
-	private Button btnFavorite;
-	private Button btnShare;
-	
-	private SharedInfo sharedInfo;
+	private GenericSharedInfo generalSharedInfo;
 	
 	private PullToRefreshListView pullRefresh;
 	private ListView commentListView;
@@ -89,6 +86,11 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	private Integer albumId;
 	private Integer designerId;
+	/*是否赞过*/
+	private boolean isLike;
+	/*是否收藏过*/
+	private boolean isFavorite;
+	
 	/*回复评论时的接收人，可能不是designerId*/
 	private int toId = 0;
 	/*评论tailId*/
@@ -103,15 +105,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					if(albumDataMap!=null){
 						Album albumInfo = (Album) albumDataMap.get("albumInfo");
 						List<AlbumSlide> slideList = albumInfo.getSlideList();
-						boolean isLiked = albumInfo.isLike();
-						boolean isFavorited = albumInfo.isFavorite();
-						if(!isLiked){
+						isLike = albumInfo.isLike();
+						isFavorite = albumInfo.isFavorite();
+						if(isLike){//赞操作
+							btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
+						}else{
 							btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
-							btnLike.setOnClickListener(onclickListener);
 						}
-						if(!isFavorited){
+						if(isFavorite){
+							btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+						}else{
 							btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
-							btnFavorite.setOnClickListener(onclickListener);
 						}
 						
 						//先将slide列表存入db
@@ -170,15 +174,25 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					break;
 				case HANDLER_FLAG_LIKE_POST: //赞成功
 					NotificationBuilder.createNotification(context, "赞操作成功...");
+					isLike = false;
 					break;
+//				case HANDLER_FLAG_UNLIKE_POST: //取消赞成功
+//					NotificationBuilder.createNotification(context, "取消赞成功...");
+//					break;
 				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
 					NotificationBuilder.createNotification(context, "收藏成功...");
+					isFavorite = true;
+					break;
+				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+					NotificationBuilder.createNotification(context, "取消收藏成功...");
+					isFavorite = false;
 					break;
 				default:
 					break;
 			}
 		};
 	};
+	
 	
 	
 	
@@ -259,11 +273,25 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			albumId = album.getId();
 			designerId = album.getUserId();
 			
+			isLike = album.isLike();
+			isFavorite = album.isFavorite();
+			if(isLike){
+				btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
+			}else{
+				btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
+			}
+			if(isFavorite){
+				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+			}else{
+				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
+			}
+			btnLike.setOnClickListener(onclickListener);
+			btnFavorite.setOnClickListener(onclickListener);
+			
 			//读取上个activity传入的authorInfo值
 			if(album!=null&&albumId!=null){
 				//构造分享对象
-				String itemMobileUrl = album.getItemMobileUrl();
-				sharedInfo = new SharedInfo(album.getTitle(), album.getRemark(), itemMobileUrl, album.getCoverSmallImg());
+				generalSharedInfo = album.getGenericSharedInfo();
 				
 				final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 				if(authorInfo!=null){
@@ -328,15 +356,16 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					commentsAdapter.notifyDataSetChanged();
 				}
 				
-				//获取实时图片列表
+				//获取实时专辑信息
 				getAlbumInfo(album.getId());
 				
 				pullRefresh.setRefreshing(false);
 			}
 		}
 	}
-		
+
 	
+
 	private void getAlbumInfo(final int albumId) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
@@ -459,18 +488,23 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			case R.id.btnComment:
 				break;
 			case R.id.btnLike:
-				postLike(albumId, designerId);
-				btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_like), null,null,null);
-				btnLike.setOnClickListener(null);
+				if(!isLike){
+					postLike(albumId, designerId, 1);
+					btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
+					btnLike.setOnClickListener(null);
+				}
 				break;
 			case R.id.btnFavorite:
-				postFavorite(albumId, designerId);
-				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorite), null,null,null);
-				btnFavorite.setOnClickListener(null);
+				if(isFavorite){//取消收藏
+					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
+				}else{//收藏
+					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+				}
+				postFavorite(albumId, designerId, isFavorite?0:1);
 				break;
 			case R.id.btnShare:
 				//构造分享对象
-				SharePanelView sharePanel = new SharePanelView(context, sharedInfo);
+				SharePanelView sharePanel = new SharePanelView(context, generalSharedInfo);
 				sharePanel.show(findViewById(R.id.commentPanel));
 				break;
 			default:
@@ -530,16 +564,20 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/**
 	 * 发起赞
 	 */
-	private void postLike(final int albumId, final int designerId) {
+	private void postLike(final int albumId, final int designerId, final int mode) {
 		//启动线程post数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Message message;
-				PostLikeApi api = new PostLikeApi(albumId, designerId);
+				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
+					if(mode==1){
+						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
+					}else{
+						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
+					}
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}
@@ -551,16 +589,20 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/**
 	 * 发起收藏
 	 */
-	private void postFavorite(final int albumId, final int designerId) {
+	private void postFavorite(final int albumId, final int designerId, final int mode) {
 		//启动线程post数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Message message;
-				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, 1);
+				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
 				ApiResult jsonResult = ApiManager.invoke(context, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
+					if(mode==1){
+						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
+					}else{
+						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
+					}
 					message.obj = jsonResult.getData();
 					message.sendToTarget();
 				}

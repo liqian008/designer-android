@@ -9,6 +9,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_UserHome;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
@@ -16,7 +17,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
-import com.bruce.designer.model.share.SharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
@@ -106,6 +107,17 @@ public class AlbumViewHolder {
 			btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
 			btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
 			btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
+			
+			if(album.isFavorite()){
+				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+			}else{
+				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
+			}
+			if(album.isLike()){
+				btnLike.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.icon_liked), null,null,null);
+			}else{
+				btnLike.setCompoundDrawablesWithIntrinsicBounds(context.getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
+			}
 			
 			
 //			//评论数量

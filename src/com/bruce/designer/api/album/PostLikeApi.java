@@ -16,10 +16,11 @@ public class PostLikeApi extends AbstractApi {
 
 	private Map<String, String> paramMap = null;
 
-	public PostLikeApi(int albumId, int designerId) {
+	public PostLikeApi(int albumId, int designerId, int mode) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 		paramMap.put("designerId", String.valueOf(designerId));
+		paramMap.put("mode", String.valueOf(mode));
 	}
 
 	
