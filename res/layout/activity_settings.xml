@@ -37,11 +37,31 @@
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:text="消息推送" />
+                
+                <TextView
+                    android:id="@+id/pushStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/button_white_bg"
+                    android:gravity="center_vertical"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="30.0dip"
+                    android:text="" />
+                
+                 <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10.0dip"
+                    android:src="@drawable/btn_explore_more" />
 
+                <!-- 
                 <include
                     android:id="@+id/push_settings_switcher"
                     style="@style/style_settings_switcher"
                     layout="@layout/switcher_view" />
+                 -->
             </RelativeLayout>
 
             <LinearLayout

@@ -1,10 +1,8 @@
 package com.bruce.designer.activity;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.KeyEvent;
 import android.view.Window;
 
 import com.baidu.mobstat.StatService;

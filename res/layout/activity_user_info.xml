@@ -43,7 +43,7 @@
                     android:layout_toRightOf="@+id/avatarBox"
                     android:gravity="center_vertical"
                     android:paddingLeft="10.0dip"
-                    android:text="更换头像"
+                    android:text="头像"
                     android:textSize="16.0sp" />
 
                 <ImageView

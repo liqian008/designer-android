@@ -15,7 +15,6 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.baidu.android.pushservice.PushManager;
-import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
@@ -23,20 +22,17 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
-import com.bruce.designer.view.SwitcherView;
-import com.bruce.designer.view.SwitcherView.OnChangedListener;
 
 public class Activity_Settings extends BaseActivity {
 
 	private View titlebarView;
 	private TextView titleView;
-	private View aboutUsView;
-	private View clearCacheView;
-	private View websiteView;
-	private SwitcherView pushSwitcher;
+	private View pushSettingsView, aboutUsView, clearCacheView, websiteView;
+	private TextView pushStatusView;
+//	private SwitcherView pushSwitcher;
 
 	private Button btnLogout;
-
+	
 	public static void show(Context context) {
 		Intent intent = new Intent(context, Activity_Settings.class);
 		context.startActivity(intent);
@@ -46,7 +42,7 @@ public class Activity_Settings extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
-
+		
 		initView();
 	}
 
@@ -57,6 +53,10 @@ public class Activity_Settings extends BaseActivity {
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("设置");
 
+		pushStatusView = (TextView)findViewById(R.id.pushStatus);
+		pushSettingsView = findViewById(R.id.pushSetting);
+		pushSettingsView.setOnClickListener(listener);
+		
 		aboutUsView = findViewById(R.id.aboutUs);
 		aboutUsView.setOnClickListener(listener);
 
@@ -68,31 +68,21 @@ public class Activity_Settings extends BaseActivity {
 
 		btnLogout = (Button) findViewById(R.id.logout);
 		btnLogout.setOnClickListener(listener);
-		
-		pushSwitcher = (SwitcherView)findViewById(R.id.push_settings_switcher);
-		//初始化push的选项值
-		long pushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH, 31L);
-		pushSwitcher.setCheckState(pushMask!=0);
-		
-		pushSwitcher.OnChangedListener(new OnChangedListener() {
-			@Override
-			public void OnChanged(boolean checkState) {
-				if (checkState) {
-					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
-					UiUtil.showShortToast(context,"消息推送开启");
-					PushManager.resumeWork(context);
-				} else {
-					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH , 0L);
-					PushManager.stopWork(context);
-					UiUtil.showShortToast(context, "消息推送关闭");
-				}
-				StatService.onEvent(context, "设置消息推送", "新状态: "+checkState);
-			}
-		});
 	}
-
 	
-
+	@Override
+	protected void onResume() {
+		super.onResume();
+		//读取push设置
+		long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
+		if(cachedPushMask>0){
+			pushStatusView.setText("已开启");
+		}else{
+			pushStatusView.setText("已关闭");
+		}
+	}
+	
+	
 	/**
 	 * 创建一个包含自定义view的PopupWindow
 	 * 
@@ -125,6 +115,13 @@ public class Activity_Settings extends BaseActivity {
 				break;
 			case R.id.btnSettings:
 				Activity_Settings.show(context);
+				break;
+			case R.id.pushSetting:
+				if(AppApplication.isGuest()){
+					UiUtil.showShortToast(context, "游客无法进行推送设置");
+				}else{
+					Activity_Settings_Push.show(context);
+				}
 				break;
 			case R.id.aboutUs:
 				Activity_AboutUs.show(context);
@@ -162,8 +159,4 @@ public class Activity_Settings extends BaseActivity {
 			}
 		}
 	};
-	
-	
-	
-	
 }

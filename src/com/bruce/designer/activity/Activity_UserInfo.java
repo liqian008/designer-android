@@ -64,12 +64,10 @@ public class Activity_UserInfo extends BaseActivity {
 	private static String localTempImageFileName = "";
 
 	public static final String IMAGE_PATH = "My_weixin";
-	public static final File FILE_SDCARD = Environment
-			.getExternalStorageDirectory();
+	public static final File FILE_SDCARD = Environment.getExternalStorageDirectory();
 
 	public static final File FILE_LOCAL = new File(FILE_SDCARD, IMAGE_PATH);
-	public static final File FILE_PIC_SCREENSHOT = new File(FILE_LOCAL,
-			"images/screenshots");
+	public static final File FILE_PIC_SCREENSHOT = new File(FILE_LOCAL, "images/screenshots");
 	// 修改头像部分的定义-结束
 
 	private View titlebarView;
@@ -101,12 +99,7 @@ public class Activity_UserInfo extends BaseActivity {
 					if (userinfo != null && userinfo.getId() > 0) {
 						// 刷新用户资料
 						if (userinfo.getHeadImg() != null) {
-							ImageLoader
-									.getInstance()
-									.displayImage(
-											userinfo.getHeadImg(),
-											avatarView,
-											UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 						}
 						nicknameView.setText(userinfo.getNickname());
 						emailTextView.setText(userinfo.getUsername());
@@ -146,7 +139,12 @@ public class Activity_UserInfo extends BaseActivity {
 
 		avatarView = (ImageView) findViewById(R.id.avatar);
 		modifyAvatarView = (TextView) findViewById(R.id.modifyAvatar);
-		modifyAvatarView.setOnClickListener(listener);
+		if(AppApplication.isHost(queryUserId)){
+			modifyAvatarView.setText("修改头像");
+			modifyAvatarView.setOnClickListener(listener);
+		}else{
+			modifyAvatarView.setText("头像");
+		}
 
 		nicknameView = (TextView) findViewById(R.id.nickNameTextView);
 		emailTextView = (TextView) findViewById(R.id.emailTextView);
@@ -155,8 +153,7 @@ public class Activity_UserInfo extends BaseActivity {
 
 		User userinfo = SharedPreferenceUtil.readObjectFromSp(User.class,
 				Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
-		if (queryUserId == HOST_ID
-				&& (userinfo != null && userinfo.getId() != null && userinfo
+		if (queryUserId == HOST_ID && (userinfo != null && userinfo.getId() != null && userinfo
 						.getId() > 0)) {
 			// 从sp中读取用户资料
 			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
@@ -175,62 +172,60 @@ public class Activity_UserInfo extends BaseActivity {
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.titlebar_return:
-				if(avatarData!=null&&avatarData.length>0){
-					Intent intent = new Intent();
-					intent.putExtra("avatarData", avatarData);
-					setResult(Fragment_MyHome.RESULT_CODE_AVATAR_CHANGED, intent);
-				}
+				processBeforeFinish();
 				finish();
 				break;
 			case R.id.modifyAvatar:// 点击更换头像
-				// 调用选择那种方式的dialog
-				ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
-					// 选择本地相册
-					@Override
-					public void doGoToImg() {
-						this.dismiss();
-						Intent intent = new Intent();
-						intent.setAction(Intent.ACTION_PICK);
-						intent.setType("image/*");
-						startActivityForResult(intent, FLAG_CHOOSE_ALBUM);
-					}
+				if(AppApplication.isHost(queryUserId)){
+					// 调用选择那种方式的dialog
+					ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
+						// 选择本地相册
+						@Override
+						public void doGoToImg() {
+							this.dismiss();
+							Intent intent = new Intent();
+							intent.setAction(Intent.ACTION_PICK);
+							intent.setType("image/*");
+							startActivityForResult(intent, FLAG_CHOOSE_ALBUM);
+						}
 
-					// 选择相机拍照
-					@Override
-					public void doGoToPhone() {
-						this.dismiss();
-						String status = Environment.getExternalStorageState();
-						if (status.equals(Environment.MEDIA_MOUNTED)) {
-							try {
-								localTempImageFileName = "";
-								localTempImageFileName = String.valueOf(System.currentTimeMillis()) + ".png";
-								File filePath = FILE_PIC_SCREENSHOT;
-								if (!filePath.exists()) {
-									filePath.mkdirs();
+						// 选择相机拍照
+						@Override
+						public void doGoToPhone() {
+							this.dismiss();
+							String status = Environment.getExternalStorageState();
+							if (status.equals(Environment.MEDIA_MOUNTED)) {
+								try {
+									localTempImageFileName = "";
+									localTempImageFileName = String.valueOf(System.currentTimeMillis()) + ".png";
+									File filePath = FILE_PIC_SCREENSHOT;
+									if (!filePath.exists()) {
+										filePath.mkdirs();
+									}
+									Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+									File f = new File(filePath, localTempImageFileName);
+									// localTempImgDir和localTempImageFileName是自己定义的名字
+									Uri u = Uri.fromFile(f);
+									intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
+									intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
+									startActivityForResult(intent, FLAG_CHOOSE_CAMERA);
+								} catch (ActivityNotFoundException e) {
+									//
 								}
-								Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-								File f = new File(filePath, localTempImageFileName);
-								// localTempImgDir和localTempImageFileName是自己定义的名字
-								Uri u = Uri.fromFile(f);
-								intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
-								intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
-								startActivityForResult(intent, FLAG_CHOOSE_CAMERA);
-							} catch (ActivityNotFoundException e) {
-								//
 							}
 						}
-					}
-				};
-				AlignmentSpan span = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER);
-				AbsoluteSizeSpan span_size = new AbsoluteSizeSpan(25, true);
-				SpannableStringBuilder spannable = new SpannableStringBuilder();
-				String dTitle = "请选择图片";
-				spannable.append(dTitle);
-				spannable.setSpan(span, 0, dTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				spannable.setSpan(span_size, 0, dTitle.length(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				modifyAvatarDialog.setTitle(spannable);
-				modifyAvatarDialog.show();
+					};
+					AlignmentSpan span = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER);
+					AbsoluteSizeSpan span_size = new AbsoluteSizeSpan(25, true);
+					SpannableStringBuilder spannable = new SpannableStringBuilder();
+					String dTitle = "请选择图片";
+					spannable.append(dTitle);
+					spannable.setSpan(span, 0, dTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					spannable.setSpan(span_size, 0, dTitle.length(),
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+					modifyAvatarDialog.setTitle(spannable);
+					modifyAvatarDialog.show();
+				}
 
 				break;
 			default:
@@ -323,8 +318,18 @@ public class Activity_UserInfo extends BaseActivity {
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-//		boolean flag = true;
-		
+		if (keyCode == KeyEvent.KEYCODE_BACK) {// 退出
+			processBeforeFinish();
+		}
 		return super.onKeyDown(keyCode, event);
+	}
+	
+	
+	private void processBeforeFinish() {
+		if(avatarData!=null&&avatarData.length>0){
+			Intent intent = new Intent();
+			intent.putExtra("avatarData", avatarData);
+			setResult(Fragment_MyHome.RESULT_CODE_AVATAR_CHANGED, intent);
+		}
 	}
 }
