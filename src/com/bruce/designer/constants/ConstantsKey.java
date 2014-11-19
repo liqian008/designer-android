@@ -7,6 +7,8 @@ public interface ConstantsKey {
 	public static final String BUNDLE_ALBUM_INFO = "bundle_album_info";
 	
 	public static final String BUNDLE_ALBUM_AUTHOR_INFO = "bundle_album_author_info";
+	
+	public static final String BUNDLE_ALBUM_GOTO_COMMENT = "bundle_album_goto_comment";
 
 	/*用户ID*/
 	public static final String BUNDLE_USER_INFO_ID = "bundle_user_info_id";

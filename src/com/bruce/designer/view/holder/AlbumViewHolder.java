@@ -144,7 +144,7 @@ public class AlbumViewHolder {
 			albumItemView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
-					Activity_AlbumInfo.show(context, album, authorInfo);
+					Activity_AlbumInfo.show(context, album, authorInfo, false);
 				}
 			});
 		}

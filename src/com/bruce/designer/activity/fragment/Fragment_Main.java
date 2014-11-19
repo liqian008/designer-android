@@ -18,6 +18,7 @@ import android.widget.ListView;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
@@ -445,6 +446,13 @@ public class Fragment_Main extends BaseFragment{
 		public void onLike(int albumId, int designerId, int mode) {
 			if(!AppApplication.isGuest()){
 				postLike(albumId, designerId, mode);
+			}
+		}
+		
+		@Override
+		public void onComment(Album album) {
+			if(album!=null&&album.getAuthorInfo()!=null){
+				Activity_AlbumInfo.show(activity, album, album.getAuthorInfo(), true);
 			}
 		}
 

@@ -124,6 +124,14 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					}
 				});
 				
+				//评论事件
+				viewHolder.btnComment.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						onAlbumListener.onComment(album);
+					}
+				});
+				
 				//收藏&取消收藏事件
 				viewHolder.btnFavorite.setOnClickListener(new OnSingleClickListener() {
 					@Override

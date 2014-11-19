@@ -198,12 +198,18 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	};
 	
 	
-	
-	
-	public static void show(Context context, Album album, AlbumAuthorInfo authorInfo){
+	/**
+	 * 
+	 * @param context
+	 * @param album
+	 * @param authorInfo
+	 * @param isGotoComment 来路是否是评论按钮
+	 */
+	public static void show(Context context, Album album, AlbumAuthorInfo authorInfo, boolean isGotoComment){
 		Intent intent = new Intent(context, Activity_AlbumInfo.class);
 		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO, album);
 		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO, authorInfo);
+		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_GOTO_COMMENT, isGotoComment);//
 		context.startActivity(intent);
 	}
 	
@@ -212,7 +218,11 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-		
+		boolean isGotoComment = getIntent().getBooleanExtra(ConstantsKey.BUNDLE_ALBUM_GOTO_COMMENT, false);
+		if(isGotoComment){//如果是点击评论按钮进入的
+			//弹起软键盘
+			inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+		}
 		
 		setContentView(R.layout.activity_album_info);
 		
