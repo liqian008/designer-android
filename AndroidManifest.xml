@@ -44,7 +44,7 @@
         android:theme="@style/AppTheme" >
         
         <!-- baiduPush  渠道名字（不能使用全数字）  -->
-        <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr" />
+        <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr_android" />
         <!-- baiduStat 您从百度网站获取的 APP	KEY  -->
         <meta-data android:name="BaiduMobAd_STAT_ID" android:value="540d890b4c" /> 
          <!-- 微信开放平台的appid，可使用登录、分享功能 -->

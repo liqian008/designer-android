@@ -139,7 +139,7 @@ public class Activity_UserInfo extends BaseActivity {
 
 		avatarView = (ImageView) findViewById(R.id.avatar);
 		modifyAvatarView = (TextView) findViewById(R.id.modifyAvatar);
-		if(AppApplication.isHost(queryUserId)){
+		if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
 			modifyAvatarView.setText("修改头像");
 			modifyAvatarView.setOnClickListener(listener);
 		}else{
@@ -176,7 +176,7 @@ public class Activity_UserInfo extends BaseActivity {
 				finish();
 				break;
 			case R.id.modifyAvatar:// 点击更换头像
-				if(AppApplication.isHost(queryUserId)){
+				if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
 					// 调用选择那种方式的dialog
 					ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
 						// 选择本地相册
