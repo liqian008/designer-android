@@ -148,9 +148,21 @@ public class AlbumViewHolder {
 				}
 			});
 		}
-		
 	}
 	
+	public synchronized long addLike(Album album, int step){
+		long likeCount = album.getLikeCount();
+		long newLikeCount = likeCount + step;
+		btnLike.setText("喜欢("+String.valueOf(newLikeCount)+")");
+		return newLikeCount;
+	}
+	
+	public synchronized long addFavorite(Album album, int step){
+		long favoriteCount = album.getFavoriteCount();
+		long newFavoriteCount = favoriteCount + step;
+		btnFavorite.setText("收藏("+String.valueOf(newFavoriteCount)+")");
+		return newFavoriteCount;
+	}
 	
 	
 }

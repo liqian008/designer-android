@@ -6,6 +6,8 @@ public class Config {
 	
 	public static final boolean DEBUG = true;
 	
+	public static final int CLIENT_TYPE = 2;
+	
 	/*游客身份的uid*/
 	public static int GUEST_USER_ID = 100000;
 	
@@ -22,9 +24,9 @@ public class Config {
 	//online website	
 	public static final String JINWAN_WEB_DOMAIN = "http://www.jinwanr.com";
 	//online mcap api	
-	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
+//	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
 	//test mcap api
-//	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
+	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
 
 	
 	

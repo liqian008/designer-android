@@ -6,9 +6,12 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.api.AbstractApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
@@ -20,8 +23,14 @@ import com.bruce.designer.util.ResponseBuilderUtil;
  */
 public class SystemCheckApi extends AbstractApi {
 	
+	private Map<String, String> paramMap = null;
+	
 	public SystemCheckApi(){
 		super();
+		paramMap = new HashMap<String, String>();
+		paramMap.put("clientType", String.valueOf(Config.CLIENT_TYPE));
+		paramMap.put("versionCode", String.valueOf(AppApplication.getVersionCode()));
+		paramMap.put("channel", String.valueOf(AppApplication.getChannel()));
 	}
 	
 	@Override
@@ -49,7 +58,9 @@ public class SystemCheckApi extends AbstractApi {
 
 	@Override
 	protected void fillDataMap(Map<String, String> dataMap) {
-		//do nothing
+		if(paramMap!=null){
+			dataMap.putAll(paramMap);
+		}
 	}
 
 	@Override

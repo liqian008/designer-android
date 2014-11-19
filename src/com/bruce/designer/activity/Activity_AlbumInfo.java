@@ -43,7 +43,6 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
-import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -175,7 +174,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					getAlbumComments(0);
 					break;
 				case HANDLER_FLAG_LIKE_POST: //赞成功
-					AlbumDB.updateLikeStatus(context, albumId, 1);//更新db状态
+					AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
 					NotificationBuilder.createNotification(context, "赞操作成功...");
 					isLike = false;
 					break;
@@ -183,12 +182,12 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 //					NotificationBuilder.createNotification(context, "取消赞成功...");
 //					break;
 				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
-					AlbumDB.updateFavoriteStatus(context, albumId, 1);//更新db状态
+					AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
 					NotificationBuilder.createNotification(context, "收藏成功...");
 					isFavorite = true;
 					break;
 				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
-					AlbumDB.updateFavoriteStatus(context, albumId, 0);//更新db状态
+					AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
 					NotificationBuilder.createNotification(context, "取消收藏成功...");
 					isFavorite = false;
 					break;

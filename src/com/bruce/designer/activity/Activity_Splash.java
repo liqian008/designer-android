@@ -27,6 +27,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 
 public class Activity_Splash extends BaseActivity {
@@ -143,10 +144,15 @@ public class Activity_Splash extends BaseActivity {
 		String message = versionCheckResult.getUpdateRemark();
 		String apkUrl = versionCheckResult.getUpdateUrl();
 		
+		String agreeText = versionCheckResult.getAgreeText();
+		agreeText = StringUtils.isBlank(agreeText)?"立刻体验":agreeText;
+		String deniedText = versionCheckResult.getDeniedText();
+		deniedText = StringUtils.isBlank(deniedText)?"下次再说":deniedText;
+		
 		if (updateStatus == 1) {
-			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, "立即体验", new DownloadListener(apkUrl), "下次再说", ignoreListener);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, ignoreListener);
 		}else if (updateStatus == 2) {
-			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, "立即体验", new DownloadListener(apkUrl), null, null);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, quitListener);
 		}else{
 			//无更新
 			jumpToNextActivity();
@@ -196,6 +202,17 @@ public class Activity_Splash extends BaseActivity {
 		public void onClick(DialogInterface dialog, int which) {
 			dialog.dismiss();
 			jumpToNextActivity();
+		}
+	};
+	
+	/**
+	 * 退出的listener
+	 */
+	private DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			dialog.dismiss();
+			AppManager.getInstance().exitApp(context);
 		}
 	};
 	

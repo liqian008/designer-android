@@ -13,11 +13,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.listener.OnSharedListener;
+import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.share.GenericSharedInfo;
-import com.bruce.designer.model.share.SharedInfoBuilder;
 import com.bruce.designer.view.holder.AlbumViewHolder;
 
 /**
@@ -26,9 +25,10 @@ import com.bruce.designer.view.holder.AlbumViewHolder;
  *
  */
 public class DesignerAlbumsAdapter extends BaseAdapter {
+	
 		private List<Album> albumList;
 		private Context context;
-		private OnSharedListener onShareListener; 
+		private OnAlbumListener onAlbumListener;
 		
 		public DesignerAlbumsAdapter(Context context, List<Album> albumList) {
 			this.context = context;
@@ -36,10 +36,10 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 		}
 		
 		
-		public DesignerAlbumsAdapter(Context context, List<Album> albumList, OnSharedListener onShareListener) {
+		public DesignerAlbumsAdapter(Context context, List<Album> albumList, OnAlbumListener onShareListener) {
 			this.context = context;
 			this.albumList = albumList;
-			this.onShareListener = onShareListener;
+			this.onAlbumListener = onShareListener;
 		}
 		
 		public void setAlbumList(List<Album> albumList) {
@@ -114,14 +114,35 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 			//构造显示数据
 			viewHolder.fillDisplayData(context, album);
 			
-			if(onShareListener!=null){//将分享事件传出，交由外层处理逻辑
+			if(onAlbumListener!=null){//将用户的点击操作事件传出，交由外层处理逻辑
 				//构造分享对象
-				final GenericSharedInfo generalSharedInfo = album.getGenericSharedInfo(); 
-				
+				final GenericSharedInfo generalSharedInfo = album.getGenericSharedInfo();
 				viewHolder.btnShare.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
-						onShareListener.onShare(generalSharedInfo);
+						onAlbumListener.onShare(generalSharedInfo);
+					}
+				});
+				
+				//收藏&取消收藏事件
+				viewHolder.btnFavorite.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						boolean favorited = album.isFavorite();
+						int mode =  favorited?0:1;
+						album.setFavorite(!favorited);
+						onAlbumListener.onFavorite(album.getId(), album.getUserId(), mode);
+					}
+				});
+				
+				//赞&取消收藏事件
+				viewHolder.btnLike.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						boolean liked = album.isLike();
+						int mode =  liked?0:1;
+						album.setLike(!liked);
+						onAlbumListener.onLike(album.getId(), album.getUserId(), mode);
 					}
 				});
 			}

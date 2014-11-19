@@ -63,14 +63,14 @@ public class AlbumDB {
 	private static List<Album> queryAll(Context context, String tableName) {
 		return queryAll(context, tableName, false);
 	}
-		
-		
+	
+	
 	private static List<Album> queryAll(Context context, String tableName, boolean initSlides) {
 		// 读取SQLite里面的数据
 		SQLiteDatabase db = DBHelper.getInstance(context).getReadableDatabase();
 
 		// 这里是把SQLite里面的数据进行排序，依据ID由大到小排序，这样可以保证ListView展示在最上面的一条 数据是最新的一条
-		Cursor cursor = db.query(tableName, null, null, null, null, null, "id DESC");
+		Cursor cursor = db.query(tableName, null, null, null, null, null, "sort DESC");
 
 		List<Album> albumList = new ArrayList<Album>();
 		while (cursor.moveToNext()) {
@@ -151,6 +151,8 @@ public class AlbumDB {
 		if(albumList!=null&&albumList.size()>0){
 			SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
 			
+			long sort = System.currentTimeMillis();
+			
 			for(Album album: albumList){
 				ContentValues values = new ContentValues();  
 				//数据准备
@@ -171,6 +173,10 @@ public class AlbumDB {
 		        
 		        values.put("is_like", album.isLike()?1:0);
 		        values.put("is_favorite", album.isFavorite()?1:0);
+		        
+		        //根据专辑的顺序保存排序值，从大到小（供查询时从大到小desc排序）
+		        values.put("sort", sort);
+		        sort--;
 		        
 		        AlbumAuthorInfo authorInfo = album.getAuthorInfo();
 		        if(authorInfo!=null){
@@ -207,7 +213,6 @@ public class AlbumDB {
 		        	AlbumSlideDB.save(context, albumSlideList);
 		        }
 		        
-		       
 			}
 			return albumList.size();
 		}
@@ -215,13 +220,13 @@ public class AlbumDB {
 	}
 	
 	
-	public static int updateLikeStatus(Context context, int albumId, int likeStatus) {
-		updateLikeStatus(context, TB_ALBUM_LATEST, albumId, likeStatus);
-		updateLikeStatus(context, TB_ALBUM_RECOMMEND, albumId, likeStatus);
-		updateLikeStatus(context, TB_ALBUM_FOLLOW, albumId, likeStatus);
-		updateLikeStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, likeStatus);
-		updateLikeStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, likeStatus);
-		updateLikeStatus(context, TB_HOT_ALBUM_YEARLY, albumId, likeStatus);
+	public static int updateLikeStatus(Context context, int albumId, int likeStatus, int step) {
+		updateLikeStatus(context, TB_ALBUM_LATEST, albumId, likeStatus, step);
+		updateLikeStatus(context, TB_ALBUM_RECOMMEND, albumId, likeStatus, step);
+		updateLikeStatus(context, TB_ALBUM_FOLLOW, albumId, likeStatus, step);
+		updateLikeStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, likeStatus, step);
+		updateLikeStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, likeStatus, step);
+		updateLikeStatus(context, TB_HOT_ALBUM_YEARLY, albumId, likeStatus, step);
 		return 1;
 	}
 	
@@ -231,24 +236,29 @@ public class AlbumDB {
 	 * @param tableName
 	 * @param albumId
 	 * @param likeStatus
+	 * @param step 修改数量
 	 * @return
 	 */
-	public static int updateLikeStatus(Context context, String tableName, int albumId, int likeStatus) {
+	public static int updateLikeStatus(Context context, String tableName, int albumId, int likeStatus, int step) {
 		SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
 		ContentValues values = new ContentValues();  
 		//数据准备
 		values.put("is_like", likeStatus);  
-		return db.update(tableName, values, "id=?", new String[]{String.valueOf(albumId)});
+		if(step>0){
+			return db.update(tableName, values, "id=? and like_count=like_count+?", new String[]{String.valueOf(albumId), String.valueOf(step)});
+		}else{
+			return db.update(tableName, values, "id=? and like_count=like_count-?", new String[]{String.valueOf(albumId), String.valueOf(0-step)});
+		}
 	}
 	
 	
-	public static int updateFavoriteStatus(Context context, int albumId, int favoriteStatus) {
-		updateFavoriteStatus(context, TB_ALBUM_LATEST, albumId, favoriteStatus);
-		updateFavoriteStatus(context, TB_ALBUM_RECOMMEND, albumId, favoriteStatus);
-		updateFavoriteStatus(context, TB_ALBUM_FOLLOW, albumId, favoriteStatus);
-		updateFavoriteStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, favoriteStatus);
-		updateFavoriteStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, favoriteStatus);
-		updateFavoriteStatus(context, TB_HOT_ALBUM_YEARLY, albumId, favoriteStatus);
+	public static int updateFavoriteStatus(Context context, int albumId, int favoriteStatus, int step) {
+		updateFavoriteStatus(context, TB_ALBUM_LATEST, albumId, favoriteStatus, step);
+		updateFavoriteStatus(context, TB_ALBUM_RECOMMEND, albumId, favoriteStatus, step);
+		updateFavoriteStatus(context, TB_ALBUM_FOLLOW, albumId, favoriteStatus, step);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_WEEKLY, albumId, favoriteStatus, step);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_MONTHLY, albumId, favoriteStatus, step);
+		updateFavoriteStatus(context, TB_HOT_ALBUM_YEARLY, albumId, favoriteStatus, step);
 		return 1;
 	}
 	
@@ -260,12 +270,17 @@ public class AlbumDB {
 	 * @param favoriteStatus
 	 * @return
 	 */
-	public static int updateFavoriteStatus(Context context, String tableName, int albumId, int favoriteStatus) {
+	public static int updateFavoriteStatus(Context context, String tableName, int albumId, int favoriteStatus, int step) {
 		SQLiteDatabase db = DBHelper.getInstance(context).getWritableDatabase();
 		ContentValues values = new ContentValues();  
 		//数据准备
 		values.put("is_favorite", favoriteStatus);
-		return db.update(tableName, values, "id=?", new String[]{String.valueOf(albumId)});
+//		return db.update(tableName, values, "id=?", new String[]{String.valueOf(albumId)});
+		if(step>0){
+			return db.update(tableName, values, "id=? and favorite_count=favorite_count+?", new String[]{String.valueOf(albumId), String.valueOf(step)});
+		}else{
+			return db.update(tableName, values, "id=? and favorite_count=like_count-?", new String[]{String.valueOf(albumId), String.valueOf(0-step)});
+		}
 	}
 	
 	

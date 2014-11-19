@@ -16,7 +16,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class MessageBoxApi extends AbstractApi {
 
-private Map<String, String> paramMap = null;
+	private Map<String, String> paramMap = null;
 	
 	public MessageBoxApi(){
 //		paramMap = new TreeMap<String, String>();

@@ -9,7 +9,7 @@ import com.bruce.designer.model.share.GenericSharedInfo;
 public class AlbumBase implements Serializable{
 
 	private static final long serialVersionUID = -6085739230899814437L;
-
+	
 	private long browseCount;
 
 	private long commentCount;
@@ -21,6 +21,9 @@ public class AlbumBase implements Serializable{
 	private boolean isLike;
 	
 	private boolean isFavorite;
+	
+	/*专辑排序值*/
+	private long sort;
 
 	/*专辑在mobile端的url*/
 	private String itemMobileUrl;
@@ -121,5 +124,13 @@ public class AlbumBase implements Serializable{
 		this.genericSharedInfo = genericSharedInfo;
 	}
 
+	public long getSort() {
+		return sort;
+	}
+
+	public void setSort(long sort) {
+		this.sort = sort;
+	}
+	
 }
 

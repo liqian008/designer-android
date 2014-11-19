@@ -19,8 +19,9 @@ import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
 public class AppApplication extends FrontiaApplication {
 
-	private static String versionName;
 	private static int versionCode;
+	private static String versionName;
+	private static String channel;
 	
 	private static UserPassport userPassport;
 	private static User hostUser;
@@ -48,7 +49,6 @@ public class AppApplication extends FrontiaApplication {
 		//init weixin share
 		wxApi = initWxApi(application);
 		
-		
 		//Universal ImageLoader init
 		ImageLoader.getInstance().init(UniversalImageUtil.buildUniversalImageConfig(application));//全局初始化配置  
 	}
@@ -63,7 +63,9 @@ public class AppApplication extends FrontiaApplication {
 			versionCode = info.versionCode;
 		} catch (NameNotFoundException ignored) {
 			versionName = "";
+			versionCode = 0;
 		}
+		channel = ApplicationUtil.getMetaValue(application, "BaiduMobAd_CHANNEL");
 	}
 
 	public static String getVersionName() {
@@ -72,6 +74,10 @@ public class AppApplication extends FrontiaApplication {
 	
 	public static int getVersionCode() {
 		return versionCode;
+	}
+	
+	public static String getChannel() {
+		return channel;
 	}
 
 	public static AppApplication getApplication() {
@@ -174,12 +180,20 @@ public class AppApplication extends FrontiaApplication {
 	}
 
 	
-	public IWXAPI initWxApi(Context context){
+	public static IWXAPI initWxApi(Context context){
 		String wxAppId = ApplicationUtil.getMetaValue(context, "WeixinOpen_APP_ID");
 		IWXAPI api = WXAPIFactory.createWXAPI(context, wxAppId);
 		api.registerApp(wxAppId);
 		return api;
 	}
+
+	
+	
+	
+//	public static String getMetaData(Context context, String metaKey){
+//		return ApplicationUtil.getMetaValue(context, metaKey);
+//	}
+	
 	
 
 }

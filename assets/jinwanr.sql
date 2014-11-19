@@ -31,6 +31,8 @@ CREATE TABLE `tb_album_latest` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -69,6 +71,8 @@ CREATE TABLE `tb_album_recommend` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -106,6 +110,8 @@ CREATE TABLE `tb_album_follow` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -145,6 +151,8 @@ CREATE TABLE `tb_hot_album_weekly` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -183,6 +191,8 @@ CREATE TABLE `tb_hot_album_monthly` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -221,6 +231,8 @@ CREATE TABLE `tb_hot_album_yearly` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
 
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
@@ -255,6 +267,8 @@ CREATE TABLE `tb_album_mine` (
   `weibo_share_content` text DEFAULT '',
   `weibo_share_icon_url` text DEFAULT '',
   `weibo_share_link` text DEFAULT '',
+  
+  `sort` long DEFAULT NULL,
   
   `create_time` long DEFAULT NULL,
   `update_time` long DEFAULT NULL
