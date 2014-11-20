@@ -22,24 +22,19 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.api.album.PostFavoriteApi;
-import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.model.share.GenericSharedInfo;
-import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
-import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -55,12 +50,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	
 	private static final int HANDLER_FLAG_USERINFO = 1;
 	private static final int HANDLER_FLAG_SLIDE = 2;
-	
-	
-	private static final int HANDLER_FLAG_LIKE_POST = 21;
-	private static final int HANDLER_FLAG_UNLIKE_POST = 22;
-	private static final int HANDLER_FLAG_FAVORITE_POST = 31;
-	private static final int HANDLER_FLAG_UNFAVORITE_POST = 32;
 	
 	private static final int HANDLER_FLAG_FOLLOW = 100;
 	private static final int HANDLER_FLAG_UNFOLLOW = 101;
@@ -194,7 +183,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					if(fansCount>0) fansCount = fansCount-1;
 					fansNumView.setText(String.valueOf(fansCount));
 					break;
-				case HANDLER_FLAG_LIKE_POST: //赞成功
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
 					int likedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateLikeStatus(context, likedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -213,7 +202,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					//发送广播
 					NotificationBuilder.createNotification(context, "赞操作成功...");
 					break;
-				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
 					int favoritedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateFavoriteStatus(context, favoritedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -232,7 +221,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					//发送广播
 					NotificationBuilder.createNotification(context, "收藏成功...");
 					break;
-				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
 					int unfavoritedAlbumId = (Integer) msg.obj; 
 					AlbumDB.updateFavoriteStatus(context, unfavoritedAlbumId, 0, -1);//更新db状态
 					//更新ui展示
@@ -262,7 +251,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		mainView = inflater.inflate(R.layout.fragment_main, null);
+		mainView = inflater.inflate(R.layout.activity_user_home, null);
 		setContentView(mainView);
 		
 		Intent intent = getIntent();
@@ -274,21 +263,21 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 //		boolean hasFollowed = intent.getBooleanExtra(ConstantsKey.BUNDLE_USER_INFO_HASFOLLOWED, false);
 		
 		//init view
-		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(onclickListener);
+		titlebarView = mainView.findViewById(R.id.titlebar_return);
+		titlebarView.setOnClickListener(onclickListener); 
 		
-		titleView = (TextView) findViewById(R.id.titlebar_title);
+		titleView = (TextView) mainView.findViewById(R.id.titlebar_title);
 		if(isDesigner){
 			titleView.setText("设计师");
 		}else{
 			titleView.setText("用户");
 		}
 		
-		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
 		pullRefreshView.setMode(Mode.BOTH);
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
-		albumListAdapter = new DesignerAlbumsAdapter(context, null, onAlbumListener);
+		albumListAdapter = new DesignerAlbumsAdapter(context, null, new OnAlbumListener(context, handler, mainView));
 		albumListView.setAdapter(albumListAdapter);
 		
 		//把个人资料的layout作为listview的headerT
@@ -459,93 +448,6 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
 		//加载更多专辑信息
 		getAlbums(queryUserId, albumTailId);
-	}
-	
-	
-	
-	//此处代码与fragment_main中重复, TODO 重构
-	
-	private OnAlbumListener onAlbumListener = new OnAlbumListener(){
-		@Override
-		public void onShare(GenericSharedInfo sharedInfo) {
-			SharePanelView sharePanel = new SharePanelView(context, sharedInfo);
-			sharePanel.show(mainView);
-		}
-
-		@Override
-		public void onComment(Album album) {
-			if(album!=null&&album.getAuthorInfo()!=null){
-				Activity_AlbumInfo.show(context, album, album.getAuthorInfo(), true);
-			}
-		}
-		
-		@Override
-		public void onLike(int albumId, int designerId, int mode) {
-			if(!AppApplication.isGuest()){
-				postLike(albumId, designerId, mode);
-			}else{
-				UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);//游客无法操作
-			}
-		}
-		
-		@Override
-		public void onFavorite(int albumId, int designerId, int mode) {
-			if(!AppApplication.isGuest()){
-				postFavorite(albumId, designerId, mode);
-			}else{
-				UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);//游客无法操作		
-			}
-		}
-	};
-	
-	/**
-	 * 发起赞
-	 */
-	private void postLike(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
-	
-	/**
-	 * 发起收藏
-	 */
-	private void postFavorite(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
 	}
 	
 }

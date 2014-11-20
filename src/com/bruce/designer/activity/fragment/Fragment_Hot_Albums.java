@@ -23,8 +23,11 @@ import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.hot.HotAlbumListApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.listener.IOnAlbumListener;
+import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
@@ -113,7 +116,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null);
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, tabDataHandler, mainView));
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -256,6 +259,63 @@ public class Fragment_Hot_Albums extends BaseFragment{
 							listViewAdapters[tabIndex].notifyDataSetChanged();
 						}
 					}
+					break;
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
+					int likedAlbumId = (Integer) msg.obj;
+					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+					//更新ui展示
+					List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
+					if(albumList4Like!=null&&albumList4Like.size()>0){
+						for(Album album: albumList4Like){
+							if(album.getId()!=null&&album.getId()==likedAlbumId){
+								album.setLike(true);
+								long likeCount = album.getLikeCount();
+								album.setLikeCount(likeCount+1);
+								break;
+							}
+						}
+						listViewAdapters[currentTab].notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "赞操作成功...");
+					break;
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
+					int favoritedAlbumId = (Integer) msg.obj;
+					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+					//更新ui展示
+					List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
+					if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+						for(Album album: albumList4Favorite){
+							if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+								long favoriteCount = album.getFavoriteCount();
+								album.setFavoriteCount(favoriteCount+1);
+								album.setFavorite(true);
+								break;
+							}
+						}
+						listViewAdapters[currentTab].notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "收藏成功...");
+					break;
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+					int unfavoritedAlbumId = (Integer) msg.obj; 
+					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+					//更新ui展示
+					List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
+					if(albumList!=null&&albumList.size()>0){
+						for(Album album: albumList){
+							if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+								long favoriteCount = album.getFavoriteCount();
+								album.setFavoriteCount(favoriteCount-1);
+								album.setFavorite(false);
+								break;
+							}
+						}
+						listViewAdapters[currentTab].notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "取消收藏成功...");
 					break;
 				default:
 					break;

@@ -9,8 +9,10 @@ public class Config {
 	public static final String GUEST_TOAST_TEXT = "游客无法进行该操作，请先进行登录";
 	
 	public static final String NETWORK_UNAVAILABLE = "当前网络不可用";
-	
+	/*客户端类型，1为ios，2为android*/
 	public static final int CLIENT_TYPE = 2;
+	/*用于web来路统计的参数名*/
+	public static final String CHANNEL_FLAG = "r";
 	
 	/*游客身份的uid*/
 	public static int GUEST_USER_ID = 100000;

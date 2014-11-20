@@ -24,6 +24,7 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.UrlUtil;
 
 public class Activity_Settings extends BaseActivity {
 	
@@ -118,7 +119,7 @@ public class Activity_Settings extends BaseActivity {
 				break;
 			case R.id.pushSetting:
 				if(AppApplication.isGuest()){
-					UiUtil.showShortToast(context, "游客无法进行推送设置");
+					UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);
 				}else{
 					Activity_Settings_Push.show(context);
 				}
@@ -140,7 +141,7 @@ public class Activity_Settings extends BaseActivity {
 				//启动web浏览器访问主页
 				Intent intent = new Intent();        
 				intent.setAction("android.intent.action.VIEW");
-				Uri content_url = Uri.parse(Config.JINWAN_WEB_DOMAIN);
+				Uri content_url = Uri.parse(UrlUtil.addParameter(Config.JINWAN_WEB_DOMAIN, Config.CHANNEL_FLAG, AppApplication.getChannel()));
 				intent.setData(content_url);  
 				startActivity(intent);
 				break;

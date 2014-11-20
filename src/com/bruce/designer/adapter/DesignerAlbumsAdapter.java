@@ -13,7 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
-import com.bruce.designer.listener.OnAlbumListener;
+import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.share.GenericSharedInfo;
@@ -28,7 +28,7 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 	
 		private List<Album> albumList;
 		private Context context;
-		private OnAlbumListener onAlbumListener;
+		private IOnAlbumListener onAlbumListener;
 		
 		public DesignerAlbumsAdapter(Context context, List<Album> albumList) {
 			this.context = context;
@@ -36,7 +36,7 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 		}
 		
 		
-		public DesignerAlbumsAdapter(Context context, List<Album> albumList, OnAlbumListener onShareListener) {
+		public DesignerAlbumsAdapter(Context context, List<Album> albumList, IOnAlbumListener onShareListener) {
 			this.context = context;
 			this.albumList = albumList;
 			this.onAlbumListener = onShareListener;

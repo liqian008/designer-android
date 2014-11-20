@@ -177,7 +177,7 @@ public class Activity_Login extends BaseActivity{
 					User hostUser = (User) dataMap.get("hostUser");
 					if(userPassport!=null){//之前绑定过，可以直接获取数据
 						//TODO 
-						UiUtil.showShortToast(context, "您已成功登录，正在进入主屏页..");
+						UiUtil.showShortToast(context, "您已成功登录，正在进入主界面..");
 						//设置对象缓存
 						AppApplication.setUserPassport(userPassport);
 						AppApplication.setHostUser(hostUser);
@@ -185,7 +185,7 @@ public class Activity_Login extends BaseActivity{
 						//直接跳转至主屏界面
 						Activity_Main.show(context);
 						finish();
-					}else{//db未查到，认为是新用户，则必须要进行绑定
+					}else{//server未查到，认为是新用户，则必须要进行绑定
 						boolean needBind = (Boolean) dataMap.get("needBind");
 						uname = (String) dataMap.get("thirdpartyUname");
 						uavatar = (String) dataMap.get("thirdpartyAvatar");
@@ -194,7 +194,7 @@ public class Activity_Login extends BaseActivity{
 							uavatar = uavatar==null?"":uavatar;
 							
 							loginNickname.setText(uname);
-							UiUtil.showShortToast(context, "您好，首次登录需要绑定本站账户");
+							UiUtil.showShortToast(context, "首次登录需要绑定本站账户");
 							//显示绑定对话
 							snsLoginContainer.setVisibility(View.GONE);
 							bindLoginContainer.setVisibility(View.VISIBLE);
@@ -210,7 +210,7 @@ public class Activity_Login extends BaseActivity{
 					//设置对象缓存
 					AppApplication.setUserPassport(bindUserPassport);
 					AppApplication.setHostUser(bindHostUser);
-					UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，正在进入主屏页..");
+					UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，精彩内容即将开启..");
 					
 					//绑定成功，跳转至主屏界面
 					Activity_Main.show(context);

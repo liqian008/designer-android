@@ -30,7 +30,11 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.UserInfoApi;
+import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.listener.IOnAlbumListener;
+import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
@@ -62,7 +66,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	private LayoutInflater inflater;
 	
 	private TextView titleView;
-	
+	/*用户昵称*/
+	private TextView nicknameView;
 	/*设计师头像*/
 	private ImageView avatarView;
 	
@@ -95,13 +100,14 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 								//缓存到sp
 								AppApplication.setHostUser(userinfo);
 							}
-							
-							titleView.setText(userinfo.getNickname());
-							fansNumView.setText(String.valueOf(fansCount));
-							followsNumView.setText(String.valueOf(followsCount));
-							
 							//显示头像
 							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+							
+							titleView.setText(userinfo.getNickname());
+							//nicknameView.setText(userinfo.getNickname());
+							
+							fansNumView.setText(String.valueOf(fansCount));
+							followsNumView.setText(String.valueOf(followsCount));
 						}
 					}
 					break;
@@ -139,6 +145,63 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 						}
 					}
 					break;
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
+					int likedAlbumId = (Integer) msg.obj;
+					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+					//更新ui展示
+					List<Album> albumList4Like = albumListAdapter.getAlbumList();
+					if(albumList4Like!=null&&albumList4Like.size()>0){
+						for(Album album: albumList4Like){
+							if(album.getId()!=null&&album.getId()==likedAlbumId){
+								album.setLike(true);
+								long likeCount = album.getLikeCount();
+								album.setLikeCount(likeCount+1);
+								break;
+							}
+						}
+						albumListAdapter.notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "赞操作成功...");
+					break;
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
+					int favoritedAlbumId = (Integer) msg.obj;
+					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+					//更新ui展示
+					List<Album> albumList4Favorite = albumListAdapter.getAlbumList();
+					if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+						for(Album album: albumList4Favorite){
+							if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+								long favoriteCount = album.getFavoriteCount();
+								album.setFavoriteCount(favoriteCount+1);
+								album.setFavorite(true);
+								break;
+							}
+						}
+						albumListAdapter.notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "收藏成功...");
+					break;
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+					int unfavoritedAlbumId = (Integer) msg.obj; 
+					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+					//更新ui展示
+					List<Album> albumList = albumListAdapter.getAlbumList();
+					if(albumList!=null&&albumList.size()>0){
+						for(Album album: albumList){
+							if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+								long favoriteCount = album.getFavoriteCount();
+								album.setFavoriteCount(favoriteCount-1);
+								album.setFavorite(false);
+								break;
+							}
+						}
+						albumListAdapter.notifyDataSetChanged();
+					}
+					//发送广播
+					NotificationBuilder.createNotification(activity, "取消收藏成功...");
+					break;
 				default:
 					break;
 			}
@@ -170,12 +233,22 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnSettings = (ImageButton) mainView.findViewById(R.id.btnSettings);
 		btnSettings.setOnClickListener(listener);
 		btnSettings.setVisibility(View.VISIBLE);
-
+		
+		//显示昵称
+		nicknameView = (TextView) mainView.findViewById(R.id.txtNickname);
+		if(AppApplication.isGuest()){
+			nicknameView.setText("游客");
+		}
+		
 		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
-		pullRefreshView.setMode(Mode.PULL_FROM_END);
+		if(AppApplication.isGuest()){
+			pullRefreshView.setMode(Mode.DISABLED);//游客无操作
+		}else{
+			pullRefreshView.setMode(Mode.PULL_FROM_END);
+		}
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
-		albumListAdapter = new DesignerAlbumsAdapter(activity, null);
+		albumListAdapter = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, handler, mainView));
 		albumListView.setAdapter(albumListAdapter);
 		
 		//把个人资料的layout作为listview的header
@@ -208,10 +281,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnUserInfo.setOnClickListener(listener);
 		
 //		//启动获取个人资料详情
-//		getUserinfo(hostId);
+//		getUserinfo(HOST_ID);
 //		//获取个人专辑
-//		getAlbums(hostId, 0);
-		
+//		getAlbums(HOST_ID, 0);
 	}
 	
 	@Override

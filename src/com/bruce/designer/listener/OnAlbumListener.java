@@ -1,16 +1,113 @@
 package com.bruce.designer.listener;
 
-import com.bruce.designer.model.Album;
-import com.bruce.designer.model.share.GenericSharedInfo;
+import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
 
-public interface OnAlbumListener {
+import com.bruce.designer.AppApplication;
+import com.bruce.designer.activity.Activity_AlbumInfo;
+import com.bruce.designer.api.ApiManager;
+import com.bruce.designer.api.album.PostFavoriteApi;
+import com.bruce.designer.api.album.PostLikeApi;
+import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.Album;
+import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.view.SharePanelView;
+
+public class OnAlbumListener implements IOnAlbumListener{
 	
+	private Context context;
+	private Handler handler;
+	private View mainView;
+
+	public OnAlbumListener(Context context, Handler handler, View mainView){
+		this.context = context;
+		this.handler = handler;
+		this.mainView = mainView;
+	}
 	
-	public void onLike(int albumId, int designerId, int mode);
+	@Override
+	public void onShare(GenericSharedInfo sharedInfo) {
+		SharePanelView sharePanel = new SharePanelView(context, sharedInfo);
+		sharePanel.show(mainView);
+	}
+
+	@Override
+	public void onComment(Album album) {
+		if (album != null && album.getAuthorInfo() != null) {
+			Activity_AlbumInfo.show(context, album, album.getAuthorInfo(), true);
+		}
+	}
+
+	@Override
+	public void onLike(int albumId, int designerId, int mode) {
+		if (!AppApplication.isGuest()) {
+			postLike(context, handler, albumId, designerId, mode);
+		} else {
+			UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);// 游客无法操作
+		}
+	}
+
+	@Override
+	public void onFavorite(int albumId, int designerId, int mode) {
+		if (!AppApplication.isGuest()) {
+			postFavorite(context, handler, albumId, designerId, mode);
+		} else {
+			UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);// 游客无法操作
+		}
+	}
 	
-	public void onFavorite(int albumId, int designerId, int mode);
+	/**
+	 * 发起赞
+	 */
+	public static void postLike(final Context context, final Handler handler, final int albumId, final int designerId, final int mode) {
+		//启动线程post数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
+				if(jsonResult!=null&&jsonResult.getResult()==1){
+					if(mode==1){
+						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
+					}else{
+						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
+					}
+					message.obj = albumId;
+					message.sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
 	
-	public void onComment(Album album);
+	/**
+	 * 发起收藏
+	 */
+	public static void postFavorite(final Context context, final Handler handler, final int albumId, final int designerId, final int mode) {
+		//启动线程post数据
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				Message message;
+				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
+				ApiResult jsonResult = ApiManager.invoke(context, api);
+				if(jsonResult!=null&&jsonResult.getResult()==1){
+					if(mode==1){
+						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
+					}else{
+						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
+					}
+					message.obj = albumId;
+					message.sendToTarget();
+				}
+			}
+		});
+		thread.start();
+	}
 	
-	public void onShare(GenericSharedInfo sharedInfo);
-}	
+}
