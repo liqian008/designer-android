@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -131,7 +130,7 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 			if(convertView==null){
 				viewHolder = new MessageViewHandler();
 				if(message!=null){
-					convertView = LayoutInflater.from(context).inflate(R.layout.item_msgbox_view, null);
+					convertView = inflater.inflate(R.layout.item_msgbox_view, null);
 					viewHolder.messageItemView = convertView;
 					viewHolder.unreadNumContainer = (View) convertView.findViewById(R.id.unreadNumContainer);
 					viewHolder.unreadNumText = (TextView) convertView.findViewById(R.id.unreadNum);

@@ -30,6 +30,7 @@ import com.bruce.designer.api.album.FollowAlbumListApi;
 import com.bruce.designer.api.album.PostFavoriteApi;
 import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnAlbumListener;
@@ -39,6 +40,7 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -434,6 +436,7 @@ public class Fragment_Main extends BaseFragment{
 		}
 	};
 	
+	//此处代码与User_home中重复, TODO 重构
 	
 	private OnAlbumListener onAlbumListener = new OnAlbumListener(){
 		@Override
@@ -443,23 +446,27 @@ public class Fragment_Main extends BaseFragment{
 		}
 
 		@Override
-		public void onLike(int albumId, int designerId, int mode) {
-			if(!AppApplication.isGuest()){
-				postLike(albumId, designerId, mode);
-			}
-		}
-		
-		@Override
 		public void onComment(Album album) {
 			if(album!=null&&album.getAuthorInfo()!=null){
 				Activity_AlbumInfo.show(activity, album, album.getAuthorInfo(), true);
 			}
 		}
-
+		
+		@Override
+		public void onLike(int albumId, int designerId, int mode) {
+			if(!AppApplication.isGuest()){
+				postLike(albumId, designerId, mode);
+			}else{
+				UiUtil.showShortToast(activity, Config.GUEST_TOAST_TEXT);//游客无法操作
+			}
+		}
+		
 		@Override
 		public void onFavorite(int albumId, int designerId, int mode) {
 			if(!AppApplication.isGuest()){
 				postFavorite(albumId, designerId, mode);
+			}else{
+				UiUtil.showShortToast(activity, Config.GUEST_TOAST_TEXT);//游客无法操作		
 			}
 		}
 	};

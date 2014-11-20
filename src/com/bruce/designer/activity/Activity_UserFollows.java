@@ -142,7 +142,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 			if(convertView==null){
 				viewHolder = new FollowViewHolder();
 				if(user!=null){
-					convertView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
+					convertView = inflater.inflate(R.layout.item_friend_view, null);
 					
 					viewHolder.friendView = (View) convertView.findViewById(R.id.friendContainer);;
 					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);

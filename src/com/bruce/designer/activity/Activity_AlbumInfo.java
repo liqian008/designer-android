@@ -242,8 +242,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		pullRefresh.setOnRefreshListener(this);
 		commentListView = pullRefresh.getRefreshableView();
 		//为listview增加headerView (专辑基础信息)
-		LayoutInflater layoutInflate = LayoutInflater.from(context);
-		View albumInfoView = layoutInflate.inflate(R.layout.item_designer_album_view, null);
+		View albumInfoView = inflater.inflate(R.layout.item_designer_album_view, null);
 		commentListView.addHeaderView(albumInfoView);
 		
 		commentsAdapter = new AlbumCommentsAdapter(context, null);

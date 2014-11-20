@@ -172,7 +172,7 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 //		PushSettings.enableDebugMode(context, true);
 		PushManager.startWork(context,  PushConstants.LOGIN_TYPE_API_KEY, ApplicationUtil.getMetaValue(context, "baidu_push_api_key"));
 		//读取push的settings
-		long pushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
+		long pushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK , Long.MAX_VALUE);
 		if(pushMask==0l){//用户关闭push，则关闭push
 			PushManager.stopWork(context);
 		}

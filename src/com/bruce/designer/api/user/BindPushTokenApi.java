@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.bruce.designer.api.AbstractApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
@@ -15,11 +16,20 @@ public class BindPushTokenApi extends AbstractApi {
 	protected String getApiMethodName() {
 		return "bindPushToken.cmd";
 	}
-
-	public BindPushTokenApi(String pushChannelId, String pushUserId) {
+	
+	/**
+	 * 
+	 * @param pushChannelId
+	 * @param pushUserId
+	 * @param mode  1为绑定，0为解绑
+	 */
+	public BindPushTokenApi(String pushChannelId, String pushUserId, int mode) {
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("pushChannelId", pushChannelId);
 		paramMap.put("pushUserId", pushUserId);
+		paramMap.put("osType", String.valueOf(Config.CLIENT_TYPE));
+		mode = mode==1?1:0;
+		paramMap.put("mode", String.valueOf(mode));//
 	}
 
 	@Override

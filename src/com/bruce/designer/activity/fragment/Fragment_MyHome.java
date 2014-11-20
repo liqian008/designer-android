@@ -36,7 +36,6 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ImageUtil;
-import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -321,7 +320,6 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		if(requestCode==REQUEST_CODE_USERINFO){//如果是来自userInfo的回调
 			//检查是否有头像变更
 			if(resultCode==RESULT_CODE_AVATAR_CHANGED){
-				LogUtil.d("1111111111111111");
 				byte[] avatarBytes = intent.getByteArrayExtra("avatarData");
 				if(avatarBytes!=null&&avatarBytes.length>0){
 					avatarView.setImageBitmap(ImageUtil.bytes2Bimap(avatarBytes));

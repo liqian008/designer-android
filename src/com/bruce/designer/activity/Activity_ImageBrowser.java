@@ -66,7 +66,7 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 			
 			List<View> views = new ArrayList<View>();
 			for(String imageUrl: imageUrlList){
-				View imageViewItem = LayoutInflater.from(context).inflate(R.layout.pager_image_view, null);
+				View imageViewItem = inflater.inflate(R.layout.pager_image_view, null);
 				views.add(imageViewItem);
 				ImageView imageView = (ImageView) imageViewItem.findViewById(R.id.pager_imgview);
 				ImageLoader.getInstance().displayImage(imageUrl, imageView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);

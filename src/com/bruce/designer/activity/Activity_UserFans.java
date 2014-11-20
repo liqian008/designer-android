@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -20,19 +19,17 @@ import android.widget.TextView;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
-import com.bruce.designer.activity.Activity_UserFollows.FollowViewHolder;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
-import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_UserFans extends BaseActivity implements OnRefreshListener2<ListView>{
@@ -145,7 +142,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				viewHolder = new FanViewHolder();
 				if(user!=null){
 					
-					convertView = LayoutInflater.from(context).inflate(R.layout.item_friend_view, null);
+					convertView = inflater.inflate(R.layout.item_friend_view, null);
 					
 					viewHolder.friendView = (View) convertView.findViewById(R.id.friendContainer);;
 					viewHolder.avatarView = (ImageView) convertView.findViewById(R.id.avatar);

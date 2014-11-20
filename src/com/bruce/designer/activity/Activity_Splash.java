@@ -169,7 +169,6 @@ public class Activity_Splash extends BaseActivity {
 	 * @param apkUrl
 	 */
 	private void showDownloadingDialog(String apkUrl) {
-		final LayoutInflater inflater = LayoutInflater.from(context);
 		View downloadingView = inflater.inflate(R.layout.download_progress, null);
 		mProgress = (ProgressBar) downloadingView.findViewById(R.id.progress);
 		downloadingDialog = UiUtil.showAlertDialog(context, false, downloadingView, "客户端版本更新", null, "取消", quitDownloadListener, null, null);

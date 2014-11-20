@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -29,12 +28,10 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.DipUtil;
-import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -169,7 +166,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 			//TODO 暂未使用convertView
 			Message message = getItem(position);
 			if(message!=null){
-				View itemView = LayoutInflater.from(context).inflate(R.layout.item_msgchat_view, null);
+				View itemView = inflater.inflate(R.layout.item_msgchat_view, null);
 				
 				RelativeLayout messageContainer = (RelativeLayout) itemView.findViewById(R.id.messageContainer);
 				RelativeLayout myMessageContainer = (RelativeLayout) itemView.findViewById(R.id.myMessageContainer);

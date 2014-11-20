@@ -6,6 +6,10 @@ public class Config {
 	
 	public static final boolean DEBUG = true;
 	
+	public static final String GUEST_TOAST_TEXT = "游客无法进行该操作，请先进行登录";
+	
+	public static final String NETWORK_UNAVAILABLE = "当前网络不可用";
+	
 	public static final int CLIENT_TYPE = 2;
 	
 	/*游客身份的uid*/
@@ -33,6 +37,7 @@ public class Config {
 	public static final String JINWAN_API_PREFIX = JINWAN_MOBILE_DOMAIN + "/api";
 	
 	
+	
 //	public static final String JINWAN_API_ALBUMS = JINWAN_API_PREFIX + "/moreAlbums.json";
 	
 	/*SP的默认Config*/
@@ -43,8 +48,17 @@ public class Config {
 	public static final String SP_KEY_USERPASSPORT = "USER_PASSPORT";
 	/*SP中userInfo的key*/
 	public static final String SP_KEY_USERINFO = "USER_INFO";
-	/*SP中push的key*/
-	public static final String SP_KEY_BAIDU_PUSH = "BAIDU_PUSH";
+	
+	/*SP中pushMask的key*/
+	public static final String SP_KEY_BAIDU_PUSH_MASK = "BAIDU_PUSH";
+	
+	/*SP中baidu push对象中userId的key*/
+	public static final String SP_KEY_BAIDU_PUSH_USER_ID = "BAIDU_PUSH_USER_ID";
+	/*SP中baidu push对象中channelId的key*/
+	public static final String SP_KEY_BAIDU_PUSH_CHANNEL_ID = "BAIDU_PUSH_CHANNEL_ID";
+
+	
+	
 	
 	
 	

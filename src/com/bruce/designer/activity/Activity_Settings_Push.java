@@ -20,7 +20,6 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
-import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.view.SwitcherView;
 
 /**
@@ -62,7 +61,7 @@ public class Activity_Settings_Push extends BaseActivity {
 				Map<String, Object> pushSettingsDataMap = (Map<String, Object>) msg.obj;
 				Long pushMask = (Long) pushSettingsDataMap.get("pushMask");
 				initPushSettings(pushMask==null?0:pushMask);
-				SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH, (pushMask==null?0:pushMask));
+				SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH_MASK, (pushMask==null?0:pushMask));
 				break;
 			case HANDLER_FLAG_PUSHMASK_WRITE:
 				//do nothing
@@ -81,7 +80,7 @@ public class Activity_Settings_Push extends BaseActivity {
 
 		initView();
 		//进入时记录pushMask
-		cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+		cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 		//启动线程获取server端的pushSettings
 		loadPushSettings();
 	}
@@ -96,7 +95,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		titleView.setText("推送设置");
 
 		//初始化push的选项值
-		final long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH, 31L);
+		final long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK, 31L);
 		
 		//被关注通知开关
 		pushFollowedSwitcher = (SwitcherView)findViewById(R.id.push_followed_switcher);
@@ -114,7 +113,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushChatedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
-				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | chatedSettings);//默认处理为打开
 				if (!checkState) {
 					newPushMask = (cachedPushMask - chatedSettings);
@@ -126,7 +125,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushFollowedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
-				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | followedSettings);//默认处理为打开
 				if (!checkState) {
 					newPushMask = (cachedPushMask - followedSettings);
@@ -138,7 +137,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushFavoritedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
-				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | favoritedSettings);//默认处理为打开
 				if (!checkState) {
 					newPushMask = (cachedPushMask - favoritedSettings);
@@ -150,7 +149,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushLikedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
-				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | likedSettings);//默认处理为打开
 				if (!checkState) {
 					newPushMask = (cachedPushMask - likedSettings);
@@ -162,7 +161,7 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushCommentedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
-				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH, Long.MAX_VALUE);
+				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | commentedSettings);//默认处理为打开
 				if (!checkState) {
 					newPushMask = (cachedPushMask - commentedSettings);
@@ -259,7 +258,7 @@ public class Activity_Settings_Push extends BaseActivity {
 	}
 	
 	private void processBeforeFinish() {
-		long latestPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH , Long.MAX_VALUE);
+		long latestPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK , Long.MAX_VALUE);
 //		UiUtil.showLongToast(context, "latestPushMask: "+latestPushMask);
 		
 		if(cachedPushMask!=latestPushMask){//两次push设置不一致，说明有变更
@@ -278,6 +277,6 @@ public class Activity_Settings_Push extends BaseActivity {
 		if(pushMask<0){
 			pushMask = Long.MAX_VALUE;
 		}
-		SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_BAIDU_PUSH, pushMask);
+		SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_BAIDU_PUSH_MASK, pushMask);
 	}
 }

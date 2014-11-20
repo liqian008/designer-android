@@ -112,7 +112,11 @@ public class SharePanelView extends PopupWindow {
 			}
 		});
 	}
-
+	
+	/**
+	 * 在指定view的底部展示
+	 * @param view
+	 */
 	public void show(View view) {
 		showAtLocation(view, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 	}
