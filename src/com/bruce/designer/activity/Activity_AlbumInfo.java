@@ -27,13 +27,12 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumCommentsApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.album.PostCommentApi;
-import com.bruce.designer.api.album.PostFavoriteApi;
-import com.bruce.designer.api.album.PostLikeApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
+import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
@@ -513,7 +512,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				break;
 			case R.id.btnLike:
 				if(!isLike){
-					postLike(albumId, designerId, 1);
+//					postLike(albumId, designerId, 1);
+					OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
 					btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
 					btnLike.setOnClickListener(null);
 				}
@@ -524,7 +524,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				}else{//收藏
 					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
 				}
-				postFavorite(albumId, designerId, isFavorite?0:1);
+				OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
+				
 				break;
 			case R.id.btnShare:
 				//构造分享对象
@@ -585,55 +586,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		thread.start();
 	}
 	
-	/**
-	 * 发起赞
-	 */
-	private void postLike(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
-					}
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
-	
-	/**
-	 * 发起收藏
-	 */
-	private void postFavorite(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
-					}
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
 	
 
 	@Override

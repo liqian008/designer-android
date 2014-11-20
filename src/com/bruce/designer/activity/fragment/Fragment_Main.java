@@ -33,6 +33,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
@@ -57,10 +58,10 @@ public class Fragment_Main extends BaseFragment{
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
 //	private static final int HANDLER_FLAG_TAB1_ERROR = 11;
 	
-	private static final int HANDLER_FLAG_LIKE_POST = 21;
-	private static final int HANDLER_FLAG_UNLIKE_POST = 22;
-	private static final int HANDLER_FLAG_FAVORITE_POST = 31;
-	private static final int HANDLER_FLAG_UNFAVORITE_POST = 32;
+//	private static final int HANDLER_FLAG_LIKE_POST = 21;
+//	private static final int HANDLER_FLAG_UNLIKE_POST = 22;
+//	private static final int HANDLER_FLAG_FAVORITE_POST = 31;
+//	private static final int HANDLER_FLAG_UNFAVORITE_POST = 32;
 	
 	
 	/* tab个数*/
@@ -136,7 +137,7 @@ public class Fragment_Main extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, onAlbumListener);
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, tabDataHandler, mainView));
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -319,7 +320,7 @@ public class Fragment_Main extends BaseFragment{
 						}
 					}
 					break;
-				case HANDLER_FLAG_LIKE_POST: //赞成功
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
 					int likedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -338,7 +339,7 @@ public class Fragment_Main extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "赞操作成功...");
 					break;
-				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
 					int favoritedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -357,7 +358,7 @@ public class Fragment_Main extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "收藏成功...");
 					break;
-				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
 					int unfavoritedAlbumId = (Integer) msg.obj; 
 					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
 					//更新ui展示
@@ -376,7 +377,6 @@ public class Fragment_Main extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "取消收藏成功...");
 					break;
-					
 				default:
 					break;
 			}
@@ -436,88 +436,4 @@ public class Fragment_Main extends BaseFragment{
 		}
 	};
 	
-	//此处代码与User_home中重复, TODO 重构
-	
-	private OnAlbumListener onAlbumListener = new OnAlbumListener(){
-		@Override
-		public void onShare(GenericSharedInfo sharedInfo) {
-			SharePanelView sharePanel = new SharePanelView(activity, sharedInfo);
-			sharePanel.show(mainView);
-		}
-
-		@Override
-		public void onComment(Album album) {
-			if(album!=null&&album.getAuthorInfo()!=null){
-				Activity_AlbumInfo.show(activity, album, album.getAuthorInfo(), true);
-			}
-		}
-		
-		@Override
-		public void onLike(int albumId, int designerId, int mode) {
-			if(!AppApplication.isGuest()){
-				postLike(albumId, designerId, mode);
-			}else{
-				UiUtil.showShortToast(activity, Config.GUEST_TOAST_TEXT);//游客无法操作
-			}
-		}
-		
-		@Override
-		public void onFavorite(int albumId, int designerId, int mode) {
-			if(!AppApplication.isGuest()){
-				postFavorite(albumId, designerId, mode);
-			}else{
-				UiUtil.showShortToast(activity, Config.GUEST_TOAST_TEXT);//游客无法操作		
-			}
-		}
-	};
-	
-	/**
-	 * 发起赞
-	 */
-	private void postLike(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = tabDataHandler.obtainMessage(HANDLER_FLAG_LIKE_POST);
-					}else{
-						message = tabDataHandler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
-	
-	/**
-	 * 发起收藏
-	 */
-	private void postFavorite(final int albumId, final int designerId, final int mode) {
-		//启动线程post数据
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				Message message;
-				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					if(mode==1){
-						message = tabDataHandler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
-					}else{
-						message = tabDataHandler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
-				}
-			}
-		});
-		thread.start();
-	}
 }
