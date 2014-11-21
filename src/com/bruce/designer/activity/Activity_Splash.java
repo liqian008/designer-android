@@ -25,8 +25,10 @@ import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 
@@ -96,8 +98,13 @@ public class Activity_Splash extends BaseActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.context = Activity_Splash.this;
 		setContentView(R.layout.activity_splash);
-		//创建快捷方式
-		createDesktopShortCut();
+		
+		boolean appFirstOpen = SharedPreferenceUtil.getSharePreBoolean(context, Config.SP_KEY_APP_FIRST_OPEN, true);
+		//第一次打开需要创建快捷方式
+		if(appFirstOpen){
+			createDesktopShortCut();
+			SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_APP_FIRST_OPEN, false);
+		}
 
 		//启动线程
 		 Thread thread = new Thread(new Runnable() {
@@ -128,15 +135,6 @@ public class Activity_Splash extends BaseActivity {
 		 
 		
 	}
-
-	/**
-	 * 禁止使用退出键
-	 */
-//	@Override
-//	public boolean onKeyUp(int keyCode, KeyEvent event) {
-//		boolean flag = false;
-//		return flag;
-//	}
 
 	/**
 	 * 处理检查更新的结果，决定是否构造下载的提示框

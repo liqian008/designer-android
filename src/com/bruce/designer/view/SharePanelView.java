@@ -17,11 +17,14 @@ import android.widget.PopupWindow;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo.WxSharedInfo;
 import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.UrlUtil;
 import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
@@ -29,7 +32,6 @@ import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
 public class SharePanelView extends PopupWindow {
 
 	private static final int HANDLER_FLAG_IMAGE_DOWNLOAD_FINISH = 1;
-	
 	
 	private Context context;
 	private Button shareBtnCancel;
@@ -46,6 +48,10 @@ public class SharePanelView extends PopupWindow {
 				
 				GenericSharedInfo.WxSharedInfo wxSharedInfo = (GenericSharedInfo.WxSharedInfo) msg.obj;
 				WXWebpageObject webpage = new WXWebpageObject();
+				int scene = wxSharedInfo.getScene();
+				String link = wxSharedInfo.getLink();
+				//分享链接增加来路的统计（客户端channel后增加微信朋友圈的标志）
+				link = UrlUtil.addParameter(link, Config.CHANNEL_FLAG, AppApplication.getChannel()+"_wxshare_"+scene);
 				webpage.webpageUrl = wxSharedInfo.getLink();
 				WXMediaMessage wxMessage = new WXMediaMessage(webpage);
 				wxMessage.title = wxSharedInfo.getTitle();
@@ -54,7 +60,7 @@ public class SharePanelView extends PopupWindow {
 				
 				SendMessageToWX.Req req = new SendMessageToWX.Req();
 				req.message = wxMessage;
-				req.scene = 1;
+				req.scene = scene;
 //				UiUtil.showShortToast(context, "调用微信API");
 				AppApplication.getWxApi().sendReq(req);
 				break;
@@ -76,10 +82,8 @@ public class SharePanelView extends PopupWindow {
 		shareBtnCancel = (Button) contentView.findViewById(R.id.shareBtnCancel);
 		shareBtnCancel.setOnClickListener(onClickListener);
 
-		shareToWxFriend = (ImageView) contentView
-				.findViewById(R.id.shareToWxFriend);
-		shareToWxTimeline = (ImageView) contentView
-				.findViewById(R.id.shareToWxTimeline);
+		shareToWxFriend = (ImageView) contentView.findViewById(R.id.shareToWxFriend);
+		shareToWxTimeline = (ImageView) contentView.findViewById(R.id.shareToWxTimeline);
 		shareToWxFriend.setOnClickListener(onClickListener);
 		shareToWxTimeline.setOnClickListener(onClickListener);
 
@@ -130,7 +134,11 @@ public class SharePanelView extends PopupWindow {
 	public void shareToWx(GenericSharedInfo sharedInfo, int shareScene) {
 		//需要先启动线程下载图片
 		if (sharedInfo != null) {
-			Thread thread = new Thread(new ImageDownloadThread(sharedInfo.getWxSharedInfo()));
+			WxSharedInfo wxSharedInfo = sharedInfo.getWxSharedInfo();
+			if(wxSharedInfo!=null){
+				wxSharedInfo.setScene(shareScene);
+			}
+			Thread thread = new Thread(new ImageDownloadThread(wxSharedInfo));
 			thread.start();
 		}
 	}

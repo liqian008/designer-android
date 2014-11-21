@@ -51,6 +51,9 @@ public class Config {
 	/*SP中userInfo的key*/
 	public static final String SP_KEY_USERINFO = "USER_INFO";
 	
+	/*SP中是否是第一次进入*/
+	public static final String SP_KEY_APP_FIRST_OPEN = "APP_FIRST_OPEN";
+	
 	/*SP中pushMask的key*/
 	public static final String SP_KEY_BAIDU_PUSH_MASK = "BAIDU_PUSH";
 	

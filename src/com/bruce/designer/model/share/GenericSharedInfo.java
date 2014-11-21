@@ -28,6 +28,7 @@ public class GenericSharedInfo implements Serializable {
 	public static class WxSharedInfo implements Serializable {
 		private static final long serialVersionUID = 1L;
 
+		private int scene;
 		private String title;
 		private String content;
 		private String iconUrl;
@@ -42,6 +43,14 @@ public class GenericSharedInfo implements Serializable {
 			this.iconUrl = iconUrl;
 			this.link = link;
 		}
+		
+		public int getScene() {
+			return scene;
+		}
+
+		public void setScene(int scene) {
+			this.scene = scene;
+		}
 
 		public String getTitle() {
 			return title;
@@ -54,6 +63,7 @@ public class GenericSharedInfo implements Serializable {
 		public String getContent() {
 			return content;
 		}
+		
 
 		public void setContent(String content) {
 			this.content = content;
