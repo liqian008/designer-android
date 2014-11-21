@@ -65,7 +65,7 @@ public class BaiduPushMessageReceiver extends FrontiaPushMessageReceiver {
 
 		boolean isGuest = AppApplication.isGuest();
 		LogUtil.d("push bind success —— isGuest: " + isGuest);
-		if (!isGuest) {
+		if (!isGuest) {//登录用户需要绑定pushToken
 			//保存至sp，供用户注销时解绑
 			SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_BAIDU_PUSH_CHANNEL_ID, pushChannelId);
 			SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_BAIDU_PUSH_USER_ID, pushUserId);

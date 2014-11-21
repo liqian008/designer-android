@@ -62,7 +62,7 @@ public class MessageBoxApi extends AbstractApi {
 	 * @return
 	 */
 	protected boolean needAuth(){
-		return true;
+		return false;
 	}
 
 }

@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
@@ -95,6 +96,8 @@ public class Activity_Splash extends BaseActivity {
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		this.context = Activity_Splash.this;
 		setContentView(R.layout.activity_splash);
+		//创建快捷方式
+		createDesktopShortCut();
 
 		//启动线程
 		 Thread thread = new Thread(new Runnable() {
@@ -122,6 +125,8 @@ public class Activity_Splash extends BaseActivity {
 			 }
 		 });
 		 thread.start();
+		 
+		
 	}
 
 	/**
@@ -329,5 +334,28 @@ public class Activity_Splash extends BaseActivity {
 	}
 	
 	
+	/**
+	 * 创建快捷方式
+	 */
+	private void createDesktopShortCut() {
+		// 创建快捷方式的Intent
+		Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+		// 不允许重复创建
+		shortcutIntent.putExtra("duplicate", false);
+		// 需要现实的名称
+		shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getString(R.string.app_name));
 
+		// 快捷图片
+		Parcelable icon = Intent.ShortcutIconResource.fromContext(context, R.drawable.ic_launcher);
+		shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+		Intent intent = new Intent(getApplicationContext(), Activity_Splash.class);
+
+		// 下面两个属性是为了当应用程序卸载时桌面上的快捷方式会删除
+		intent.setAction("android.intent.action.MAIN");
+		intent.addCategory("android.intent.category.LAUNCHER");
+		// 点击快捷图片，运行的程序主入口
+		shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
+		// 发送广播。OK
+		sendBroadcast(shortcutIntent);
+	}
 }

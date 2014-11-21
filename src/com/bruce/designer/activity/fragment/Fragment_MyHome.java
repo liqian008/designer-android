@@ -71,9 +71,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	/*设计师头像*/
 	private ImageView avatarView;
 	
-	private View followsView, fansView;
+	private View albumsView, followsView, fansView;
 	
-	private TextView followsNumView, fansNumView;
+	private TextView albumsNumView, followsNumView, fansNumView;
 	
 	private Button btnMyFavorite, btnSendMsg, btnUserInfo;
 //	private Button btnPubAlbum;//发布新作品
@@ -95,6 +95,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 						User userinfo = (User) userinfoDataMap.get("userinfo");
 						int fansCount = (Integer) userinfoDataMap.get("fansCount");
 						int followsCount = (Integer) userinfoDataMap.get("followsCount");
+						int albumsCount = (Integer) userinfoDataMap.get("albumsCount");
+						
 						if(userinfo!=null&&userinfo.getId()>0){
 							if(AppApplication.isHost(userinfo.getId())){
 								//缓存到sp
@@ -104,8 +106,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 							
 							titleView.setText(userinfo.getNickname());
-							//nicknameView.setText(userinfo.getNickname());
+							nicknameView.setText(userinfo.getNickname());
 							
+							albumsNumView.setText(String.valueOf(albumsCount));
 							fansNumView.setText(String.valueOf(fansCount));
 							followsNumView.setText(String.valueOf(followsCount));
 						}
@@ -234,11 +237,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnSettings.setOnClickListener(listener);
 		btnSettings.setVisibility(View.VISIBLE);
 		
-		//显示昵称
-		nicknameView = (TextView) mainView.findViewById(R.id.txtNickname);
-		if(AppApplication.isGuest()){
-			nicknameView.setText("游客");
-		}
+		
 		
 		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
 		if(AppApplication.isGuest()){
@@ -256,6 +255,18 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		albumListView.addHeaderView(headerView);
 		
 		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
+		//显示昵称
+		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
+		if(AppApplication.isGuest()){
+			nicknameView.setText("游客");
+		}else{
+			User user = AppApplication.getHostUser();
+			nicknameView.setText(user.getNickname());
+		}
+		
+		albumsView = (View) headerView.findViewById(R.id.albumsContainer);
+		albumsNumView = (TextView) headerView.findViewById(R.id.txtAlbumsNum);
+		albumsView.setOnClickListener(listener);
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
@@ -289,7 +300,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onResume() {
 		super.onResume();
-		pullRefreshView.setRefreshing(false);
+		if(!AppApplication.isGuest()){//登录用户进入时，重刷数据
+			pullRefreshView.setRefreshing(false);
+		}
 	}
 	
 	private void getUserinfo(final int userId) {

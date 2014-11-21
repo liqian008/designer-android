@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -23,13 +21,13 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UrlUtil;
 
 public class Activity_Settings extends BaseActivity {
 	
-	protected static final int HANDLER_FLAG_PUSH_UNBIND = 10;
-	
+//	protected static final int HANDLER_FLAG_PUSH_UNBIND = 10;
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -43,18 +41,6 @@ public class Activity_Settings extends BaseActivity {
 		Intent intent = new Intent(context, Activity_Settings.class);
 		context.startActivity(intent);
 	}
-	
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-			case HANDLER_FLAG_PUSH_UNBIND:
-				break;
-			default:
-				break;
-			}
-		}
-	};
-	
 	
 
 	@Override
@@ -85,12 +71,8 @@ public class Activity_Settings extends BaseActivity {
 		websiteView.setOnClickListener(listener);
 		
 		btnLogout = (Button) findViewById(R.id.logout);
-		if(AppApplication.isGuest()){
-			btnLogout.setVisibility(View.GONE);
-		}else{
-			btnLogout.setVisibility(View.VISIBLE);
-			btnLogout.setOnClickListener(listener);
-		}
+		btnLogout.setVisibility(View.VISIBLE);
+		btnLogout.setOnClickListener(listener);
 	}
 	
 	@Override
@@ -146,20 +128,21 @@ public class Activity_Settings extends BaseActivity {
 				startActivity(intent);
 				break;
 			case R.id.logout:
-				//获取push信息
-				String pushUserId = SharedPreferenceUtil.getSharePreStr(context, Config.SP_KEY_BAIDU_PUSH_USER_ID, "");
-				String pushChannelId = SharedPreferenceUtil.getSharePreStr(context, Config.SP_KEY_BAIDU_PUSH_CHANNEL_ID, "");
-				//发起线程解绑用户的pushToken
-				unbindPushToken(pushChannelId, pushUserId);
-				
-				PushManager.stopWork(context);
+				if(!AppApplication.isGuest()){//登录用户需要解绑pushToken
+					//获取push信息
+					String pushUserId = SharedPreferenceUtil.getSharePreStr(context, Config.SP_KEY_BAIDU_PUSH_USER_ID, "");
+					String pushChannelId = SharedPreferenceUtil.getSharePreStr(context, Config.SP_KEY_BAIDU_PUSH_CHANNEL_ID, "");
+					//发起线程解绑用户的pushToken
+					unbindPushToken(pushChannelId, pushUserId);
+				}
+//				PushManager.stopWork(context);//只退出，不结束push
 				
 				//清除本机的登录信息
 				AppApplication.clearAccount();
 				
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);
-				UiUtil.showShortToast(context, "注销登录成功");
+				UiUtil.showShortToast(context, "注销成功");
 				break;
 			default:
 				break;
@@ -177,12 +160,14 @@ public class Activity_Settings extends BaseActivity {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				BindPushTokenApi api = new BindPushTokenApi(channelId, userId, 0);
-				ApiResult apiResult = ApiManager.invoke(context, api);
-				if (apiResult != null && apiResult.getResult() == 1) {
-					LogUtil.d("解绑push的结果： " + apiResult.getResult());
-//					Message message = handler.obtainMessage(HANDLER_FLAG_PUSH_UNBIND);
-//					message.sendToTarget();
+				if(!StringUtils.isBlank(channelId)&&!StringUtils.isBlank(userId)){
+					BindPushTokenApi api = new BindPushTokenApi(channelId, userId, 0);
+					ApiResult apiResult = ApiManager.invoke(context, api);
+					if (apiResult != null && apiResult.getResult() == 1) {
+						LogUtil.d("解绑push的结果： " + apiResult.getResult());
+	//					Message message = handler.obtainMessage(HANDLER_FLAG_PUSH_UNBIND);
+	//					message.sendToTarget();
+				}
 				}
 			}
 		}).start();

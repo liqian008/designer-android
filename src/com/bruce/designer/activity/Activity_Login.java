@@ -44,7 +44,7 @@ public class Activity_Login extends BaseActivity{
 	/*微博登录失败*/
 	private static final int HANDLER_FLAG_WEIBO_LOGIN_FAILED = 2;
 	/*测试登录成功*/
-	private static final int HANDLER_TEST_LOGIN_SUCCEED = 10;
+	private static final int HANDLER_GUEST_LOGIN_SUCCEED = 10;
 	
 	protected static final int HANDLER_FLAG_BIND_SUCCESS = 20;
 	protected static final int HANDLER_FLAG_BIND_FAILED = 21;
@@ -171,7 +171,7 @@ public class Activity_Login extends BaseActivity{
 			progressDialog.dismiss();
 			switch(msg.what){
 				case HANDLER_FLAG_WEIBO_LOGIN_SUCCESS:
-				case HANDLER_TEST_LOGIN_SUCCEED:
+				case HANDLER_GUEST_LOGIN_SUCCEED:
 					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
 					User hostUser = (User) dataMap.get("hostUser");
@@ -242,7 +242,7 @@ public class Activity_Login extends BaseActivity{
 					public void run() {
 						ApiResult jsonResult = ApiManager.invoke(context,new GuestLoginApi());
 						if (jsonResult != null && jsonResult.getResult() == 1) {
-							Message message = loginHandler.obtainMessage(HANDLER_TEST_LOGIN_SUCCEED);
+							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_SUCCEED);
 							message.obj = jsonResult.getData();
 							message.sendToTarget();
 						}

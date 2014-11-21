@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 
 public class TimeUtil {
 
-	public static final SimpleDateFormat SDF_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
+//	public static final SimpleDateFormat SDF_YYYY_MM_DD = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static final long TIME_UNIT_SECOND = 1000;
 	public static final long TIME_UNIT_MINUTE = TIME_UNIT_SECOND * 60;
@@ -39,10 +39,12 @@ public class TimeUtil {
 			timeStr = hour + "小时前";
 		} else if (minute > 0) {
 			timeStr = minute + "分钟前";
-		} else {
+		} else if (second > 20) {
 			timeStr = second + "秒前";
+		}else {
+			timeStr = "刚刚";
 		}
-		System.out.println(timeStr);
+//		System.out.println(timeStr);
 		return timeStr;
 	}
 }

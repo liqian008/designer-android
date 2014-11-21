@@ -259,17 +259,15 @@ public class Activity_Settings_Push extends BaseActivity {
 	
 	private void processBeforeFinish() {
 		long latestPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK , Long.MAX_VALUE);
-//		UiUtil.showLongToast(context, "latestPushMask: "+latestPushMask);
 		
-		if(cachedPushMask!=latestPushMask){//两次push设置不一致，说明有变更
+		if(cachedPushMask!=latestPushMask){//进入与返回时两次push设置不一致，说明有修改
 			updatePushSettings(latestPushMask);
-			
-			if(cachedPushMask==0 &&latestPushMask>0 ){//在push设置中开启了push
-				PushManager.resumeWork(context);
-			}
-			if(cachedPushMask!=0&&latestPushMask<=0 ){//在push设中全部关闭了
-				PushManager.stopWork(context);
-			}
+//			if(cachedPushMask==0 &&latestPushMask>0 ){//在push设置中开启了push
+//				PushManager.resumeWork(context);
+//			}
+//			if(cachedPushMask!=0&&latestPushMask<=0 ){//在push设中全部关闭了
+//				PushManager.stopWork(context);
+//			}
 		}
 	}
 	

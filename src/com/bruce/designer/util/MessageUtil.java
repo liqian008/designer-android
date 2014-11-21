@@ -3,6 +3,7 @@ package com.bruce.designer.util;
 import android.widget.ImageView;
 
 import com.bruce.designer.R;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.model.Message;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -77,7 +78,7 @@ public class MessageUtil {
 	
 	
 	public static boolean isChatMessage(int messageType) {
-		return messageType >= 100000;
+		return messageType >= Config.GUEST_USER_ID;
 	}
 	
 	/**

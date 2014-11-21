@@ -70,6 +70,6 @@ private Map<String, String> paramMap = null;
 	 * @return
 	 */
 	protected boolean needAuth(){
-		return true;
+		return false;
 	}
 }
