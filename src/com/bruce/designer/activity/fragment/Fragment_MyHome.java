@@ -40,6 +40,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ImageUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -60,7 +61,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	public static final int REQUEST_CODE_USERINFO = 100;
 	public static final int RESULT_CODE_AVATAR_CHANGED = 200;
 	
-	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
+	private int HOST_ID = AppApplication.getUserPassport().getUserId();
 	
 	private Activity activity; 
 	private LayoutInflater inflater;

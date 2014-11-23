@@ -12,6 +12,7 @@ import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -145,11 +146,11 @@ public class AppApplication extends FrontiaApplication {
 	 * 注销时清除sp的账户缓存
 	 */
 	public static void clearAccount(){
-		//写入sp
+		//清除sp中的缓存
 		hostUser = null;
-		SharedPreferenceUtil.writeObjectToSp(hostUser, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
 		userPassport = null;
-		SharedPreferenceUtil.writeObjectToSp(userPassport, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
+		SharedPreferenceUtil.removeSharePre(application, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
+		SharedPreferenceUtil.removeSharePre(application, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERPASSPORT);
 	}
 	
 

@@ -10,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.baidu.android.pushservice.PushManager;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
@@ -139,6 +138,8 @@ public class Activity_Settings extends BaseActivity {
 				
 				//清除本机的登录信息
 				AppApplication.clearAccount();
+				//TODO 清除DB缓存的数据
+				
 				
 				AppManager.getInstance().finishAllActivity();
 				Activity_Login.show(context);

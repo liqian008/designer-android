@@ -18,7 +18,6 @@ import com.bruce.designer.activity.Activity_ImageBrowser;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.util.DipUtil;
-import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
@@ -28,11 +27,15 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 		private Context context;
 		
 		private ArrayList<String> slideUrlList;
+		private ArrayList<String> slideTitleList;
+		private ArrayList<String> slideDescList;
 		
 		public AlbumSlidesAdapter(Context context, List<AlbumSlide> slideList) {
 			this.context = context;
 			this.slideList = slideList;
 			slideUrlList = getSlideImageUrlList(slideList);
+			slideTitleList = getSlideTitleList(slideList);
+			slideDescList = getSlideDescList(slideList);
 		}
 
 		private ArrayList<String> getSlideImageUrlList(List<AlbumSlide> slideList) {
@@ -45,6 +48,29 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 			}
 			return urlList;
 		}
+		
+		private ArrayList<String> getSlideTitleList(List<AlbumSlide> slideList) {
+			ArrayList<String> urlList = null;
+			if(slideList!=null&&slideList.size()>0){
+				urlList = new ArrayList<String>();
+				for(AlbumSlide slide: slideList){
+					urlList.add(slide.getTitle());
+				}
+			}
+			return urlList;
+		}
+		
+		private ArrayList<String> getSlideDescList(List<AlbumSlide> slideList) {
+			ArrayList<String> urlList = null;
+			if(slideList!=null&&slideList.size()>0){
+				urlList = new ArrayList<String>();
+				for(AlbumSlide slide: slideList){
+					urlList.add(slide.getRemark());
+				}
+			}
+			return urlList;
+		}
+		
 		
 		@Override
 		public int getCount() {
@@ -79,9 +105,9 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 				int width = DipUtil.getScreenWidth((Activity)context);
 				int itemWidth = (width-widthSpace)/3;
 				
-				LogUtil.d("======widthSpace======"+widthSpace);
-				LogUtil.d("======width======"+width);
-				LogUtil.d("======itemWidth======"+itemWidth);
+//				LogUtil.d("======widthSpace======"+widthSpace);
+//				LogUtil.d("======width======"+width);
+//				LogUtil.d("======itemWidth======"+itemWidth);
 				
 				FrameLayout layout = new FrameLayout(context);
 				FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
@@ -105,7 +131,7 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 					@Override
 					public void onSingleClick(View v) {
 						if(slideUrlList!=null&&slideUrlList.size()>0){
-							Activity_ImageBrowser.show(context, slideIndex, slideUrlList);
+							Activity_ImageBrowser.show(context, slideIndex, slideUrlList, slideTitleList, slideDescList);
 						}
 					}
 				});
@@ -118,6 +144,8 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 		public void setSlideList(List<AlbumSlide> slideList) {
 			this.slideList = slideList;
 			slideUrlList = getSlideImageUrlList(slideList);
+			slideTitleList = getSlideTitleList(slideList);
+			slideDescList = getSlideDescList(slideList);
 		}
 		
 	}

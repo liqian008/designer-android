@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -32,13 +31,25 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 	private View titlebarView;
 	private TextView titleView;
 	
-	private static final String KEY_BROWSE_INDEX = "index";
-	private static final String kEY_BROWSE_IMAGE_LIST = "test";
+	private TextView albumSlideIndicatorView, albumSlideTitleView, albumSlideDescView;
 	
-	public static void show(Context context, int index, ArrayList<String> imageUrlList){
+	private int currentIndex;
+	private int totalSize;
+
+	private List<String> slideTitleList;
+	private List<String> slideDescList;
+	
+	private static final String KEY_BROWSE_INDEX = "index";
+	private static final String kEY_BROWSE_SLIDE_URL_LIST = "slideUrl";
+	private static final String kEY_BROWSE_SLIDE_TITLE_LIST = "slideTitle";
+	private static final String kEY_BROWSE_SLIDE_DESC_LIST = "slideDesc";
+	
+	public static void show(Context context, int index, ArrayList<String> imageUrlList, ArrayList<String> titleList, ArrayList<String> descList){
 		Intent intent = new Intent(context, Activity_ImageBrowser.class);
 		intent.putExtra(KEY_BROWSE_INDEX, index);
-		intent.putStringArrayListExtra(kEY_BROWSE_IMAGE_LIST, imageUrlList);
+		intent.putStringArrayListExtra(kEY_BROWSE_SLIDE_URL_LIST, imageUrlList);
+		intent.putStringArrayListExtra(kEY_BROWSE_SLIDE_TITLE_LIST, titleList);
+		intent.putStringArrayListExtra(kEY_BROWSE_SLIDE_DESC_LIST, descList);
 		context.startActivity(intent);
 	}
 	
@@ -47,22 +58,36 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_browser);
 		
+		Intent intent = getIntent();
+		currentIndex = intent.getIntExtra(KEY_BROWSE_INDEX, 0);
+		List<String> imageUrlList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_URL_LIST);
+		slideTitleList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_TITLE_LIST);
+		slideDescList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_DESC_LIST);
+		
+		
 		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("详情展示");
 		
-		Intent intent = getIntent();
-		int index = intent.getIntExtra(KEY_BROWSE_INDEX, 0);
-		List<String> imageUrlList = intent.getStringArrayListExtra(kEY_BROWSE_IMAGE_LIST);
+		albumSlideIndicatorView = (TextView) findViewById(R.id.albumSlideIndicator);
+		albumSlideIndicatorView.setText((currentIndex+1) + "/" + totalSize);
+		
+		albumSlideTitleView = (TextView) findViewById(R.id.albumSlideTitle);
+		albumSlideTitleView.setText(slideTitleList.get(currentIndex));
+		
+		albumSlideDescView = (TextView) findViewById(R.id.albumSlideDesc);
+		albumSlideDescView.setText(slideDescList.get(currentIndex));
+		
+		
 		viewPager = (ViewPager) findViewById(R.id.viewPager);
 		if(imageUrlList!=null&&imageUrlList.size()>0){
+			totalSize = imageUrlList.size();
 			//非法index视为0
-			if(index<0 || index>=imageUrlList.size()){
-				index = 0;
+			if(currentIndex<0 || currentIndex>=imageUrlList.size()){
+				currentIndex = 0;
 			}
-			
 			
 			List<View> views = new ArrayList<View>();
 			for(String imageUrl: imageUrlList){
@@ -73,8 +98,8 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 			}
 			ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(this, views);
 			viewPager.setAdapter(pagerAdapter);
-			
-			viewPager.setCurrentItem(index);
+			viewPager.setOnPageChangeListener(this);
+			viewPager.setCurrentItem(currentIndex);
 		}
 	}
 
@@ -91,6 +116,14 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 
 	@Override
 	public void onPageSelected(int arg0) {
+		currentIndex = arg0;
+		albumSlideIndicatorView.setText((currentIndex+1) + "/" + totalSize);
+		if(slideDescList!=null&&slideDescList.size()>currentIndex){
+			albumSlideDescView.setText(slideDescList.get(currentIndex));
+		}
+		if(slideTitleList!=null&&slideTitleList.size()>currentIndex){
+			albumSlideTitleView.setText(slideTitleList.get(currentIndex));
+		}
 	}
 	
 	
@@ -106,4 +139,6 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 			}
 		}
 	};
+
+	
 }

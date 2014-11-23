@@ -2,23 +2,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    >
+    android:background="@color/black2c" >
 
-    <ImageView
+   <ImageView
         android:id="@+id/pager_imgview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" >
     </ImageView>
 
-    <!-- 
+   <!--  <com.bruce.designer.view.ZoomableImageView
+        android:id="@+id/zoomable_image_item"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitCenter" >
+    </com.bruce.designer.view.ZoomableImageView> -->
+
+    <!--
     <ProgressBar
         android:id="@+id/pager_progressbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" >
     </ProgressBar>
-     -->
+    -->
 
 </RelativeLayout>
