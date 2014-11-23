@@ -4,19 +4,19 @@
     android:layout_height="match_parent"
     android:background="@color/black2c" >
 
-   <ImageView
+   <!-- <ImageView
         android:id="@+id/pager_imgview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" >
-    </ImageView>
+    </ImageView> -->
 
-   <!--  <com.bruce.designer.view.ZoomableImageView
+	<com.bruce.designer.view.ZoomableImageView
         android:id="@+id/zoomable_image_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitCenter" >
-    </com.bruce.designer.view.ZoomableImageView> -->
+    </com.bruce.designer.view.ZoomableImageView>
 
     <!--
     <ProgressBar

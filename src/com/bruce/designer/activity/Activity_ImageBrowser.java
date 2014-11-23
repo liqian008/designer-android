@@ -5,19 +5,22 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.ViewPagerAdapter;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.UniversalImageUtil;
+import com.bruce.designer.view.ZoomableImageView;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 /**
  * 浏览图片的activity
@@ -38,6 +41,8 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 
 	private List<String> slideTitleList;
 	private List<String> slideDescList;
+
+	
 	
 	private static final String KEY_BROWSE_INDEX = "index";
 	private static final String kEY_BROWSE_SLIDE_URL_LIST = "slideUrl";
@@ -93,8 +98,13 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 			for(String imageUrl: imageUrlList){
 				View imageViewItem = inflater.inflate(R.layout.pager_image_view, null);
 				views.add(imageViewItem);
-				ImageView imageView = (ImageView) imageViewItem.findViewById(R.id.pager_imgview);
-				ImageLoader.getInstance().displayImage(imageUrl, imageView, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
+				//ImageView imageView = (ImageView) imageViewItem.findViewById(R.id.pager_imgview);
+				
+				ZoomableImageView imageView = (ZoomableImageView) imageViewItem.findViewById(R.id.zoomable_image_item);
+				ImageLoader.getInstance().displayImage(imageUrl, imageView, UniversalImageUtil.DEFAULT_ALPHA0_DISPLAY_OPTION, new UniversialLoadListener(imageView) ); 
+				
+//				Bitmap imageBitmap = ImageLoader.getInstance().loadImageSync(imageUrl, UniversalImageUtil.DEFAULT_DISPLAY_OPTION);
+//				imageView.setImageBitmap(imageBitmap);
 			}
 			ViewPagerAdapter pagerAdapter = new ViewPagerAdapter(this, views);
 			viewPager.setAdapter(pagerAdapter);
@@ -140,5 +150,32 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 		}
 	};
 
-	
+	class UniversialLoadListener implements ImageLoadingListener {
+		
+		public ZoomableImageView imageView;
+		
+		public UniversialLoadListener(ZoomableImageView imageView){
+			this.imageView = imageView;
+		}
+		
+		@Override
+		public void onLoadingStarted(String arg0, View arg1) {
+			
+		}
+		
+		@Override
+		public void onLoadingFailed(String arg0, View arg1, FailReason arg2) {
+			
+		}
+		
+		@Override
+		public void onLoadingComplete(String arg0, View arg1, Bitmap arg2) {
+			imageView.setImageBitmap(arg2);
+		}
+		
+		@Override
+		public void onLoadingCancelled(String arg0, View arg1) {
+			
+		}
+	};
 }

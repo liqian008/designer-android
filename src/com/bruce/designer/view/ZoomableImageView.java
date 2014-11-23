@@ -1,19 +1,22 @@
 package com.bruce.designer.view;
 
+import com.bruce.designer.util.UiUtil;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
+import android.widget.ImageView;
 
 /**
  * 自定义的ImageView控制，可对图片进行多点触控缩放和拖动
+ * 参考文章（http://blog.csdn.net/guolin_blog/article/details/12646775）
  * 
  * @author guolin
  */
-public class ZoomableImageView extends View {
+public class ZoomableImageView extends ImageView {
 
 	/**
 	 * 初始化状态常量
@@ -129,6 +132,14 @@ public class ZoomableImageView extends View {
 	 * 记录上次两指之间的距离
 	 */
 	private double lastFingerDis;
+	/**
+	 * 记录上次点击的时间（判断双击事件）
+	 */
+	private long lastClickTime;
+
+	private Context context;
+	
+	private int biggestScale = 4;
 
 	/**
 	 * ZoomImageView构造函数，将当前操作状态设为STATUS_INIT。
@@ -138,19 +149,27 @@ public class ZoomableImageView extends View {
 	 */
 	public ZoomableImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		this.context = context;
 		currentStatus = STATUS_INIT;
+		
+//		setDrawingCacheEnabled(true);
+//		sourceBitmap = getDrawingCache();
+//		UiUtil.showShortToast(context, "sourceBitmap: "+sourceBitmap);
+//		setDrawingCacheEnabled(false);
 	}
 
 	/**
 	 * 将待展示的图片设置进来。
 	 * 
 	 * @param bitmap
-	 *            待展示的Bitmap对象
+	 * 待展示的Bitmap对象
 	 */
 	public void setImageBitmap(Bitmap bitmap) {
 		sourceBitmap = bitmap;
 		invalidate();
 	}
+	
+	
 
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right,
@@ -215,7 +234,7 @@ public class ZoomableImageView extends View {
 					currentStatus = STATUS_ZOOM_IN;
 				}
 				// 进行缩放倍数检查，最大只允许将图片放大4倍，最小可以缩小到初始化比例
-				if ((currentStatus == STATUS_ZOOM_OUT && totalRatio < 4 * initRatio)
+				if ((currentStatus == STATUS_ZOOM_OUT && totalRatio < biggestScale * initRatio)
 						|| (currentStatus == STATUS_ZOOM_IN && totalRatio > initRatio)) {
 					scaledRatio = (float) (fingerDis / lastFingerDis);
 					totalRatio = totalRatio * scaledRatio;
@@ -242,6 +261,18 @@ public class ZoomableImageView extends View {
 			lastXMove = -1;
 			lastYMove = -1;
 			break;
+//		case MotionEvent.ACTION_DOWN:
+//			float startX = event.getRawX();  
+//			float startY = event.getRawY();  
+//			if (event.getPointerCount() == 1) {  
+//	            // 如果两次点击时间间隔小于一定值，则默认为双击事件  
+//	            if (event.getEventTime() - lastClickTime < 500) {  
+////	                changeSize(startX, startY);  
+//	                UiUtil.showShortToast(context, "双击");
+//	            }
+//	        }  
+//	        lastClickTime = event.getEventTime();  
+//			break;
 		default:
 			break;
 		}
@@ -254,21 +285,28 @@ public class ZoomableImageView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		switch (currentStatus) {
-		case STATUS_ZOOM_OUT:
-		case STATUS_ZOOM_IN:
-			zoom(canvas);
-			break;
-		case STATUS_MOVE:
-			move(canvas);
-			break;
-		case STATUS_INIT:
-			initBitmap(canvas);
-		default:
-			if (sourceBitmap != null) {
-				canvas.drawBitmap(sourceBitmap, matrix, null);
+		if(sourceBitmap!=null){
+			switch (currentStatus) {
+			case STATUS_ZOOM_OUT:
+			case STATUS_ZOOM_IN:
+				if(sourceBitmap!=null){
+					zoom(canvas);
+				}
+				break;
+			case STATUS_MOVE:
+				if(sourceBitmap!=null){
+					move(canvas);
+				}
+				break;
+			case STATUS_INIT:
+				initBitmap(canvas);
+				break;
+			default:
+				if (sourceBitmap != null) {
+					canvas.drawBitmap(sourceBitmap, matrix, null);
+				}
+				break;
 			}
-			break;
 		}
 	}
 

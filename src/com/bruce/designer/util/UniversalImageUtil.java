@@ -12,14 +12,22 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 
 public class UniversalImageUtil {
 	
-	private static final int LOADING_IMAGE_ID = R.drawable.tab_icon_main;
-	private static final int LOADING_FAIL_IMAGE_ID = R.drawable.tab_icon_main;
+	private static final int LOADING_IMAGE_ID = R.drawable.alpha_0;
+	private static final int LOADING_FAIL_IMAGE_ID = R.drawable.alpha_0;
 	
 	private static final int LOADING_AVATAR_IMAGE_ID = R.drawable.default_avatar;
 	private static final int LOADING_FAIL_AVATAR_IMAGE_ID = R.drawable.default_avatar;
 	
-	public static final DisplayImageOptions DEFAULT_DISPLAY_OPTION = buildDisplayOption(LOADING_IMAGE_ID, LOADING_FAIL_IMAGE_ID);
+	/*透明的加载图片*/
+	private static final int LOADING_ALPHA0_IMAGE_ID = R.drawable.alpha_0;
+	private static final int LOADING_FAIL_ALPHA0_IMAGE_ID = R.drawable.alpha_0;
+	
+	
+	
 	public static final DisplayImageOptions DEFAULT_AVATAR_DISPLAY_OPTION = buildDisplayOption(LOADING_AVATAR_IMAGE_ID, LOADING_FAIL_AVATAR_IMAGE_ID);
+	public static final DisplayImageOptions DEFAULT_ALPHA0_DISPLAY_OPTION = buildDisplayOption(LOADING_ALPHA0_IMAGE_ID, LOADING_FAIL_ALPHA0_IMAGE_ID);
+	public static final DisplayImageOptions DEFAULT_DISPLAY_OPTION = buildDisplayOption(LOADING_IMAGE_ID, LOADING_FAIL_IMAGE_ID);
+	
 	
 	public static ImageLoaderConfiguration buildUniversalImageConfig(
 			Context context) {
