@@ -131,8 +131,8 @@ public class AlbumDB {
 	
 	public static int saveAlbumsByTab(Context context, List<Album> albumList, int tabIndex) {
 		switch(tabIndex){
-			case 0:	return save(context, TB_ALBUM_RECOMMEND, albumList);
-			case 1: return save(context, TB_ALBUM_LATEST, albumList);
+			case 0: return save(context, TB_ALBUM_LATEST, albumList);
+			case 1:	return save(context, TB_ALBUM_RECOMMEND, albumList);
 			case 2:	return save(context, TB_ALBUM_FOLLOW, albumList);
 			default: return 0;
 		}
@@ -286,8 +286,8 @@ public class AlbumDB {
 	
 	public static int deleteByTab(Context context, int tabIndex){
 		switch(tabIndex){
-		case 0:	return delete(context, TB_ALBUM_RECOMMEND);
-		case 1: return delete(context, TB_ALBUM_LATEST);
+		case 0: return delete(context, TB_ALBUM_LATEST);
+		case 1:	return delete(context, TB_ALBUM_RECOMMEND);
 		case 2:	return delete(context, TB_ALBUM_FOLLOW);
 		default: return 0;
 		}

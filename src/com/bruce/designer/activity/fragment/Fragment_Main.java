@@ -35,6 +35,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -86,12 +87,12 @@ public class Fragment_Main extends BaseFragment{
 	}
 	
 	private void initView(View view) {
-		tabIndicators[0] = view.findViewById(R.id.tab_recommend_indicator);
-		tabIndicators[1] = view.findViewById(R.id.tab_latest_indicator);
+		tabIndicators[0] = view.findViewById(R.id.tab_latest_indicator);
+		tabIndicators[1] = view.findViewById(R.id.tab_recommend_indicator);
 		tabIndicators[2] = view.findViewById(R.id.tab_myview_indicator);
 		
-		tabViews[0] = view.findViewById(R.id.tab_recommend);
-		tabViews[1] = view.findViewById(R.id.tab_latest);
+		tabViews[0] = view.findViewById(R.id.tab_latest);
+		tabViews[1] = view.findViewById(R.id.tab_recommend);
 		tabViews[2] = view.findViewById(R.id.tab_myview);
 
 		//响应事件
@@ -162,6 +163,8 @@ public class Fragment_Main extends BaseFragment{
 			tabIndicator.setVisibility(View.GONE);//全部隐藏
 		}
 		currentTab = tabIndex;
+//		UiUtil.showShortToast(activity, "======currentTab====="+currentTab);
+		
 		//显示
 		tabIndicators[currentTab].setVisibility(View.VISIBLE);
 		viewPager.setCurrentItem(currentTab);
@@ -174,18 +177,18 @@ public class Fragment_Main extends BaseFragment{
 		//相应page上请求数据
 		List<Album> albumList = null;
 		if(currentTab==1){
-			albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
+			albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
 		}else if(currentTab==2){
 			albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
 		}else{
-			albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
+			albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
 		}
 		
 		//自动刷新
 		listViewAdapters[currentTab].setAlbumList(albumList);
 		listViewAdapters[currentTab].notifyDataSetChanged();
 		
-		if(albumList==null || albumList.size() ==0 || interval > TimeUtil.TIME_UNIT_MINUTE){
+		if(albumList==null || albumList.size() ==0 || interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
 			pullRefreshViews[currentTab].setRefreshing(false);
 		}
 	}
@@ -226,11 +229,11 @@ public class Fragment_Main extends BaseFragment{
 				Message message;
 				AbstractApi api = null;
 				if(tabIndex==1){
-					api = new AlbumListApi(0, albumTailId);
+					api = new AlbumRecommendApi();
 				}else if(tabIndex==2){
 					api = new FollowAlbumListApi(albumTailId);
 				}else{
-					api = new AlbumRecommendApi();
+					api = new AlbumListApi(0, albumTailId);
 				}
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
 				if(jsonResult!=null&&jsonResult.getResult()==1){
@@ -251,22 +254,22 @@ public class Fragment_Main extends BaseFragment{
 		public void handleMessage(Message msg) {
 			int what = msg.what;
 			switch(what){
-				case HANDLER_FLAG_TAB0:
-					pullRefreshViews[0].onRefreshComplete();
-					Map<String, Object> tab0DataMap = (Map<String, Object>) msg.obj;
-					if(tab0DataMap!=null){
-						List<Album> albumList = (List<Album>) tab0DataMap.get("albumList");
+				case HANDLER_FLAG_TAB1:
+					pullRefreshViews[1].onRefreshComplete();
+					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
+					if(tab1DataMap!=null){
+						List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
 						if(albumList!=null&&albumList.size()>0){
-							AlbumDB.deleteByTab(activity, 0);
+							AlbumDB.deleteByTab(activity, 1);
 							//save to db
-							AlbumDB.saveAlbumsByTab(activity, albumList, 0);
-							listViewAdapters[0].setAlbumList(albumList);
-							listViewAdapters[0].notifyDataSetChanged();
+							AlbumDB.saveAlbumsByTab(activity, albumList, 1);
+							listViewAdapters[1].setAlbumList(albumList);
+							listViewAdapters[1].notifyDataSetChanged();
 						}
 					}
-					SharedPreferenceUtil.putSharePre(activity, getRefreshKey(0), System.currentTimeMillis());
+					SharedPreferenceUtil.putSharePre(activity, getRefreshKey(1), System.currentTimeMillis());
 					break;
-				case HANDLER_FLAG_TAB1:
+				case HANDLER_FLAG_TAB0:
 				case HANDLER_FLAG_TAB2:
 					int tabIndex = what;
 					//关闭刷新控件

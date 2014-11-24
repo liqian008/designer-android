@@ -52,41 +52,7 @@
         android:background="@color/white"
         android:orientation="horizontal" >
 
-        <RelativeLayout
-            android:id="@+id/tab_recommend"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="1.0" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="精选推荐" />
-
-            <ImageView
-                android:layout_width="1.0px"
-                android:layout_height="30.0dip"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="10.0dip"
-                android:background="#ffeeeeee" />
-            
-            <RelativeLayout 
-                android:id="@+id/tab_recommend_indicator"
-                android:layout_width="fill_parent"
-                android:layout_height="2dp"
-                android:layout_alignParentBottom="true"
-                android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:visibility="gone"
-                >
-                <RelativeLayout
-                    android:layout_width="match_parent" 
-                    android:layout_height="match_parent"
-                    android:background="@color/green"/>
-            </RelativeLayout>
-        </RelativeLayout>
+        
 
         <RelativeLayout
             android:id="@+id/tab_latest"
@@ -134,7 +100,45 @@
                 android:background="@drawable/new_notice_tip"/>
              -->
         </RelativeLayout>
+		
+        
+        
+        <RelativeLayout
+            android:id="@+id/tab_recommend"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1.0" >
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="精选推荐" />
+
+            <ImageView
+                android:layout_width="1.0px"
+                android:layout_height="30.0dip"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="10.0dip"
+                android:background="#ffeeeeee" />
+            
+            <RelativeLayout 
+                android:id="@+id/tab_recommend_indicator"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                >
+                <RelativeLayout
+                    android:layout_width="match_parent" 
+                    android:layout_height="match_parent"
+                    android:background="@color/green"/>
+            </RelativeLayout>
+        </RelativeLayout>
+        
         <RelativeLayout
             android:id="@+id/tab_myview"
             android:layout_width="fill_parent"
