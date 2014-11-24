@@ -500,11 +500,13 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.btnCommentPost:
+				if(toId<=0) toId=designerId;//确保toId有效
 				//检查内容不为空
 				//启动线程发布评论
 				postComment(designerId, toId, commentInput.getText().toString());
 				break;
 			case R.id.btnComment:
+				toId = designerId;
 				commentInput.requestFocus();
 				commentInput.setSelection(commentInput.length());
 				//弹起软键盘
