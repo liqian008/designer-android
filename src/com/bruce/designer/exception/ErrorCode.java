@@ -19,6 +19,13 @@ public class ErrorCode {
 	
 	/* 没有更多数据 */
 	public final static int SYSTEM_NO_MORE_DATA = 4;
+	
+	public final static int E_SYS_INVALID_APP_ID = 6;// invalid appid
+
+    public final static int E_SYS_INVALID_TICKET = 7;// invalid tikect
+
+    public final static int E_SYS_INVALID_SIG = 8;// invalid sig
+	
 
 	/* 权限相关分配100-200的错误码 */
 	

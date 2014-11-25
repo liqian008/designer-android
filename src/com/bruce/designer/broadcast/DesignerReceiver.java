@@ -26,7 +26,9 @@ public class DesignerReceiver extends BroadcastReceiver {
 				break;
 			case ConstantsKey.BROADCAST_BACK_TO_LOGIN://需返回至登录界面
 				AppManager.getInstance().finishAllActivity();
-				Activity_Login.show(context);
+				Intent loginIntent = new Intent(context, Activity_Login.class);
+				loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				context.startActivity(loginIntent);;
 				break;
 			default:
 				break;

@@ -4,7 +4,7 @@ public class UserPassport {
 
 	private int userId;
 	private String ticket;
-//	private String userSecretKey;
+	private String userSecretKey;
 	
 	public UserPassport(int userId, String ticket) {
 		super();
@@ -33,12 +33,12 @@ public class UserPassport {
 		this.ticket = ticket;
 	}
 
-//	public String getUserSecretKey() {
-//		return userSecretKey;
-//	}
-//
-//	public void setUserSecretKey(String userSecretKey) {
-//		this.userSecretKey = userSecretKey;
-//	}
+	public String getUserSecretKey() {
+		return userSecretKey;
+	}
+
+	public void setUserSecretKey(String userSecretKey) {
+		this.userSecretKey = userSecretKey;
+	}
 
 }

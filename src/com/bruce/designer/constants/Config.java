@@ -22,7 +22,7 @@ public class Config {
 	/*客户端versionCode*/
 	public static final int APP_VERSION_CODE = AppApplication.getVersionCode();
 	/*客户端ID*/
-	public static final String APP_ID = "1";//jinwanr_android
+	public static final String APP_ID = "2";//jinwanr_android
 	/*客户端SECRET KEY*/
 	public static final String APP_SECRET_KEY = "1qaz2wsx";
 	
@@ -33,11 +33,8 @@ public class Config {
 	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
 	//test mcap api
 //	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
-
-	
 	
 	public static final String JINWAN_API_PREFIX = JINWAN_MOBILE_DOMAIN + "/api";
-	
 	
 	
 //	public static final String JINWAN_API_ALBUMS = JINWAN_API_PREFIX + "/moreAlbums.json";

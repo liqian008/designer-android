@@ -77,7 +77,8 @@ public class Activity_UserInfo extends BaseActivity {
 	private ImageView avatarView;
 	private TextView modifyAvatarView;
 
-	private TextView nicknameView, emailTextView, shopTextView, introduceTextView;
+	private View usernameContainer, weixinNumberContainer, shopContainer, introduceContainer;
+	private TextView userTypeTextView, nicknameTextView, usernameTextView, weixinNumberTextView, shopTextView, introduceTextView;
 
 	private int queryUserId;
 	/*头像的数据*/
@@ -101,12 +102,22 @@ public class Activity_UserInfo extends BaseActivity {
 						if (userinfo.getHeadImg() != null) {
 							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
 						}
-						nicknameView.setText(userinfo.getNickname());
-						emailTextView.setText(userinfo.getUsername());
-						shopTextView.setText(userinfo
-								.getDesignerTaobaoHomepage());
-						introduceTextView.setText(userinfo
-								.getDesignerIntroduction());
+						nicknameTextView.setText(userinfo.getNickname());
+						usernameTextView.setText(userinfo.getUsername());
+						shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
+						introduceTextView.setText(userinfo.getDesignerIntroduction());
+						if(userinfo.getDesignerStatus()==2){//设计师身份
+							weixinNumberTextView.setText(userinfo.getWeixinNumber());
+							weixinNumberContainer.setVisibility(View.VISIBLE);
+							shopContainer.setVisibility(View.VISIBLE);
+							introduceContainer.setVisibility(View.VISIBLE);
+							userTypeTextView.setText("设计师");
+						}else{
+							UiUtil.showShortToast(context, "非设计师");
+							weixinNumberContainer.setVisibility(View.GONE);
+							shopContainer.setVisibility(View.GONE);
+							introduceContainer.setVisibility(View.GONE);
+						}
 					}
 				}
 				break;
@@ -136,25 +147,33 @@ public class Activity_UserInfo extends BaseActivity {
 
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("个人资料");
-
+		
+		usernameContainer = (View) findViewById(R.id.usernameContainer);
+		weixinNumberContainer = (View) findViewById(R.id.weixinNumberContainer);
+		shopContainer = (View) findViewById(R.id.shopContainer);
+		introduceContainer = (View) findViewById(R.id.introduceContainer);
+		
 		avatarView = (ImageView) findViewById(R.id.avatar);
 		modifyAvatarView = (TextView) findViewById(R.id.modifyAvatar);
 		if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
 			modifyAvatarView.setText("修改头像");
 			modifyAvatarView.setOnClickListener(listener);
+			usernameContainer.setVisibility(View.VISIBLE);
 		}else{
 			modifyAvatarView.setText("头像");
+			usernameContainer.setVisibility(View.GONE);
 		}
-
-		nicknameView = (TextView) findViewById(R.id.nickNameTextView);
-		emailTextView = (TextView) findViewById(R.id.emailTextView);
+		
+		userTypeTextView = (TextView) findViewById(R.id.userTypeTextView); 
+		nicknameTextView = (TextView) findViewById(R.id.nickNameTextView);
+		usernameTextView = (TextView) findViewById(R.id.usernameTextView);
+		weixinNumberTextView = (TextView) findViewById(R.id.weixinNumberTextView);
 		shopTextView = (TextView) findViewById(R.id.shopTextView);
 		introduceTextView = (TextView) findViewById(R.id.introduceTextView);
 
 		User userinfo = SharedPreferenceUtil.readObjectFromSp(User.class,
 				Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
-		if (queryUserId == HOST_ID && (userinfo != null && userinfo.getId() != null && userinfo
-						.getId() > 0)) {
+		if (queryUserId == HOST_ID && (userinfo != null && userinfo.getId() != null && userinfo.getId() > 0)) {
 			// 从sp中读取用户资料
 			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
 			Map<String, Object> dataMap = new HashMap<String, Object>();

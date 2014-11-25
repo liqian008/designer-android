@@ -26,13 +26,10 @@ import com.bruce.designer.util.UrlUtil;
 
 public class Activity_Settings extends BaseActivity {
 	
-//	protected static final int HANDLER_FLAG_PUSH_UNBIND = 10;
-	
 	private View titlebarView;
 	private TextView titleView;
 	private View pushSettingsView, aboutUsView, clearCacheView, websiteView;
 	private TextView pushStatusView;
-//	private SwitcherView pushSwitcher;
 
 	private Button btnLogout;
 	
@@ -140,10 +137,9 @@ public class Activity_Settings extends BaseActivity {
 				AppApplication.clearAccount();
 				//TODO 清除DB缓存的数据
 				
-				
 				AppManager.getInstance().finishAllActivity();
-				Activity_Login.show(context);
 				UiUtil.showShortToast(context, "注销成功");
+				Activity_Login.show(context);
 				break;
 			default:
 				break;

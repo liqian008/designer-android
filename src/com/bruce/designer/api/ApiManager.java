@@ -16,6 +16,7 @@ import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.MD5;
 import com.bruce.designer.util.MobileUtils;
+import com.bruce.designer.util.StringUtils;
 
 public class ApiManager {
 
@@ -72,7 +73,7 @@ public class ApiManager {
 				return api.processResponse(response);
 			}
 		} catch (DesignerException e) {
-			if(e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM){//签名错误，需要重新登录
+			if(e.getErrorCode()==ErrorCode.E_SYS_INVALID_SIG || e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM || e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM){//签名错误，需要重新登录
 				BroadcastSender.back2Login(context);
 			}
 		} catch (Exception e) {
@@ -97,24 +98,23 @@ public class ApiManager {
 		String appVersionName = Config.APP_VERSION_NAME;
 		int appVersionCode = Config.APP_VERSION_CODE;
 		String appId = Config.APP_ID;
-		String secretKey = Config.APP_SECRET_KEY;
+		String secretKey = Config.APP_SECRET_KEY;//系统默认的secretkey
 		
 		fullParamMap.put("app_id", appId);
 		fullParamMap.put("v_name", appVersionName);
 		fullParamMap.put("v_code", String.valueOf(appVersionCode));
 		fullParamMap.put("call_id", Long.toString(System.currentTimeMillis()));
 		//构造用户级的请求参数
-//		UserPassport userPassport = SharedPreferenceUtil.readObjectFromSp(
-//				UserPassport.class, Config.SP_CONFIG_ACCOUNT,
-//				Config.SP_KEY_USERPASSPORT);
 		UserPassport userPassport = AppApplication.getUserPassport();
 		
 		if(userPassport!=null&&userPassport.getTicket()!=null){
 			String ticket= null;
 			ticket= userPassport.getTicket();
 			fullParamMap.put("t", ticket);
-			//TODO 使用返回UserPassport中secret进行加密，使用统一的secretKey进行加密
-//			secretKey = userPassport.getUserSecretKey();
+			//使用返回UserPassport中secret进行加密
+			if(!StringUtils.isBlank(userPassport.getUserSecretKey())){
+				secretKey = userPassport.getUserSecretKey();
+			}
 		}
 		
 		final StringBuilder sb = new StringBuilder("");
