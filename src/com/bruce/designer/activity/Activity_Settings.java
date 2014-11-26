@@ -31,7 +31,7 @@ public class Activity_Settings extends BaseActivity {
 	private View pushSettingsView, aboutUsView, clearCacheView, websiteView;
 	private TextView pushStatusView;
 
-	private Button btnLogout;
+	private Button btnLogout, btnLogin;
 	
 	public static void show(Context context) {
 		Intent intent = new Intent(context, Activity_Settings.class);
@@ -67,8 +67,15 @@ public class Activity_Settings extends BaseActivity {
 		websiteView.setOnClickListener(listener);
 		
 		btnLogout = (Button) findViewById(R.id.logout);
-		btnLogout.setVisibility(View.VISIBLE);
 		btnLogout.setOnClickListener(listener);
+		btnLogin = (Button) findViewById(R.id.login);
+		btnLogin.setOnClickListener(listener);
+		
+		if(AppApplication.isGuest()){//游客需要展示登录按钮
+			btnLogin.setVisibility(View.VISIBLE);
+		}else{//登录用户展示注销按钮
+			btnLogout.setVisibility(View.VISIBLE);
+		}
 	}
 	
 	@Override
@@ -123,6 +130,14 @@ public class Activity_Settings extends BaseActivity {
 				intent.setData(content_url);  
 				startActivity(intent);
 				break;
+			case R.id.login:
+				//清除本机的登录信息
+				AppApplication.clearAccount();
+				//TODO 清除DB缓存的数据
+				
+				AppManager.getInstance().finishAllActivity();
+				Activity_Login.show(context);
+				break;
 			case R.id.logout:
 				if(!AppApplication.isGuest()){//登录用户需要解绑pushToken
 					//获取push信息
@@ -132,7 +147,6 @@ public class Activity_Settings extends BaseActivity {
 					unbindPushToken(pushChannelId, pushUserId);
 				}
 //				PushManager.stopWork(context);//只退出，不结束push
-				
 				//清除本机的登录信息
 				AppApplication.clearAccount();
 				//TODO 清除DB缓存的数据
