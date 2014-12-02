@@ -95,6 +95,7 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					viewHolder.usernameView = (TextView) convertView.findViewById(R.id.txtUsername);
 					//专辑title
 					viewHolder.titleView = (TextView) convertView.findViewById(R.id.txtSticker);
+					viewHolder.priceView = (TextView) convertView.findViewById(R.id.txtPrice);
 					viewHolder.contentView = (TextView) convertView.findViewById(R.id.txtContent);
 					viewHolder.btnBrowse = (Button) convertView.findViewById(R.id.btnBrowse);
 					viewHolder.btnLike = (Button) convertView.findViewById(R.id.btnLike);

@@ -34,22 +34,14 @@ public class AlbumViewHolder {
 	public ImageView avatarView;
 	// 设计师姓名
 	public TextView usernameView;
-	// 发布时间
-	public TextView pubtimeView;
 	// 封面大图view
 	public ImageView coverView;
 	//列表图片
 	public GridView gridView;
 	// 专辑title
-	public TextView titleView;
-	// 专辑描述
-	public TextView contentView;
+	public TextView titleView, priceView, contentView, pubtimeView;
 	// 专辑统计
-	public Button btnBrowse;
-	public Button btnLike;
-	public Button btnComment;
-	public Button btnFavorite;
-	public Button btnShare;
+	public Button btnBrowse, btnLike, btnComment, btnFavorite, btnShare;
 	// 评论数量
 	public TextView commentView;
 	/*个人主页按钮*/
@@ -89,6 +81,7 @@ public class AlbumViewHolder {
 			
 			//专辑title
 			titleView.setText(album.getTitle());
+			priceView.setText("市价: "+album.getPrice()+"元");
 			//专辑描述
 			String remark = album.getRemark();
 			if(!StringUtils.isBlank(remark)){

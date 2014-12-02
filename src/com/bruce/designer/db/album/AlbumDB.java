@@ -79,6 +79,8 @@ public class AlbumDB {
 			album.setId(cursor.getInt(cursor.getColumnIndex("id")));
 			album.setTitle(cursor.getString(cursor.getColumnIndex("title")));
 			album.setRemark(cursor.getString(cursor.getColumnIndex("remark")));
+			album.setPrice(cursor.getLong(cursor.getColumnIndex("price")));
+			
 			album.setLink(cursor.getString(cursor.getColumnIndex("link")));
 			album.setUserId(cursor.getInt(cursor.getColumnIndex("user_id")));
 			album.setCoverLargeImg(cursor.getString(cursor.getColumnIndex("cover_large_img")));
@@ -159,6 +161,7 @@ public class AlbumDB {
 				values.put("id", album.getId());  
 		        values.put("title", album.getTitle());  
 		        values.put("remark", album.getRemark());
+		        values.put("price", album.getPrice());
 		        values.put("link", album.getLink());
 		        values.put("user_id", album.getUserId());
 		        values.put("status", album.getStatus());

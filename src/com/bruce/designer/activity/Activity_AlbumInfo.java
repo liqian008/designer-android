@@ -66,9 +66,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	private ImageView designerAvatarView;
 	private TextView designerNameView;
-	private TextView pubtimeView;
-	private TextView albumTitleView;
-	private TextView albumContentView;
+	private TextView albumTitleView, albumPriceView, albumContentView, pubtimeView;
 	
 	private TextView commentView;
 	/*按钮*/
@@ -270,6 +268,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		
 		pubtimeView = (TextView) albumInfoView.findViewById(R.id.txtTime);
 		albumTitleView = (TextView) albumInfoView.findViewById(R.id.txtSticker);
+		albumPriceView = (TextView) albumInfoView.findViewById(R.id.txtPrice);
+		
 		albumContentView = (TextView) albumInfoView.findViewById(R.id.txtContent);
 		commentView = (TextView) albumInfoView.findViewById(R.id.txtComment);
 		commentView.setVisibility(View.VISIBLE);
@@ -332,6 +332,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 				albumTitleView.setText(album.getTitle());
+				albumPriceView.setText("市价: "+album.getPrice()+"元");
 //				albumContentView.setText(album.getRemark());
 				//专辑描述
 				String remark = album.getRemark();

@@ -96,21 +96,43 @@
             android:layout_toLeftOf="@+id/btnShare"
             android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/txtSticker"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingMultiplier="1.1"
-                android:text="作品名称"
-                android:textColor="#ffe66c21"
-                android:textSize="16.0sp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/txtSticker"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.1"
+                    android:singleLine="true"
+                    android:text=""
+                    android:layout_toLeftOf="@+id/txtPrice"
+                    android:layout_centerVertical="true"
+                    android:textColor="#ffe66c21"
+                    android:textSize="16.0sp" />
+
+                <TextView
+                    android:id="@+id/txtPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingMultiplier="1.1"
+                    android:layout_alignParentRight="true"
+                    android:singleLine="true"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_alignBottom="@+id/txtSticker"
+                    android:text="市价"
+                    android:textColor="@color/blue_button_normal_color"
+                    android:textSize="13.0sp" />
+            </RelativeLayout>
 
             <TextView
                 android:id="@+id/txtContent"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:lineSpacingMultiplier="1.1"
-                android:text="作品描述"
+                android:text=""
                 android:textColor="#ff252525"
                 android:textSize="14.0sp" />
         </LinearLayout>
