@@ -15,7 +15,7 @@ import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
- * 绑定微博
+ * 绑定注册新账户
  * @author liqian
  *
  */
@@ -23,9 +23,9 @@ public class OAuthRegisteApi extends AbstractApi{
 	
 	private Map<String, String> paramMap = null;
 	
-	public OAuthRegisteApi(String username, String nickname ,String password, String thirdpartyUid,  String thirdpartyUname,  String thirdpartyAvatar, String accessToken, String refreshToken, long expiresTime){
+	public OAuthRegisteApi(String thirdpartyType, String username, String nickname ,String password, String thirdpartyUid,  String thirdpartyUname,  String thirdpartyAvatar, String accessToken, String refreshToken, long expiresTime){
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("thirdpartyType", String.valueOf(1));
+		paramMap.put("thirdpartyType", thirdpartyType);
 		
 		paramMap.put("username", username);
 		paramMap.put("nickname", nickname);

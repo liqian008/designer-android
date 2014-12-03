@@ -20,33 +20,31 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="85dp"
+        android:layout_marginBottom="72dp"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:visibility="visible"
          >
 
         <ImageView
-            android:id="@+id/wbLoginButton"
+            android:id="@+id/weiboLoginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="18dp"
+            android:layout_marginBottom="15dp"
             android:src="@drawable/button_login_weibo" />
         
          <ImageView
             android:id="@+id/weixinLoginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="18dp"
+            android:layout_marginBottom="15dp"
             android:src="@drawable/button_login_weixin"
-            android:visibility="gone"
              />
          
          <ImageView
             android:id="@+id/qqLoginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="18dp"
+            android:layout_marginBottom="15dp"
             android:src="@drawable/button_login_qq" 
             android:visibility="gone"
             />
@@ -61,7 +59,7 @@
     
     
     <LinearLayout
-        android:id="@+id/bindLoginContainer"
+        android:id="@+id/accountContainer"
         android:layout_width="290dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -70,24 +68,61 @@
         android:layout_marginBottom="85dp"
         android:visibility="gone"
         >
-
+		<!-- 
+		
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#fff"
             android:padding="10dp"
             android:text="还差一步您就可完成登录"
-            android:textSize="14dp" 
-            android:visibility="gone"
+            android:textSize="13dp" 
+            android:visibility="visible"
             />
-
-        <View
+         -->
+        <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_height="0.5dp"
-            android:layout_weight="0"
-            android:background="#ececec" />
-
-        <RelativeLayout
+            android:layout_height="35dp"
+            android:background="#00000000"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            android:layout_marginBottom="2dp"
+        >
+        	<Button
+        	    android:id="@+id/bindTab"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/button_orange_bg"
+            android:layout_marginRight="1.5dp"
+            android:text="已注册过本站账户"
+            android:textColor="#fff" 
+            android:textSize="12dp" 
+            android:visibility="visible"
+            />
+        	
+        	<Button
+        	android:id="@+id/registeTab"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="1.5dp"
+            android:background="@drawable/button_grey_bg"
+            android:text="首次访问，立即注册"
+            android:textSize="12dp" 
+            android:visibility="visible"
+            />
+        </LinearLayout>
+       
+		
+        <LinearLayout
+            android:id="@+id/bindContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+       	>
+            
+             <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -106,45 +141,21 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/loginEmailIcon"
-                android:hint="请输入邮箱"
-                android:textSize="14dp" 
+                android:hint="请输入您之前注册本站时的邮箱"
+                android:textSize="13dp" 
                 android:singleLine="true"
 				android:inputType="textEmailAddress"
 				android:maxLength="30"
                 />
         </RelativeLayout>
         
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:background="#fff" >
-
-            <ImageView
-                android:id="@+id/loginNicinameIcon"
-                android:layout_width="50dp"
-                android:layout_height="match_parent"
-                android:layout_centerVertical="true"
-                android:padding="12dp"
-                android:src="@drawable/login_nickname" />
-
-            <EditText
-                android:id="@+id/loginNicknameText"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_toRightOf="@+id/loginNicinameIcon"  
-                android:hint="请输入昵称"
-                android:textSize="14dp" 
-                android:singleLine="true"
-                android:maxLength="20"
-                />
-        </RelativeLayout>
-
+        <!-- 
         <View
             android:layout_width="fill_parent"
             android:layout_height="0.5dp"
             android:layout_weight="0"
             android:background="#ececec" />
+         -->
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -165,8 +176,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_toRightOf="@+id/loginPasswordIcon"
-                android:hint="请输入密码"
-                android:textSize="14dp" 
+                android:hint="请输入您之前注册本站时的密码"
+                android:textSize="13dp" 
                 android:singleLine="true"
 				android:inputType="textPassword"
 				android:maxLength="20"
@@ -176,11 +187,141 @@
         <Button
             android:id="@+id/btnBind"
             android:layout_width="fill_parent"
-            android:layout_height="40dp"
+            android:layout_height="38dp"
             android:layout_marginTop="2dp"
             android:background="@drawable/button_orange_bg"
-            android:text="完 成"
+            android:text="绑定本站账户"
+            android:textSize="15sp"
             android:textColor="#fff" />
+        </LinearLayout>
+        
+        
+       <LinearLayout
+            android:id="@+id/registeContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+            
+             <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/registeEmailIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_email" />
+
+            <EditText
+                android:id="@+id/registeEmailText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/registeEmailIcon"
+                android:hint="邮箱将作为您在本站的登录账户，请牢记"
+                android:textSize="13dp" 
+                android:singleLine="true"
+				android:inputType="textEmailAddress"
+				android:maxLength="30"
+                />
+        </RelativeLayout>
+        
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/registeNicinameIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_nickname" />
+
+            <EditText
+                android:id="@+id/registeNicknameText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/registeNicinameIcon"  
+                android:hint="您在本站的昵称"
+                android:textSize="13dp" 
+                android:singleLine="true"
+                android:maxLength="20"
+                />
+        </RelativeLayout>
+		
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/registePasswordIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_passwd" />
+
+            <EditText
+                android:id="@+id/registePasswordText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/registePasswordIcon"
+                android:hint="请输入密码"
+                android:textSize="13dp" 
+                android:singleLine="true"
+				android:inputType="textPassword"
+				android:maxLength="20"
+                />
+        </RelativeLayout>
+        
+         <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="#fff" >
+
+            <ImageView
+                android:id="@+id/registeRepasswordIcon"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:padding="12dp"
+                android:src="@drawable/login_passwd" />
+
+            <EditText
+                android:id="@+id/registeRepasswordText"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_toRightOf="@+id/registeRepasswordIcon"
+                android:hint="请再次输入密码"
+                android:textSize="13dp" 
+                android:singleLine="true"
+				android:inputType="textPassword"
+				android:maxLength="20"
+                />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/btnRegiste"
+            android:layout_width="fill_parent"
+            android:layout_height="38dp"
+            android:layout_marginTop="2dp"
+            android:background="@drawable/button_orange_bg"
+            android:text="注册新用户"
+            android:textSize="15sp"
+            android:textColor="#fff" />
+        </LinearLayout>
+        
     </LinearLayout>
     
     

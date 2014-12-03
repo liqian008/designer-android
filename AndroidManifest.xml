@@ -202,7 +202,13 @@
         </service>
         <!-- push结束 -->   
         
-        
+        <!--微信回调(微信登录、分享操作等)-->
+		<activity
+		  android:name=".activity.WXEntryActivity"
+		  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+		  android:configChanges="keyboardHidden|orientation|screenSize"
+		  android:exported="true"
+		  android:screenOrientation="portrait" />
         
         
         

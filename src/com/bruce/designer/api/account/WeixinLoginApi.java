@@ -15,27 +15,24 @@ import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 
 /**
- * weibo登录
+ * weixin登录
  * 
  * @author liqian
  * 
  */
-public class WeiboLoginApi extends AbstractApi {
+public class WeixinLoginApi extends AbstractApi {
 
 	private Map<String, String> paramMap = null;
 
-	public WeiboLoginApi(String wbUid, String accessToken, String refreshToken,
-			long expiresTime) {
+	public WeixinLoginApi(String weixinCode, String weixinState) {
 		paramMap = new TreeMap<String, String>();
-		paramMap.put("weiboUid", String.valueOf(wbUid));
-		paramMap.put("weiboAccessToken", accessToken);
-		paramMap.put("weiboRefreshToken", refreshToken);
-		paramMap.put("weiboExpireIn", String.valueOf(expiresTime));
+		paramMap.put("weixinCode", weixinCode);
+		paramMap.put("weixinState", weixinState);
 	}
 
 	@Override
 	protected String getApiMethodName() {
-		return "weiboLogin.cmd";
+		return "weixinLogin.cmd";
 	}
 	
 	/**
@@ -62,8 +59,7 @@ public class WeiboLoginApi extends AbstractApi {
 			try {
 				jsonData = new JSONObject(dataStr);
 				String userPassportStr = jsonData.optString("userPassport");
-				UserPassport userPassport = JsonUtil.gson.fromJson(
-						userPassportStr, UserPassport.class);
+				UserPassport userPassport = JsonUtil.gson.fromJson(userPassportStr, UserPassport.class);
 
 				String hostUserStr = jsonData.optString("hostUser");
 				User hostUser = JsonUtil.gson.fromJson(hostUserStr, User.class);
@@ -71,7 +67,7 @@ public class WeiboLoginApi extends AbstractApi {
 					dataMap.put("userPassport", userPassport);
 					dataMap.put("hostUser", hostUser);
 					return ResponseBuilderUtil.buildSuccessResult(dataMap);
-				}else{//没有用户登录信息
+				}else{//没有用户登录信息，新用户需要绑定
 					boolean needBind = jsonData.optBoolean("needBind");
 					if (needBind) {
 						dataMap.put("needBind", needBind);

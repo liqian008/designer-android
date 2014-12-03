@@ -20,8 +20,7 @@
 	
     <style name="style_settings_item_container">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">14dip</item>
+        <item name="android:layout_height">58dp</item>
     </style>
     
      <style name="style_settings_switcher">

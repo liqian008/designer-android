@@ -56,7 +56,9 @@ public class SharePanelView extends PopupWindow {
 				WXMediaMessage wxMessage = new WXMediaMessage(webpage);
 				wxMessage.title = wxSharedInfo.getTitle();
 				wxMessage.description = wxSharedInfo.getContent();
+				//TODO 判断icon不能超过30k
 				wxMessage.thumbData = wxSharedInfo.getIconBytes();
+				
 				
 				SendMessageToWX.Req req = new SendMessageToWX.Req();
 				req.message = wxMessage;

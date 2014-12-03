@@ -20,6 +20,7 @@ import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.account.GuestLoginApi;
+import com.bruce.designer.api.account.OAuthBindApi;
 import com.bruce.designer.api.account.OAuthRegisteApi;
 import com.bruce.designer.api.account.WeiboLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
@@ -35,6 +36,7 @@ import com.sina.weibo.sdk.auth.WeiboAuth;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class Activity_Login extends BaseActivity{
 	/*默认处理*/
@@ -55,19 +57,17 @@ public class Activity_Login extends BaseActivity{
 	private SsoHandler mSsoHandler; 
 	private Oauth2AccessToken mAccessToken;
 	
-	private View snsLoginContainer;
-	private View bindLoginContainer;
+	private View snsLoginContainer, accountContainer, bindContainer, registeContainer;
 	
-	private EditText loginEmail;
-	private EditText loginNickname;
-	private EditText loginPassword;
+	private Button bindTab, registeTab;
+	private EditText loginEmail, loginPassword;
+	
+	private EditText registeEmailText, registeNicknameText, registePasswordText, registeRepasswordText;
+	
 	private Button btnBind;
 	
-	private String uid;
-	private String uname;
-	private String uavatar;
-	private String accessToken;
-	private String refreshToken;
+	private String thirdpartyType;
+	private String uid, uname, uavatar, accessToken, refreshToken; 
 	private long expiresTime;
 	
 	public static void show(Context context){
@@ -82,20 +82,37 @@ public class Activity_Login extends BaseActivity{
 		setContentView(R.layout.activity_login);
 		
 		snsLoginContainer = findViewById(R.id.snsLoginContainer);
-		bindLoginContainer = findViewById(R.id.bindLoginContainer);
+		accountContainer = findViewById(R.id.accountContainer);
+		bindContainer = findViewById(R.id.bindContainer);
+		registeContainer = findViewById(R.id.registeContainer);
 		
-		ImageView wbLoginBtn = (ImageView) findViewById(R.id.wbLoginButton);
+		bindTab = (Button)findViewById(R.id.bindTab);
+		bindTab.setOnClickListener(onClickListener);//点击事件
+		registeTab = (Button)findViewById(R.id.registeTab);
+		registeTab.setOnClickListener(onClickListener);//点击事件
+		
+		
+		ImageView weiboLoginBtn = (ImageView) findViewById(R.id.weiboLoginButton);
 		ImageView guestLoginButton = (ImageView) findViewById(R.id.guestLoginButton);
 		ImageView qqLoginButton = (ImageView) findViewById(R.id.qqLoginButton);
-		wbLoginBtn.setOnClickListener(onClickListener);
+		ImageView weixinLoginButton = (ImageView) findViewById(R.id.weixinLoginButton);
+		
+		weiboLoginBtn.setOnClickListener(onClickListener);
 		guestLoginButton.setOnClickListener(onClickListener);
 		qqLoginButton.setOnClickListener(onClickListener);
+		weixinLoginButton.setOnClickListener(onClickListener);
 		
+		//绑定事件
 		loginEmail= (EditText)findViewById(R.id.loginEmailText);
-		loginNickname= (EditText)findViewById(R.id.loginNicknameText);
 		loginPassword= (EditText)findViewById(R.id.loginPasswordText);
 		btnBind= (Button)findViewById(R.id.btnBind);
 		btnBind.setOnClickListener(onClickListener);
+		
+		//注册事件
+		registeEmailText= (EditText)findViewById(R.id.registeEmailText);
+		registeNicknameText= (EditText)findViewById(R.id.registeNicknameText);
+		registePasswordText = (EditText)findViewById(R.id.registePasswordText);
+		registeRepasswordText = (EditText)findViewById(R.id.registeRepasswordText);
 		
 		progressDialog = ProgressDialog.show(context, null, "登录中...", true, false);
 		progressDialog.dismiss();
@@ -185,19 +202,20 @@ public class Activity_Login extends BaseActivity{
 						//直接跳转至主屏界面
 						Activity_Main.show(context);
 						finish();
-					}else{//server未查到，认为是新用户，则必须要进行绑定
+					}else{//server未查到，认为是新用户，则必须要进行绑定（注册或绑定其他站）
 						boolean needBind = (Boolean) dataMap.get("needBind");
+						thirdpartyType = (String) dataMap.get("thirdpartyType");
 						uname = (String) dataMap.get("thirdpartyUname");
 						uavatar = (String) dataMap.get("thirdpartyAvatar");
 						if(needBind){
 							uname = uname==null?"":uname;
 							uavatar = uavatar==null?"":uavatar;
 							
-							loginNickname.setText(uname);
+							registeNicknameText.setText(uname);
 							UiUtil.showShortToast(context, "首次登录需要绑定本站账户");
 							//显示绑定对话
 							snsLoginContainer.setVisibility(View.GONE);
-							bindLoginContainer.setVisibility(View.VISIBLE);
+							accountContainer.setVisibility(View.VISIBLE);
 						}
 					}
 					break;
@@ -227,13 +245,21 @@ public class Activity_Login extends BaseActivity{
 		@Override
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
-			case R.id.wbLoginButton:
+			case R.id.weiboLoginButton:
 				progressDialog.show();
 				//跳转wb oauth
 				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY, ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
 				//SSO登录
 				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
 				mSsoHandler.authorize(new AuthListener());
+				break;
+			case R.id.weixinLoginButton://微信登录
+				//progressDialog.show();
+				SendAuth.Req req = new SendAuth.Req();
+				req.scope = "snsapi_userinfo";
+				req.state = "";
+				//微信登录
+				AppApplication.getWxApi().sendReq(req);
 				break;
 			case R.id.guestLoginButton: //【游客登录】按钮
 				progressDialog.show();
@@ -250,16 +276,48 @@ public class Activity_Login extends BaseActivity{
 				}).start();
 				
 				break;
+			case R.id.bindTab: //绑定资料按钮
+				//显示绑定登录layout, 隐藏注册layout
+				bindContainer.setVisibility(View.VISIBLE);
+				registeContainer.setVisibility(View.GONE);
+				
+				bindTab.setBackgroundResource(R.drawable.button_orange_bg);
+				bindTab.setTextColor(getResources().getColor(R.color.white));
+				registeTab.setBackgroundResource(R.drawable.button_grey_bg);
+				registeTab.setTextColor(getResources().getColor(R.color.black));
+				
+				break;
+			case R.id.registeTab: //注册资料按钮
+				//隐藏绑定登录layout, 显示注册layout
+				bindContainer.setVisibility(View.GONE);
+				registeContainer.setVisibility(View.VISIBLE);
+				
+				bindTab.setBackgroundResource(R.drawable.button_grey_bg);
+				bindTab.setTextColor(getResources().getColor(R.color.black));
+				registeTab.setBackgroundResource(R.drawable.button_orange_bg);
+				registeTab.setTextColor(getResources().getColor(R.color.white));
+				break;	
 			case R.id.btnBind: //绑定按钮
 				final String username = loginEmail.getText().toString();
-				final String nickname = loginNickname.getText().toString();
 				final String password = loginPassword.getText().toString();
 				//检查数据输入是否完整
 				if(!checkBindInput()){
 					break;
 				}
 				progressDialog.show();
-				weiboOAuthRegiste(username, nickname, password, uid, uname, accessToken, refreshToken, expiresTime);
+				oauthBind(thirdpartyType, username, password, uid, uname, accessToken, refreshToken, expiresTime);
+				
+				break;
+			case R.id.btnRegiste: //注册按钮
+				final String registeUsername = registeEmailText.getText().toString();
+				final String registeNickname = registeNicknameText.getText().toString();
+				final String registePassword = registePasswordText.getText().toString();
+				//检查数据输入是否完整
+				if(!checkRegisteInput()){
+					break;
+				}
+				progressDialog.show();
+				oauthRegiste(thirdpartyType, registeUsername, registeNickname, registePassword, uid, uname, accessToken, refreshToken, expiresTime);
 				
 				break;
 			default:
@@ -294,8 +352,40 @@ public class Activity_Login extends BaseActivity{
 		}).start();
 	}
     
+    
+    
     /**
-     * 填写email完成与sina的绑定注册
+     * 绑定老用户
+     * @param thirdpartyType 第三方账户类型（1微博，2QQ，3微信）
+     * @param email
+     * @param password
+     * @param uid
+     * @param uname
+     * @param accessToken
+     * @param refreshToken
+     * @param expiresTime
+     */
+    private void oauthBind(final String thirdpartyType, final String email, final String password, final String uid, final String uname,  final String accessToken, final String refreshToken, final long expiresTime) {
+		//启动线程绑定微博&账户
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				OAuthBindApi api = new OAuthBindApi(thirdpartyType, email, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
+					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
+					message.obj = apiResult.getData();
+					message.sendToTarget();
+				}else{//数据异常
+					
+				}
+			}
+		}).start();
+	}
+    
+    /**
+     * oauth绑定注册新用户
+     * @param thirdpartyType 第三方账户类型（1微博，2QQ，3微信）
      * @param email
      * @param nickname
      * @param password
@@ -305,12 +395,12 @@ public class Activity_Login extends BaseActivity{
      * @param refreshToken
      * @param expiresTime
      */
-    private void weiboOAuthRegiste(final String email, final String nickname, final String password, final String uid, final String uname,  final String accessToken, final String refreshToken, final long expiresTime) {
-		//启动线程绑定微博&账户
+    private void oauthRegiste(final String thirdpartyType, final String email, final String nickname, final String password, final String uid, final String uname,  final String accessToken, final String refreshToken, final long expiresTime) {
+		//启动线程注册账户
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				OAuthRegisteApi api = new OAuthRegisteApi(email, nickname, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
+				OAuthRegisteApi api = new OAuthRegisteApi(thirdpartyType, email, nickname, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
 				ApiResult apiResult = ApiManager.invoke(context, api);
 				if(apiResult!=null&&apiResult.getResult()==1){
 					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
@@ -334,18 +424,46 @@ public class Activity_Login extends BaseActivity{
 			UiUtil.showShortToast(context, "Email地址不合法");
 			return false;
 		}
-		String nicknameVal = loginNickname.getText().toString();
-		if(StringUtils.isBlank(nicknameVal)){
-			UiUtil.showShortToast(context, "昵称输入不能为空");
-			return false;
-		}
 		String passwordVal = loginPassword.getText().toString();
 		if(StringUtils.isBlank(passwordVal)){
-			UiUtil.showShortToast(context, "密码输入不能为空");
+			UiUtil.showShortToast(context, "密码不能为空");
 			return false;
     	}
     	return true;
     }
     
-	
+
+    /**
+     * 检查注册输入
+     * @param field
+     * @return
+     */
+    private boolean checkRegisteInput(){
+		String emailVal = registeEmailText.getText().toString();
+		if(StringUtils.isBlank(emailVal)){
+			UiUtil.showShortToast(context, "Email地址不合法");
+			return false;
+		}
+		String nicknameVal = registeNicknameText.getText().toString();
+		if(StringUtils.isBlank(nicknameVal)){
+			UiUtil.showShortToast(context, "昵称不能为空");
+			return false;
+		}
+		String passwordVal = registePasswordText.getText().toString();
+		if(StringUtils.isBlank(passwordVal)){
+			UiUtil.showShortToast(context, "密码不能为空");
+			return false;
+    	}
+		String repasswordVal = registeRepasswordText.getText().toString();
+		if(StringUtils.isBlank(repasswordVal)){
+			UiUtil.showShortToast(context, "确认密码不能为空");
+			return false;
+    	}
+		
+		if(!passwordVal.equals(repasswordVal)){
+			UiUtil.showShortToast(context, "两次密码输入不一致");
+			return false;
+    	}
+    	return true;
+    }
 }

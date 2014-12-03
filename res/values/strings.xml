@@ -10,4 +10,11 @@
     <string name="weibosdk_demo_toast_auth_failed">授权失败</string>
     <string name="weibosdk_demo_toast_auth_canceled">取消授权</string>
     
+    
+    <!-- weixin result -->
+    <string name="errcode_success">操作成功</string>
+	<string name="errcode_cancel">操作被取消</string>
+	<string name="errcode_deny">操作被拒绝</string>
+	<string name="errcode_unknown">返回</string>
+    
 </resources>
