@@ -18,6 +18,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.BindPushTokenApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
@@ -88,18 +89,21 @@ public class Activity_Settings extends BaseActivity {
 		}else{//登录用户展示注销按钮
 			btnLogout.setVisibility(View.VISIBLE);
 			accountBindContainer.setVisibility(View.VISIBLE);
-			boolean bindWeibo = false;
-			boolean bindWeixin = true;
-			if(bindWeibo){//已绑定微博
-				iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo));
-			}else{
-				iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo));
-			}
-			
-			if(bindWeixin){//已绑定微信
-				iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin));
-			}else{
-				iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin));
+			//展示绑定账户
+			User hostUser = AppApplication.getHostUser();
+			if(hostUser!=null&&hostUser.getAccessTokenMap()!=null&&hostUser.getAccessTokenMap().size()>0){
+				boolean bindWeibo = hostUser.getAccessTokenMap().get((short)1)!=null;
+				boolean bindWeixin = hostUser.getAccessTokenMap().get((short)3)!=null;
+				if(bindWeibo){//已绑定微博
+					iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo_bund));
+				}else{
+					iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo_unbind));
+				}
+				if(bindWeixin){//已绑定微信
+					iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin_bund));
+				}else{
+					iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin_unbind));
+				}
 			}
 		}
 	}

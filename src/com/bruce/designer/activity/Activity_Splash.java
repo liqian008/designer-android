@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
@@ -64,18 +65,16 @@ public class Activity_Splash extends BaseActivity {
 			switch (msg.what) {
 			case CHECK_UPDATE:
 				Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
-				//判断是否需要用户登录
+				//判断是否需要用户登录（游客也需要登录）
 				needLogin = (Boolean) dataMap.get("needLogin");
-				
-				
+				if(!needLogin){//已登录用户
+					//加载最新的用户资料
+					User hostUser = (User) dataMap.get("hostUser");
+					if(hostUser!=null){
+						AppApplication.setHostUser(hostUser);
+					}
+				}
 				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
-				
-//				versionCheckResult = new VersionCheckResult();
-//				versionCheckResult.setUpdateStatus(1);
-//				versionCheckResult.setUpdateTitle("title");
-//				versionCheckResult.setUpdateRemark("content");
-//				versionCheckResult.setUpdateUrl("http://gdown.baidu.com/data/wisegame/aaded26929762c22/WeChat_462.apk");
-				
 				if(versionCheckResult!=null){
 					updateStatus = versionCheckResult.getUpdateStatus();
 					processUpdateResult(versionCheckResult);

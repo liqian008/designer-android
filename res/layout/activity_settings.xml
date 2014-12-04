@@ -59,10 +59,10 @@
                             android:id="@+id/weiboIcon"
                             android:layout_width="37.0dip"
                             android:layout_height="37.0dip"
-                            android:layout_marginRight="15dp"
+                            android:layout_marginRight="12dp"
                             android:layout_toLeftOf="@+id/weixinIcon"
                             android:padding="1.0px"
-                            android:src="@drawable/icon_weibo" />
+                            android:src="@drawable/icon_weibo_unbind" />
 
                         <!-- 微信账户 -->
 
@@ -72,7 +72,7 @@
                             android:layout_height="37.0dip"
                             android:layout_alignParentRight="true"
                             android:padding="1.0px"
-                            android:src="@drawable/icon_weixin" />
+                            android:src="@drawable/icon_weixin_unbind" />
                     </RelativeLayout>
                 </RelativeLayout>
             </LinearLayout>
