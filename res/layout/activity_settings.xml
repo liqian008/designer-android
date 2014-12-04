@@ -18,65 +18,65 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical" >
-			
-             <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="30.0dip"
-                android:background="#fff2f2f2"
-                android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:text="账户设置" />
 
-            <RelativeLayout
-                android:id="@+id/pushSetting"
-                style="@style/style_settings_item_container" >
+            <LinearLayout
+                android:id="@+id/account_bind_container"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
 
                 <TextView
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
-                    android:layout_centerVertical="true"
+                    android:layout_height="30.0dip"
+                    android:background="#fff2f2f2"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
-                    android:text="账户绑定" />
-                
-                <RelativeLayout
-                    android:id="@+id/accountIconContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="100.0dip"
-                    android:layout_marginRight="10.0dip"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                     >
-					
-                    <!-- 微博账户 -->
-                     <ImageView
-				        android:id="@+id/weiboIcon"
-				        android:layout_width="37.0dip"
-				        android:layout_height="37.0dip"
-				        android:background="#ffeeeeee"
-				        android:src="@drawable/default_avatar"
-				        android:padding="1.0px"
-				        android:layout_toLeftOf="@+id/weixinIcon"
-				        android:layout_marginRight="8dp"
-				         />
-                    
-                    <!-- 微信账户 -->
-                     <ImageView
-				        android:id="@+id/weixinIcon"
-				        android:layout_width="37.0dip"
-				        android:layout_height="37.0dip"
-				        android:background="#ffeeeeee"
-				        android:src="@drawable/default_avatar"
-				        android:layout_alignParentRight="true"
-				        android:padding="1.0px" />
-                    
+                    android:text="账户设置" />
+
+                <RelativeLayout style="@style/style_settings_item_container" >
+
+                    <TextView
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/button_white_bg"
+                        android:gravity="center_vertical"
+                        android:paddingLeft="10dp"
+                        android:text="账户绑定" />
+
+                    <RelativeLayout
+                        android:id="@+id/accountIconContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="100.0dip" >
+
+                        <!-- 微博账户 -->
+
+                        <ImageView
+                            android:id="@+id/weiboIcon"
+                            android:layout_width="37.0dip"
+                            android:layout_height="37.0dip"
+                            android:layout_marginRight="15dp"
+                            android:layout_toLeftOf="@+id/weixinIcon"
+                            android:padding="1.0px"
+                            android:src="@drawable/icon_weibo" />
+
+                        <!-- 微信账户 -->
+
+                        <ImageView
+                            android:id="@+id/weixinIcon"
+                            android:layout_width="37.0dip"
+                            android:layout_height="37.0dip"
+                            android:layout_alignParentRight="true"
+                            android:padding="1.0px"
+                            android:src="@drawable/icon_weixin" />
+                    </RelativeLayout>
                 </RelativeLayout>
-                
-            </RelativeLayout>
-            
-            
+            </LinearLayout>
+
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="30.0dip"
@@ -92,24 +92,24 @@
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
                     android:layout_centerVertical="true"
+                    android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
                     android:text="消息推送" />
-                
+
                 <TextView
                     android:id="@+id/pushStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
-                    android:layout_centerVertical="true"
-                    android:gravity="center_vertical"
                     android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
                     android:layout_marginRight="30.0dip"
+                    android:background="@drawable/button_white_bg"
+                    android:gravity="center_vertical"
                     android:text="" />
-                
-                 <ImageView
+
+                <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
@@ -117,12 +117,12 @@
                     android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
 
-                <!-- 
+                <!--
                 <include
                     android:id="@+id/push_settings_switcher"
                     style="@style/style_settings_switcher"
                     layout="@layout/switcher_view" />
-                 -->
+                -->
             </RelativeLayout>
 
             <LinearLayout
@@ -137,8 +137,8 @@
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
                     android:layout_centerVertical="true"
+                    android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
                     android:text="关于我们" />
@@ -164,8 +164,8 @@
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
                     android:layout_centerVertical="true"
+                    android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
                     android:text="清除缓存" />
@@ -179,7 +179,6 @@
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
 
-            
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
@@ -192,8 +191,8 @@
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
                     android:layout_centerVertical="true"
+                    android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
                     android:text="微信公众账号" />
@@ -206,7 +205,7 @@
                     android:layout_marginRight="10.0dip"
                     android:src="@drawable/btn_explore_more" />
             </RelativeLayout>
-            
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="1.0px"
@@ -219,8 +218,8 @@
                 <TextView
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/button_white_bg"
                     android:layout_centerVertical="true"
+                    android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
                     android:paddingLeft="10dp"
                     android:text="访问 [网页版] 金玩儿网" />
@@ -285,10 +284,9 @@
                     android:background="@drawable/button_red_bg"
                     android:text="注销登录"
                     android:textColor="#ffffffff"
-                    android:textSize="18.0sp" 
-                    android:visibility="gone"
-                    />
-                
+                    android:textSize="18.0sp"
+                    android:visibility="gone" />
+
                 <Button
                     android:id="@+id/login"
                     android:layout_width="fill_parent"
@@ -297,12 +295,8 @@
                     android:background="@drawable/button_green_bg"
                     android:text="立即登录"
                     android:textColor="#ffffffff"
-                    android:textSize="18.0sp" 
-                    android:visibility="gone"
-                    />
-                    
-                    
-                   
+                    android:textSize="18.0sp"
+                    android:visibility="gone" />
             </RelativeLayout>
         </LinearLayout>
     </ScrollView>

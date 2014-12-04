@@ -51,7 +51,7 @@
         <!-- baiduStat 您从百度网站获取的 APP	KEY  -->
         <meta-data android:name="BaiduMobAd_STAT_ID" android:value="540d890b4c" /> 
          <!-- 微信开放平台的appid，可使用登录、分享功能 -->
-        <meta-data android:name="WeixinOpen_APP_ID" android:value="wxf8aa7055983d73e4" /> 
+        <meta-data android:name="WeixinOpen_APP_ID" android:value="wxf8aa7055983d73e4" />
         
         <!-- baiduPush 在百度开发者中心查询应用的API Key -->
         <meta-data android:name="baidu_push_api_key" android:value="BnuBegfG0xLaQ8mGm6KlEbLl" />
@@ -204,13 +204,11 @@
         
         <!--微信回调(微信登录、分享操作等)-->
 		<activity
-		  android:name=".activity.WXEntryActivity"
+		  android:name=".wxapi.WXEntryActivity"
 		  android:theme="@android:style/Theme.Translucent.NoTitleBar"
 		  android:configChanges="keyboardHidden|orientation|screenSize"
 		  android:exported="true"
 		  android:screenOrientation="portrait" />
-        
-        
         
         <!-- shareSdk start 
         <activity

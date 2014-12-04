@@ -26,6 +26,8 @@ import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.User;
+import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
@@ -64,6 +66,7 @@ public class Activity_Splash extends BaseActivity {
 				Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
 				//判断是否需要用户登录
 				needLogin = (Boolean) dataMap.get("needLogin");
+				
 				
 				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
 				

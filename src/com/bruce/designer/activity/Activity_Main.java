@@ -75,7 +75,7 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 	
 
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		boolean flag = false;
 		if (keyCode == KeyEvent.KEYCODE_BACK) {// 退出
 			if(currentTabIndex!=0){//需要先将焦点回到tab0
@@ -95,7 +95,7 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 			Intent intent = new Intent(context, Activity_Settings.class);
 			startActivity(intent);
 		} else {
-			flag = super.onKeyUp(keyCode, event);
+			flag = super.onKeyDown(keyCode, event);
 		}
 		return flag;
 	}

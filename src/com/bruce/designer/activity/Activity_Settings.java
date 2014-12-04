@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bruce.designer.AppApplication;
@@ -28,10 +29,15 @@ public class Activity_Settings extends BaseActivity {
 	
 	private View titlebarView;
 	private TextView titleView;
+	
+	/*账户绑定的container*/
+	private View accountBindContainer;
+	
 	private View pushSettingsView, aboutUsView, clearCacheView, websiteView;
 	private TextView pushStatusView;
 
 	private Button btnLogout, btnLogin;
+	private ImageView iconWeibo, iconWeixin;
 	
 	public static void show(Context context) {
 		Intent intent = new Intent(context, Activity_Settings.class);
@@ -52,7 +58,9 @@ public class Activity_Settings extends BaseActivity {
 		titlebarView.setOnClickListener(listener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("设置");
-
+		
+		accountBindContainer = (View)findViewById(R.id.account_bind_container);
+		
 		pushStatusView = (TextView)findViewById(R.id.pushStatus);
 		pushSettingsView = findViewById(R.id.pushSetting);
 		pushSettingsView.setOnClickListener(listener);
@@ -71,10 +79,28 @@ public class Activity_Settings extends BaseActivity {
 		btnLogin = (Button) findViewById(R.id.login);
 		btnLogin.setOnClickListener(listener);
 		
+		iconWeibo = (ImageView) findViewById(R.id.weiboIcon);
+		iconWeixin = (ImageView) findViewById(R.id.weixinIcon);
+		
 		if(AppApplication.isGuest()){//游客需要展示登录按钮
+			accountBindContainer.setVisibility(View.GONE);
 			btnLogin.setVisibility(View.VISIBLE);
 		}else{//登录用户展示注销按钮
 			btnLogout.setVisibility(View.VISIBLE);
+			accountBindContainer.setVisibility(View.VISIBLE);
+			boolean bindWeibo = false;
+			boolean bindWeixin = true;
+			if(bindWeibo){//已绑定微博
+				iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo));
+			}else{
+				iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo));
+			}
+			
+			if(bindWeixin){//已绑定微信
+				iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin));
+			}else{
+				iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin));
+			}
 		}
 	}
 	

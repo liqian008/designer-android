@@ -27,11 +27,13 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
                     android:text="新关注提醒" />
 
                 <include
                     android:id="@+id/push_followed_switcher"
                     style="@style/style_settings_switcher"
+                    android:layout_marginRight="12dp"
                     layout="@layout/switcher_view" />
             </RelativeLayout>
             
@@ -48,11 +50,13 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
                     android:text="专辑收藏提醒" />
 
                 <include
                     android:id="@+id/push_favorited_switcher"
                     style="@style/style_settings_switcher"
+                    android:layout_marginRight="12dp"
                     layout="@layout/switcher_view" />
             </RelativeLayout>
             
@@ -70,11 +74,13 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
                     android:text="专辑赞提醒" />
 
                 <include
                     android:id="@+id/push_liked_switcher"
                     style="@style/style_settings_switcher"
+                    android:layout_marginRight="12dp"
                     layout="@layout/switcher_view" />
             </RelativeLayout>
 
@@ -92,11 +98,13 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
                     android:text="专辑评论提醒" />
 
                 <include
                     android:id="@+id/push_commented_switcher"
                     style="@style/style_settings_switcher"
+                    android:layout_marginRight="12dp"
                     layout="@layout/switcher_view" />
             </RelativeLayout>
 
@@ -114,11 +122,13 @@
                     android:layout_height="fill_parent"
                     android:background="@drawable/button_white_bg"
                     android:gravity="center_vertical"
+                    android:paddingLeft="10dp"
                     android:text="私信消息提醒" />
 
                 <include
                     android:id="@+id/push_chated_switcher"
                     style="@style/style_settings_switcher"
+                    android:layout_marginRight="12dp"
                     layout="@layout/switcher_view" />
             </RelativeLayout>
 

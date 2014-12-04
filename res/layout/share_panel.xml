@@ -54,7 +54,7 @@
                     android:id="@+id/shareToWxFriend"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:src="@drawable/share_wechat_icon" />
+                    android:src="@drawable/icon_weixin" />
 
                 <TextView
                     android:layout_width="wrap_content"

@@ -21,10 +21,14 @@ public interface ConstantsKey {
 	/*用户的关注状态*/
 	public static final String BUNDLE_USER_INFO_HASFOLLOWED = "bundle_user_info_hasfollowed";
 	
+	/* 广播的action*/
+	public static final String BROADCAST_ACTION = "com.bruce.designer.action";
+	public static final String BUNDLE_BROADCAST_KEY = "bundle_broadcast_key";
 	
-	public static final String BROADCAST_ACTION = "com.bruce.designer";
-
-	public static final String BUNDLE_BROADCAST_KEY = "bundle_broadcast";
+	/* 微信登录广播的action */
+	public static final String BROADCAST_ACTION_WEIXIN_LOGIN = "com.bruce.designer.action.weixin.login";
+	
+	
 	
 	public static final int BROADCAST_NETWORK_INVALID = 1;
 	

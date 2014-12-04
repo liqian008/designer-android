@@ -183,7 +183,7 @@ public class AppApplication extends FrontiaApplication {
 	
 	public static IWXAPI initWxApi(Context context){
 		String wxAppId = ApplicationUtil.getMetaValue(context, "WeixinOpen_APP_ID");
-		IWXAPI api = WXAPIFactory.createWXAPI(context, wxAppId);
+		IWXAPI api = WXAPIFactory.createWXAPI(context, wxAppId, true);
 		api.registerApp(wxAppId);
 		return api;
 	}

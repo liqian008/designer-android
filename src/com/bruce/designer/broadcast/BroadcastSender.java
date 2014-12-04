@@ -1,5 +1,8 @@
 package com.bruce.designer.broadcast;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import android.content.Context;
 import android.content.Intent;
 
@@ -35,6 +38,25 @@ public class BroadcastSender {
 		Intent intent = new Intent();
 		intent.setAction(action);
 		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, key);
+		//发送广播
+		context.sendBroadcast(intent);
+	}
+	
+	
+	/**
+	 * 广播
+	 * @param context
+	 * @param action
+	 * @param paramMap
+	 */
+	public static void broadcast(Context context, String action, Map<String, String> paramMap) {
+		Intent intent = new Intent();
+		intent.setAction(action);
+		if(paramMap!=null&&paramMap.size()>0){
+			for(Entry<String, String> entry: paramMap.entrySet()){
+				intent.putExtra(entry.getKey(), entry.getValue());
+			}
+		}
 		//发送广播
 		context.sendBroadcast(intent);
 	}

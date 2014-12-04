@@ -1,5 +1,8 @@
-package com.bruce.designer.activity.weixin;
+package com.bruce.designer.wxapi;
 
+
+import java.util.HashMap;
+import java.util.Map;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,9 +12,8 @@ import android.os.Message;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.BaseActivity;
-import com.bruce.designer.api.ApiManager;
-import com.bruce.designer.api.account.WeixinLoginApi;
-import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.broadcast.BroadcastSender;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.util.UiUtil;
 import com.tencent.mm.sdk.modelbase.BaseReq;
 import com.tencent.mm.sdk.modelbase.BaseResp;
@@ -23,22 +25,19 @@ import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 	
 	// IWXAPI 是第三方app和微信通信的openapi接口
-    private IWXAPI api;
+    private IWXAPI api = AppApplication.getWxApi();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context = WXEntryActivity.this;
         
         //IWXAPI的实例
-        api = AppApplication.getWxApi();
         api.handleIntent(getIntent(), this);
     }
 
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		
 		setIntent(intent);
         api.handleIntent(intent, this);
 	}
@@ -46,6 +45,7 @@ public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 	// 微信发送请求到第三方应用时，会回调到该方法
 	@Override
 	public void onReq(BaseReq req) {
+		//UiUtil.showShortToast(this, "收到微信请求消息");
 		switch (req.getType()) {
 //		case ConstantsAPI.COMMAND_GETMESSAGE_FROM_WX:
 //			goToGetMsg();
@@ -62,6 +62,7 @@ public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 	// 第三方应用发送到微信的请求处理后的响应结果，会回调到该方法
 	@Override
 	public void onResp(BaseResp resp) {
+		//UiUtil.showShortToast(this, "WXEntryActivity收到消息");
 		int result = 0;
 		switch (resp.errCode) {
 		case BaseResp.ErrCode.ERR_OK:
@@ -78,8 +79,14 @@ public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 			break;
 		}
 		
+		//发起广播，通知activity_login进行微信登录操作
+		Map<String, String> broadcastMap = new HashMap<String, String>();
+		broadcastMap.put("weixin_oauth_code", "123");
+		broadcastMap.put("weixin_oauth_state", "2345");
+		BroadcastSender.broadcast(context, ConstantsKey.BROADCAST_ACTION_WEIXIN_LOGIN, broadcastMap);
+		
 		if(resp instanceof SendMessageToWX.Resp){//如果是分享消息的response
-			UiUtil.showShortToast(context, "分享消息："+getResources().getString(result));
+			UiUtil.showShortToast(context, getResources().getString(result));
 			finish();
 		}
 		
@@ -92,8 +99,11 @@ public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 				String state = ((SendAuth.Resp)resp).state;
 				//向服务器提交accessToken
 				if(code!=null){
-					//启线程进行登录
-					weixinLogin(code, state);
+//					//发起广播，通知activity_login进行微信登录操作
+//					Map<String, String> broadcastMap = new HashMap<String, String>();
+//					broadcastMap.put("weixin_oauth_code", code);
+//					broadcastMap.put("weixin_oauth_state", state);
+//					BroadcastSender.broadcast(context, ConstantsKey.BROADCAST_ACTION_WEIXIN_LOGIN, broadcastMap);
 				}else{
 					finish();
 				}
@@ -102,32 +112,6 @@ public class WXEntryActivity extends BaseActivity implements IWXAPIEventHandler{
 				finish();
 			}
 		}
-	}
-	
-	
-	/**
-     * 微博登录，根据用户的accessToken换取用户资料
-     * @param accessToken
-     * @param expiresTime 
-     * @param refreshToken 
-     * @param thirdpartyType
-     */
-    private void weixinLogin(final String code, final String state) {
-		//启动线程获取用户数据
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				WeixinLoginApi api = new WeixinLoginApi(code, state);
-				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					Message message = loginHandler.obtainMessage(1);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}else{//数据异常
-//					UiUtil.showShortToast(context, "登录失败，请重试");
-				}
-			}
-		}).start();
 	}
 	
 	
