@@ -113,7 +113,7 @@ public class Activity_UserInfo extends BaseActivity {
 							introduceContainer.setVisibility(View.VISIBLE);
 							userTypeTextView.setText("设计师");
 						}else{
-							UiUtil.showShortToast(context, "非设计师");
+//							UiUtil.showShortToast(context, "非设计师");
 							weixinNumberContainer.setVisibility(View.GONE);
 							shopContainer.setVisibility(View.GONE);
 							introduceContainer.setVisibility(View.GONE);

@@ -9,11 +9,13 @@ import org.json.JSONObject;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.JsonUtil;
+import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
+import com.bruce.designer.util.StringUtils;
 
 /**
  * 系统检查API，在唯一入口splash页面进行调用，主要做两件事情
@@ -48,6 +50,20 @@ public class SystemCheckApi extends AbstractApi {
 			//用户资料的node
 			boolean needLogin = jsonData.optBoolean("needLogin", true);
 			dataMap.put("needLogin", needLogin);
+			
+			//登录用户的个人资料
+			String hostUserStr = jsonData.optString("hostUser");
+//			LogUtil.d("hostUserStr: "+hostUserStr);
+			if(!StringUtils.isBlank(hostUserStr)){
+				User hostUser = null;
+				try{
+					hostUser = JsonUtil.gson.fromJson(hostUserStr, User.class);
+				}catch(Exception e){
+				}
+				if(hostUser!=null){
+					dataMap.put("hostUser", hostUser);
+				}
+			}
 			return ResponseBuilderUtil.buildSuccessResult(dataMap);
 		} catch (JSONException e) {
 			e.printStackTrace();

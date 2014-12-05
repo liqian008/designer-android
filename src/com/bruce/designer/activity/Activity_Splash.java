@@ -28,7 +28,6 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
-import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;

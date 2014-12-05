@@ -1,5 +1,6 @@
 package com.bruce.designer.activity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Activity;
@@ -32,7 +33,6 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
-import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
@@ -44,6 +44,14 @@ import com.sina.weibo.sdk.exception.WeiboException;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class Activity_Login extends BaseActivity{
+	
+	static Map<String, String> thirdpartyMap = new HashMap<String, String>();
+	static {
+		thirdpartyMap.put("1", "新浪微博");
+		thirdpartyMap.put("2", "腾讯QQ");
+		thirdpartyMap.put("3", "微信");
+	}
+	
 	/*默认处理*/
 	private static final int HANDLER_FLAG_ERROR = 0;
 	/*微博登录成功*/
@@ -231,7 +239,7 @@ public class Activity_Login extends BaseActivity{
 					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
 					User hostUser = (User) dataMap.get("hostUser");
 					if(userPassport!=null){//之前绑定过，可以直接获取数据
-						//TODO 
+						//TODO
 						UiUtil.showLongToast(context, "您已成功登录，正在进入主界面..");
 						//设置对象缓存
 						AppApplication.setUserPassport(userPassport);
@@ -250,7 +258,7 @@ public class Activity_Login extends BaseActivity{
 							uavatar = uavatar==null?"":uavatar;
 							
 							registeNicknameText.setText(uname);
-							UiUtil.showLongToast(context, "这是您首次使用"+thirdpartyType+"登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
+							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
 							//显示绑定对话
 							snsLoginContainer.setVisibility(View.GONE);
 							accountContainer.setVisibility(View.VISIBLE);
