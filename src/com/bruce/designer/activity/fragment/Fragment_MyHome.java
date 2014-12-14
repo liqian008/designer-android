@@ -29,7 +29,7 @@ import com.bruce.designer.activity.Activity_UserInfo;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
-import com.bruce.designer.api.user.UserInfoApi;
+import com.bruce.designer.api.user.MyInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
@@ -312,7 +312,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			public void run() {
 				Message message;
 				
-				UserInfoApi api = new UserInfoApi(userId);
+				MyInfoApi api = new MyInfoApi();
 				ApiResult apiResult = ApiManager.invoke(activity, api);
 				if(apiResult!=null&&apiResult.getResult()==1){
 					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);

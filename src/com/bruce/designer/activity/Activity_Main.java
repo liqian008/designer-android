@@ -69,9 +69,7 @@ public class Activity_Main extends BaseActivity implements MessageListener{
         for(int i=0; i<footerTabs.length;i++){
         	footerTabs[i].setOnClickListener(tabOnclickListener);
         }
-		highLight(0);
 	}
-
 	
 
 	@Override
@@ -99,7 +97,13 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 		}
 		return flag;
 	}
-
+	
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		highLight(currentTabIndex);
+	}
 	
 	
 	
@@ -117,6 +121,8 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 		}
 		footerTabs[index].setBackgroundResource(R.color.tab_active_color);
 		showFragment(index);
+		
+		//StatService.onEvent(context, "Activity_Main", "进入Tab"+index);
 	}
 	
 	/**

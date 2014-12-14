@@ -95,13 +95,17 @@ public class Activity_Settings extends BaseActivity {
 				boolean bindWeibo = hostUser.getAccessTokenMap().get((short)1)!=null;
 				boolean bindWeixin = hostUser.getAccessTokenMap().get((short)3)!=null;
 				if(bindWeibo){//已绑定微博
+//					UiUtil.showShortToast(context, "已绑定Sina微博");
 					iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo_bund));
 				}else{
+//					UiUtil.showShortToast(context, "未绑定Sina微博");
 					iconWeibo.setImageDrawable(getResources().getDrawable(R.drawable.icon_weibo_unbind));
 				}
 				if(bindWeixin){//已绑定微信
+//					UiUtil.showShortToast(context, "已绑定微信");
 					iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin_bund));
 				}else{
+//					UiUtil.showShortToast(context, "未绑定微信");
 					iconWeixin.setImageDrawable(getResources().getDrawable(R.drawable.icon_weixin_unbind));
 				}
 			}

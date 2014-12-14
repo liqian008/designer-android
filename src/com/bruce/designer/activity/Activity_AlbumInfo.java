@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.api.ApiManager;
@@ -42,6 +43,7 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.bruce.designer.view.SharePanelView;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -484,13 +486,16 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 				}
 			});
-			//头像&点击事件
-			viewHolder.avatarView.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), false, false);
-				}
-			});
+			
+			if(comment.getFromId()!=null&&!AppApplication.isGuest(comment.getFromId())){//评论人正常且非游客
+				//头像&点击事件
+				viewHolder.avatarView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), false, false);
+					}
+				});
+			}
 			return convertView;
 		}
 	}
@@ -502,9 +507,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			switch (view.getId()) {
 			case R.id.btnCommentPost:
 				if(toId<=0) toId=designerId;//确保toId有效
-				//检查内容不为空
-				//启动线程发布评论
-				postComment(designerId, toId, commentInput.getText().toString());
+				String  commentContent = commentInput.getText().toString();
+				if(StringUtils.isBlank(commentContent)){
+					//检查内容不为空
+					UiUtil.showShortToast(context, "评论内容不能为空");
+					return;
+				}
+				if(AppApplication.isGuest()){
+					//启动线程发布评论
+					UiUtil.showShortToast(context, "登录后评论，可让别人更容易找到你");
+				}
+				postComment(designerId, toId, commentContent);
 				break;
 			case R.id.btnComment:
 				toId = designerId;

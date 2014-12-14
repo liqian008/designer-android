@@ -51,6 +51,6 @@ public class PostCommentApi extends AbstractApi {
 	 * @return
 	 */
 	protected boolean needAuth(){
-		return true;
+		return false;//修改策略，匿名用户也可评论
 	}
 }

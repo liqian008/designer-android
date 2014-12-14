@@ -21,6 +21,7 @@ import android.widget.ImageView;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_ImageBrowser.UniversialLoadListener;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.account.GuestLoginApi;
 import com.bruce.designer.api.account.OAuthBindApi;
@@ -36,12 +37,13 @@ import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.UniversalImageUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sina.weibo.sdk.auth.Oauth2AccessToken;
 import com.sina.weibo.sdk.auth.WeiboAuth;
 import com.sina.weibo.sdk.auth.WeiboAuthListener;
 import com.sina.weibo.sdk.auth.sso.SsoHandler;
 import com.sina.weibo.sdk.exception.WeiboException;
-import com.tencent.mm.sdk.modelmsg.SendAuth;
 
 public class Activity_Login extends BaseActivity{
 	
@@ -78,12 +80,14 @@ public class Activity_Login extends BaseActivity{
 	
 	private View snsLoginContainer, accountContainer, bindContainer, registeContainer;
 	
+	private ImageView thirdpartyAvatarView;
+	
 	private Button bindTab, registeTab;
 	private EditText loginEmail, loginPassword;
 	
 	private EditText registeEmailText, registeNicknameText, registePasswordText, registeRepasswordText;
 	
-	private Button btnBind;
+	private Button btnBind, btnRegiste;
 	
 	private String thirdpartyType;
 	private String uid, uname, uavatar, accessToken, refreshToken; 
@@ -129,6 +133,8 @@ public class Activity_Login extends BaseActivity{
 		registeTab = (Button)findViewById(R.id.registeTab);
 		registeTab.setOnClickListener(onClickListener);//点击事件
 		
+		thirdpartyAvatarView = (ImageView)findViewById(R.id.thirdpartyAvatar);
+		
 		
 		ImageView weiboLoginBtn = (ImageView) findViewById(R.id.weiboLoginButton);
 		ImageView guestLoginButton = (ImageView) findViewById(R.id.guestLoginButton);
@@ -145,6 +151,9 @@ public class Activity_Login extends BaseActivity{
 		loginPassword= (EditText)findViewById(R.id.loginPasswordText);
 		btnBind= (Button)findViewById(R.id.btnBind);
 		btnBind.setOnClickListener(onClickListener);
+		//注册按钮
+		btnRegiste= (Button)findViewById(R.id.btnRegiste);
+		btnRegiste.setOnClickListener(onClickListener);
 		
 		//注册事件
 		registeEmailText= (EditText)findViewById(R.id.registeEmailText);
@@ -182,7 +191,7 @@ public class Activity_Login extends BaseActivity{
             	refreshToken = mAccessToken.getRefreshToken();
             	expiresTime = mAccessToken.getExpiresTime();
             	
-            	progressDialog.setMessage("微博验证通过，正在获取用户详细资料");
+            	progressDialog.setMessage("微博验证通过，正在获取用户头像信息");
             	thirdpartyType = "1";//新浪微博账户类型
             	LogUtil.d("=============="+mAccessToken.getUid()+"========"+ mAccessToken.getToken());
                 //向服务器提交，验证token
@@ -257,9 +266,13 @@ public class Activity_Login extends BaseActivity{
 							uname = uname==null?"":uname;
 							uavatar = uavatar==null?"":uavatar;
 							
+							//加载第三方头像
+							ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
+							
 							registeNicknameText.setText(uname);
-							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
-							//显示绑定对话
+//							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
+							UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
+							//默认显示注册页
 							snsLoginContainer.setVisibility(View.GONE);
 							accountContainer.setVisibility(View.VISIBLE);
 						}
@@ -307,13 +320,17 @@ public class Activity_Login extends BaseActivity{
 				mSsoHandler.authorize(new AuthListener());
 				break;
 			case R.id.weixinLoginButton://微信登录
-				progressDialog.setMessage("微信登录中...");
-				progressDialog.show();
-				SendAuth.Req req = new SendAuth.Req();
-				req.scope = "snsapi_userinfo";
-				req.state = "";
-				//微信登录
-				AppApplication.getWxApi().sendReq(req);
+//				暂时不支持微信登录
+//				progressDialog.setMessage("微信登录中...");
+//				progressDialog.show();
+//				SendAuth.Req req = new SendAuth.Req();
+//				req.scope = "snsapi_userinfo";
+//				req.state = "";
+//				//微信登录
+//				AppApplication.getWxApi().sendReq(req);
+				
+				//UiUtil.showShortToast(context, "微信登录功能即将开启，敬请期待...");
+				
 				break;
 			case R.id.guestLoginButton: //【游客登录】按钮
 				progressDialog.show();
@@ -370,6 +387,7 @@ public class Activity_Login extends BaseActivity{
 				if(!checkRegisteInput()){
 					break;
 				}
+				progressDialog.setMessage("资料提交中...");
 				progressDialog.show();
 				oauthRegiste(thirdpartyType, registeUsername, registeNickname, registePassword, uid, uname, accessToken, refreshToken, expiresTime);
 				break;
@@ -503,7 +521,7 @@ public class Activity_Login extends BaseActivity{
     private boolean checkBindInput(){
 		String emailVal = loginEmail.getText().toString();
 		if(StringUtils.isBlank(emailVal)){
-			UiUtil.showShortToast(context, "Email地址不合法");
+			UiUtil.showShortToast(context, "Email地址有误");
 			return false;
 		}
 		String passwordVal = loginPassword.getText().toString();

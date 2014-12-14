@@ -17,7 +17,6 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
-import com.bruce.designer.util.UiUtil;
 
 /**
  * Push消息处理receiver。请编写您需要的回调函数， 一般来说： onBind是必须的，用来处理startWork返回值；

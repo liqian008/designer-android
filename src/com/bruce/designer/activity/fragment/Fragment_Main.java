@@ -173,21 +173,22 @@ public class Fragment_Main extends BaseFragment{
 		String tabRefreshKey = getRefreshKey(currentTab);
 		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 		long interval = currentTime - lastRefreshTime;
-		//相应page上请求数据
-		List<Album> albumList = null;
-		if(currentTab==1){
-			albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
-		}else if(currentTab==2){
-			albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
-		}else{
-			albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
-		}
 		
-		//自动刷新
-		listViewAdapters[currentTab].setAlbumList(albumList);
-		listViewAdapters[currentTab].notifyDataSetChanged();
-		
-		if(albumList==null || albumList.size() ==0 || interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
+		if(interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
+			//相应page上请求数据
+			List<Album> albumList = null;
+			if(currentTab==1){
+				albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
+			}else if(currentTab==2){
+				albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
+			}else{
+				albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
+			}
+			tabAlbumTailIds[currentTab] = 0;
+			
+			listViewAdapters[currentTab].setAlbumList(albumList);
+			listViewAdapters[currentTab].notifyDataSetChanged();
+			
 			pullRefreshViews[currentTab].setRefreshing(false);
 		}
 	}

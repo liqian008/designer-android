@@ -41,7 +41,6 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 
 	private List<String> slideTitleList;
 	private List<String> slideDescList;
-
 	
 	
 	private static final String KEY_BROWSE_INDEX = "index";
@@ -69,23 +68,6 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 		slideTitleList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_TITLE_LIST);
 		slideDescList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_DESC_LIST);
 		
-		
-		// init view
-		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
-		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("详情展示");
-		
-		albumSlideIndicatorView = (TextView) findViewById(R.id.albumSlideIndicator);
-		albumSlideIndicatorView.setText((currentIndex+1) + "/" + totalSize);
-		
-		albumSlideTitleView = (TextView) findViewById(R.id.albumSlideTitle);
-		albumSlideTitleView.setText(slideTitleList.get(currentIndex));
-		
-		albumSlideDescView = (TextView) findViewById(R.id.albumSlideDesc);
-		albumSlideDescView.setText(slideDescList.get(currentIndex));
-		
-		
 		viewPager = (ViewPager) findViewById(R.id.viewPager);
 		if(imageUrlList!=null&&imageUrlList.size()>0){
 			totalSize = imageUrlList.size();
@@ -111,6 +93,22 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 			viewPager.setOnPageChangeListener(this);
 			viewPager.setCurrentItem(currentIndex);
 		}
+		
+		// init view
+		titlebarView = findViewById(R.id.titlebar_return);
+		titlebarView.setOnClickListener(listener);
+		titleView = (TextView) findViewById(R.id.titlebar_title);
+		titleView.setText("详情展示");
+		
+		albumSlideIndicatorView = (TextView) findViewById(R.id.albumSlideIndicator);
+		albumSlideIndicatorView.setText((currentIndex+1) + "/" + totalSize);
+		
+		albumSlideTitleView = (TextView) findViewById(R.id.albumSlideTitle);
+		albumSlideTitleView.setText(slideTitleList.get(currentIndex));
+		
+		albumSlideDescView = (TextView) findViewById(R.id.albumSlideDesc);
+		albumSlideDescView.setText(slideDescList.get(currentIndex));
+		
 	}
 
 	

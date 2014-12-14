@@ -105,7 +105,7 @@ public class AppApplication extends FrontiaApplication {
 		}
 	}
 	
-	public static User getHostUser() {
+	public synchronized static User getHostUser() {
 		if(hostUser==null){
 			//从sp中读取
 			hostUser = SharedPreferenceUtil.readObjectFromSp(User.class, Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
@@ -113,11 +113,11 @@ public class AppApplication extends FrontiaApplication {
 		return hostUser;
 	}
 
-	public synchronized static void setHostUser(User hostUser) {
-		if(hostUser!=null){
+	public synchronized static void setHostUser(User responseHostUser) {
+		if(responseHostUser!=null){
 			//写入sp
-			SharedPreferenceUtil.writeObjectToSp(hostUser, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
-			AppApplication.hostUser = hostUser;
+			SharedPreferenceUtil.writeObjectToSp(responseHostUser, Config.SP_CONFIG_ACCOUNT,  Config.SP_KEY_USERINFO);
+			hostUser = responseHostUser;
 		}
 	}
 	
