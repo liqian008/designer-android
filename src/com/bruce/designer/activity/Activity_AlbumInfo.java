@@ -105,7 +105,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			ApiResult apiResult = (ApiResult) msg.obj;
 			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 			
-			
 			switch(msg.what){
 				case HANDLER_FLAG_ALBUMINFO_RESULT:
 					if(successResult){

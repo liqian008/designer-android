@@ -3,7 +3,8 @@
     package="com.bruce.designer"
     android:versionCode="1"
     android:versionName="1.0.0" >
-
+    <!-- 版本号说明，格式为：1.x.x，发布版本的最后一位需为奇数，测试版本中为偶数 --> 
+ 
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />

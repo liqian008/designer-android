@@ -21,12 +21,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
@@ -61,11 +63,11 @@ public class Activity_Splash extends BaseActivity {
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
 			switch (msg.what) {
 				case HANDLER_FLAG_CHECK_UPDATE_RESULT:
+					ApiResult apiResult = (ApiResult) msg.obj;
+					boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+					
 					if(successResult){
 						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
 						//判断是否需要用户登录（游客也需要登录）
@@ -164,10 +166,11 @@ public class Activity_Splash extends BaseActivity {
 		String deniedText = versionCheckResult.getDeniedText();
 		deniedText = StringUtils.isBlank(deniedText)?"下次再说":deniedText;
 		
+		DownloadListener downloadListener = new DownloadListener(updateStatus, apkUrl);
 		if (updateStatus == 1) {//建议更新
-			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, ignoreListener);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, downloadListener, deniedText, downloadListener);
 		}else if (updateStatus == 2) {//强制更新
-			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, quitListener);
+			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, downloadListener, deniedText, downloadListener);
 		}else{
 			//无更新
 			jumpToNextActivity();
@@ -191,44 +194,72 @@ public class Activity_Splash extends BaseActivity {
 		//开启下载线程
 		downloadApk(apkUrl);
 	}
-
-	class DownloadListener implements  DialogInterface.OnClickListener{
+	
+	
+	/**
+	 * 下载更新提醒的listener
+	 * @author liqian
+	 *
+	 */
+	class DownloadListener implements DialogInterface.OnClickListener{
 		
+		private int updateStatus;
 		private String apkUrl;
 
-		public DownloadListener(String apkUrl){
+		public DownloadListener(int updateStatus, String apkUrl){
+			this.updateStatus = updateStatus;
 			this.apkUrl = apkUrl;
 		}
 		
 		@Override
-		public void onClick(DialogInterface dialog, int arg1) {
+		public void onClick(DialogInterface dialog, int which) {
 			dialog.dismiss();
-			showDownloadingDialog(apkUrl);
+			if(updateStatus==1){//建议更新
+				UiUtil.showShortToast(context, "which: "+which);
+				if(which==-1){//positive option
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_SUGGEST, "忽略版本更新");
+					jumpToNextActivity();
+				}else{//-2 negative option
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_SUGGEST, "下载新版本");
+					showDownloadingDialog(apkUrl);
+				}
+			}else if(updateStatus==2){//强制更新
+				if(which==-1){//positive option
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_FORCE, "拒绝更新&退出");
+					AppManager.getInstance().exitApp(context);
+				}else{//-2 negative option
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_FORCE, "下载新版本");
+					showDownloadingDialog(apkUrl);
+				}
+			}
 		}
-		
 	}
 	
-	/**
-	 * 点击下次再说的listener
-	 */
-	private DialogInterface.OnClickListener ignoreListener = new DialogInterface.OnClickListener() {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			dialog.dismiss();
-			jumpToNextActivity();
-		}
-	};
+//	/**
+//	 * 点击下次再说的listener
+//	 */
+//	private DialogInterface.OnClickListener suggestUpdateListener = new DialogInterface.OnClickListener() {
+//		@Override
+//		public void onClick(DialogInterface dialog, int which) {
+//			StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_SUGGEST, "忽略版本更新");
+//			
+//			dialog.dismiss();
+//			jumpToNextActivity();
+//		}
+//	};
 	
-	/**
-	 * 退出的listener
-	 */
-	private DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
-		@Override
-		public void onClick(DialogInterface dialog, int which) {
-			dialog.dismiss();
-			AppManager.getInstance().exitApp(context);
-		}
-	};
+//	/**
+//	 * 退出的listener
+//	 */
+//	private DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
+//		@Override
+//		public void onClick(DialogInterface dialog, int which) {
+//			StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_FORCE, "拒绝更新&退出");
+//			
+//			dialog.dismiss();
+//			AppManager.getInstance().exitApp(context);
+//		}
+//	};
 	
 	/**
 	 * 取消下载的listener

@@ -168,29 +168,39 @@ public class Fragment_Main extends BaseFragment{
 		tabIndicators[currentTab].setVisibility(View.VISIBLE);
 		viewPager.setCurrentItem(currentTab);
 		
-		//判断tab的上次刷新时间
-		long currentTime = System.currentTimeMillis();
-		String tabRefreshKey = getRefreshKey(currentTab);
-		long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
-		long interval = currentTime - lastRefreshTime;
-		
-		if(interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
-			//相应page上请求数据
-			List<Album> albumList = null;
-			if(currentTab==1){
-				albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
-			}else if(currentTab==2){
-				albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
-			}else{
-				albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
+		//判断list中是否有数据（没有则立刻刷新，有则判断刷新时间间隔）
+		List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
+		if(albumList==null ||albumList.size()<=0){//没有则立刻刷新
+			refreshAlbums(currentTab);
+		}else{
+			//判断tab的上次刷新时间
+			long currentTime = System.currentTimeMillis();
+			String tabRefreshKey = getRefreshKey(currentTab);
+			long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
+			long interval = currentTime - lastRefreshTime;
+			
+			if(interval > (TimeUtil.TIME_UNIT_MINUTE*1)){
+				refreshAlbums(currentTab);
 			}
-			tabAlbumTailIds[currentTab] = 0;
-			
-			listViewAdapters[currentTab].setAlbumList(albumList);
-			listViewAdapters[currentTab].notifyDataSetChanged();
-			
-			pullRefreshViews[currentTab].setRefreshing(false);
 		}
+	}
+
+	private void refreshAlbums(int tabIndex) {
+		List<Album> albumList;
+		//相应page上请求数据
+		if(tabIndex==1){
+			albumList= AlbumDB.queryAllRecommend(activity);//请求系统推荐数据
+		}else if(tabIndex==2){
+			albumList= AlbumDB.queryAllFollow(activity);//请求关注数据
+		}else{
+			albumList= AlbumDB.queryAllLatest(activity);//请求最新数据
+		}
+		tabAlbumTailIds[tabIndex] = 0;
+		
+		listViewAdapters[tabIndex].setAlbumList(albumList);
+		listViewAdapters[tabIndex].notifyDataSetChanged();
+		
+		pullRefreshViews[tabIndex].setRefreshing(false);
 	}
 	
 	
@@ -257,12 +267,14 @@ public class Fragment_Main extends BaseFragment{
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			int what = msg.what;
-			ApiResult jsonResult = (ApiResult) msg.obj;
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			switch(what){
 				case HANDLER_FLAG_TAB1_RESULT:
 					pullRefreshViews[1].onRefreshComplete();
-					if(jsonResult!=null&&jsonResult.getResult()==1){
-						Map<String, Object> tab1DataMap = (Map<String, Object>) jsonResult.getData();
+					if(successResult){
+						Map<String, Object> tab1DataMap = (Map<String, Object>) apiResult.getData();
 						if(tab1DataMap!=null){
 							List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
 							if(albumList!=null&&albumList.size()>0){
@@ -283,9 +295,9 @@ public class Fragment_Main extends BaseFragment{
 					int tabIndex = what;
 					//关闭刷新控件
 					pullRefreshViews[tabIndex].onRefreshComplete();
-					if(jsonResult!=null&&jsonResult.getResult()==1){
+					if(apiResult!=null&&apiResult.getResult()==1){
 						
-						Map<String, Object> tabedDataMap = (Map<String, Object>) jsonResult.getData();
+						Map<String, Object> tabedDataMap = (Map<String, Object>) apiResult.getData();
 						if(tabedDataMap!=null){
 							List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
 							Integer fromTailId = (Integer) tabedDataMap.get("fromTailId");
@@ -324,61 +336,68 @@ public class Fragment_Main extends BaseFragment{
 					}
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
-					int likedAlbumId = (Integer) msg.obj;
-					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
-					//更新ui展示
-					List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
-					if(albumList4Like!=null&&albumList4Like.size()>0){
-						for(Album album: albumList4Like){
-							if(album.getId()!=null&&album.getId()==likedAlbumId){
-								album.setLike(true);
-								long likeCount = album.getLikeCount();
-								album.setLikeCount(likeCount+1);
-								break;
+					if(successResult){
+						int likedAlbumId = (Integer) apiResult.getData();
+						AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+						//更新ui展示
+						List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
+						if(albumList4Like!=null&&albumList4Like.size()>0){
+							for(Album album: albumList4Like){
+								if(album.getId()!=null&&album.getId()==likedAlbumId){
+									album.setLike(true);
+									long likeCount = album.getLikeCount();
+									album.setLikeCount(likeCount+1);
+									break;
+								}
 							}
+							listViewAdapters[currentTab].notifyDataSetChanged();
 						}
-						listViewAdapters[currentTab].notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(activity, "赞操作成功...");
+					NotificationBuilder.createNotification(activity, successResult?"赞操作成功...":"赞操作失败...");
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
-					int favoritedAlbumId = (Integer) msg.obj;
-					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
-					//更新ui展示
-					List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
-					if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
-						for(Album album: albumList4Favorite){
-							if(album.getId()!=null&&album.getId()==favoritedAlbumId){
-								long favoriteCount = album.getFavoriteCount();
-								album.setFavoriteCount(favoriteCount+1);
-								album.setFavorite(true);
-								break;
+					if(successResult){
+						int favoritedAlbumId = (Integer) apiResult.getData();
+						AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+						//更新ui展示
+						List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
+						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+							for(Album album: albumList4Favorite){
+								if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+									long favoriteCount = album.getFavoriteCount();
+									album.setFavoriteCount(favoriteCount+1);
+									album.setFavorite(true);
+									break;
+								}
 							}
+							listViewAdapters[currentTab].notifyDataSetChanged();
 						}
-						listViewAdapters[currentTab].notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(activity, "收藏成功...");
+					NotificationBuilder.createNotification(activity, successResult?"收藏成功...":"收藏失败...");
+					
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
-					int unfavoritedAlbumId = (Integer) msg.obj; 
-					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
-					//更新ui展示
-					List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
-					if(albumList!=null&&albumList.size()>0){
-						for(Album album: albumList){
-							if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
-								long favoriteCount = album.getFavoriteCount();
-								album.setFavoriteCount(favoriteCount-1);
-								album.setFavorite(false);
-								break;
+					if(successResult){
+						int unfavoritedAlbumId = (Integer) apiResult.getData(); 
+						AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+						//更新ui展示
+						List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
+						if(albumList!=null&&albumList.size()>0){
+							for(Album album: albumList){
+								if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+									long favoriteCount = album.getFavoriteCount();
+									album.setFavoriteCount(favoriteCount-1);
+									album.setFavorite(false);
+									break;
+								}
 							}
+							listViewAdapters[currentTab].notifyDataSetChanged();
 						}
-						listViewAdapters[currentTab].notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(activity, "取消收藏成功...");
+					NotificationBuilder.createNotification(activity, successResult?"取消收藏成功...":"取消收藏失败...");
 					break;
 				default:
 					break;

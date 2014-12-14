@@ -203,63 +203,68 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					}
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
-					int likedAlbumId = (Integer) msg.obj;
-					AlbumDB.updateLikeStatus(context, likedAlbumId, 1, 1);//更新db状态
-					//更新ui展示
-					List<Album> albumList4Like = albumListAdapter.getAlbumList();
-					if(albumList4Like!=null&&albumList4Like.size()>0){
-						for(Album album: albumList4Like){
-							if(album.getId()!=null&&album.getId()==likedAlbumId){
-								album.setLike(true);
-								long likeCount = album.getLikeCount();
-								album.setLikeCount(likeCount+1);
-								break;
+					if(successResult){
+						int likedAlbumId = (Integer) apiResult.getData();
+						AlbumDB.updateLikeStatus(context, likedAlbumId, 1, 1);//更新db状态
+						//更新ui展示
+						List<Album> albumList4Like = albumListAdapter.getAlbumList();
+						if(albumList4Like!=null&&albumList4Like.size()>0){
+							for(Album album: albumList4Like){
+								if(album.getId()!=null&&album.getId()==likedAlbumId){
+									album.setLike(true);
+									long likeCount = album.getLikeCount();
+									album.setLikeCount(likeCount+1);
+									break;
+								}
 							}
+							albumListAdapter.notifyDataSetChanged();
 						}
-						albumListAdapter.notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(context, "赞操作成功...");
+					NotificationBuilder.createNotification(context, successResult?"赞操作成功...":"赞操作失败...");
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
-					int favoritedAlbumId = (Integer) msg.obj;
-					AlbumDB.updateFavoriteStatus(context, favoritedAlbumId, 1, 1);//更新db状态
-					//更新ui展示
-					List<Album> albumList4Favorite = albumListAdapter.getAlbumList();
-					if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
-						for(Album album: albumList4Favorite){
-							if(album.getId()!=null&&album.getId()==favoritedAlbumId){
-								long favoriteCount = album.getFavoriteCount();
-								album.setFavoriteCount(favoriteCount+1);
-								album.setFavorite(true);
-								break;
+					if(successResult){
+						int favoritedAlbumId = (Integer) apiResult.getData();
+						AlbumDB.updateFavoriteStatus(context, favoritedAlbumId, 1, 1);//更新db状态
+						//更新ui展示
+						List<Album> albumList4Favorite = albumListAdapter.getAlbumList();
+						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+							for(Album album: albumList4Favorite){
+								if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+									long favoriteCount = album.getFavoriteCount();
+									album.setFavoriteCount(favoriteCount+1);
+									album.setFavorite(true);
+									break;
+								}
 							}
+							albumListAdapter.notifyDataSetChanged();
 						}
-						albumListAdapter.notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(context, "收藏成功...");
+					NotificationBuilder.createNotification(context, successResult?"收藏成功...":"收藏失败...");
 					break;
 				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
-					int unfavoritedAlbumId = (Integer) msg.obj; 
-					AlbumDB.updateFavoriteStatus(context, unfavoritedAlbumId, 0, -1);//更新db状态
-					//更新ui展示
-					List<Album> albumList = albumListAdapter.getAlbumList();
-					if(albumList!=null&&albumList.size()>0){
-						for(Album album: albumList){
-							if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
-								long favoriteCount = album.getFavoriteCount();
-								album.setFavoriteCount(favoriteCount-1);
-								album.setFavorite(false);
-								break;
+					if(successResult){
+						int unfavoritedAlbumId = (Integer) apiResult.getData();
+						AlbumDB.updateFavoriteStatus(context, unfavoritedAlbumId, 0, -1);//更新db状态
+						//更新ui展示
+						List<Album> albumList = albumListAdapter.getAlbumList();
+						if(albumList!=null&&albumList.size()>0){
+							for(Album album: albumList){
+								if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+									long favoriteCount = album.getFavoriteCount();
+									album.setFavoriteCount(favoriteCount-1);
+									album.setFavorite(false);
+									break;
+								}
 							}
+							albumListAdapter.notifyDataSetChanged();
 						}
-						albumListAdapter.notifyDataSetChanged();
 					}
 					//发送广播
-					NotificationBuilder.createNotification(context, "取消收藏成功...");
+					NotificationBuilder.createNotification(context, successResult?"取消收藏成功...":"取消收藏失败...");
 					break;
-					
 				default:
 					break;
 			}

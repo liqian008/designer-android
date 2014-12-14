@@ -71,15 +71,30 @@ public class OnAlbumListener implements IOnAlbumListener{
 				Message message;
 				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST_RESULT);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST_RESULT);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
+				if(mode==1){
+					message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST_RESULT);
+				}else{
+					message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST_RESULT);
 				}
+				//api的返回参数中没有albumId，为了更新db所需的album，对apiResult做了特殊加工
+				if(apiResult!=null) apiResult.setData(albumId);
+				message.obj = apiResult;
+//				message.obj = albumId;
+				message.sendToTarget();
+				
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					if(mode==1){
+//						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST_RESULT);
+//					}else{
+//						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST_RESULT);
+//					}
+//					//api的返回参数中没有albumId，为了更新db，对apiResult做了特殊加工
+//					apiResult.setData(albumId);
+//					message.obj = apiResult;
+////					message.obj = albumId;
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -96,15 +111,31 @@ public class OnAlbumListener implements IOnAlbumListener{
 				Message message;
 				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST_RESULT);
-					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST_RESULT);
-					}
-					message.obj = albumId;
-					message.sendToTarget();
+				if(mode==1){
+					message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST_RESULT);
+				}else{
+					message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST_RESULT);
 				}
+				//api的返回参数中没有albumId，为了更新db所需的album，对apiResult做了特殊加工
+				if(apiResult!=null) apiResult.setData(albumId);
+				message.obj = apiResult;
+//				message.obj = albumId;
+				message.sendToTarget();
+				
+				
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					if(mode==1){
+//						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST_RESULT);
+//					}else{
+//						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST_RESULT);
+//					}
+//					//api的返回参数中没有albumId，为了更新db，对apiResult做了特殊加工
+//					apiResult.setData(albumId);
+//					message.obj = apiResult;
+////					message.obj = albumId;
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
