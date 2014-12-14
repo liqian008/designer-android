@@ -15,9 +15,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -159,6 +161,7 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View v) {
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "消息列表页中查看个人主页");
 					// 跳转个人主页
 					Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
 				}

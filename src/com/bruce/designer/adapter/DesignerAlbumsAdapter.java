@@ -12,7 +12,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
@@ -121,6 +123,8 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 				viewHolder.btnShare.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE, "专辑列表中点击分享");
+						
 						onAlbumListener.onShare(generalSharedInfo);
 					}
 				});
@@ -129,6 +133,9 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 				viewHolder.btnComment.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑列表中点击评论");
+						
+						
 						onAlbumListener.onComment(album);
 					}
 				});
@@ -138,6 +145,12 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					@Override
 					public void onSingleClick(View v) {
 						boolean favorited = album.isFavorite();
+						if(favorited){
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "专辑列表中取消收藏");
+						}else{
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "专辑列表中点击收藏");
+						}
+						
 						int mode =  favorited?0:1;
 						album.setFavorite(!favorited);
 						onAlbumListener.onFavorite(album.getId(), album.getUserId(), mode);
@@ -149,6 +162,12 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					@Override
 					public void onSingleClick(View v) {
 						boolean liked = album.isLike();
+						if(liked){
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_UNLIKE, "专辑列表中取消赞");
+						}else{
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_LIKE, "专辑列表中点击赞");
+						}
+						
 						int mode =  liked?0:1;
 						album.setLike(!liked);
 						onAlbumListener.onLike(album.getId(), album.getUserId(), mode);

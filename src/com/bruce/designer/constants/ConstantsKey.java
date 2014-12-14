@@ -39,7 +39,8 @@ public interface ConstantsKey {
 	public static final String LAST_REFRESH_TIME_HOTALBUM_PREFIX = "last_refresh_hotalbum_prefix_";
 	public static final String LAST_REFRESH_TIME_HOTDESIGNER_PREFIX = "last_refresh_hotdesigner_prefix_";
 	
-
+	public static final String LAST_REFRESH_TIME_MYHOME_PREFIX = "last_refresh_myhome_prefix_";
+	
 }
 
 

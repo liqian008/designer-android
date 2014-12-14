@@ -15,9 +15,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.model.share.GenericSharedInfo.WxSharedInfo;
@@ -155,12 +157,16 @@ public class SharePanelView extends PopupWindow {
 				// 隐藏分享菜单消失
 				break;
 			case R.id.shareToWxTimeline:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE_TARGET, "分享到朋友圈");
+				
 				if (generalSharedInfo != null) {
 					UiUtil.showShortToast(context, "分享到朋友圈");
 					shareToWx(generalSharedInfo, SendMessageToWX.Req.WXSceneTimeline);
 				}
 				break;
 			case R.id.shareToWxFriend:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE_TARGET, "分享给朋友");
+				
 				if (generalSharedInfo != null) {
 					UiUtil.showShortToast(context, "分享给朋友");
 					shareToWx(generalSharedInfo, SendMessageToWX.Req.WXSceneSession);

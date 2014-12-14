@@ -14,7 +14,9 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.activity.Activity_ImageBrowser;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.util.DipUtil;
@@ -130,6 +132,8 @@ public class AlbumSlidesAdapter extends BaseAdapter {
 	            layout.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_ALBUM_SLIDE, "");
+						
 						if(slideUrlList!=null&&slideUrlList.size()>0){
 							Activity_ImageBrowser.show(context, slideIndex, slideUrlList, slideTitleList, slideDescList);
 						}

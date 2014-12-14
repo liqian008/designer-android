@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
@@ -29,6 +30,7 @@ import com.bruce.designer.api.account.WeiboLoginApi;
 import com.bruce.designer.api.account.WeixinLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
@@ -319,6 +321,7 @@ public class Activity_Login extends BaseActivity{
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.weiboLoginButton:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "微博登录");
 				progressDialog.setMessage("新浪微博登录中...");
 				progressDialog.show();
 				//跳转wb oauth
@@ -341,6 +344,8 @@ public class Activity_Login extends BaseActivity{
 				
 				break;
 			case R.id.guestLoginButton: //【游客登录】按钮
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "游客登录");
+				
 				progressDialog.show();
 				new Thread(new Runnable() {
 					@Override

@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
@@ -27,6 +28,7 @@ import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantDesigner;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
@@ -407,12 +409,18 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				finish();
 				break;
 			case R.id.followsContainer:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_FOLLOWS, "个人主页中查看关注页");
+				
 				Activity_UserFollows.show(context, queryUserId);
 				break;
 			case R.id.fansContainer:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_FANS, "个人主页中查看粉丝页");
+				
 				Activity_UserFans.show(context, queryUserId);
 				break;
 			case R.id.btnFollow:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中关注");
+				
 				btnUnfollow.setVisibility(View.VISIBLE);
 				btnFollow.setVisibility(View.GONE);
 				new Thread(new Runnable(){
@@ -427,6 +435,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				}).start();
 				break;
 			case R.id.btnUnfollow:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中取消关注");
+				
 				btnFollow.setVisibility(View.VISIBLE);
 				btnUnfollow.setVisibility(View.GONE);
 				new Thread(new Runnable(){
@@ -441,9 +451,13 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				}).start();
 				break;
 			case R.id.btnSendMsg://发私信
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "个人主页中打开私信");
+				
 				Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
 				break;
 			case R.id.btnUserInfo://个人资料页
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_PROFILE, "个人主页中点击个人资料");
+				
 				Activity_UserInfo.show(context, queryUserId);
 			default:
 				break;

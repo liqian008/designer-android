@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
@@ -30,6 +31,7 @@ import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.album.PostCommentApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
@@ -521,6 +523,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		public void onSingleClick(View view) {
 			switch (view.getId()) {
 			case R.id.btnCommentPost:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
+				
 				if(toId<=0) toId=designerId;//确保toId有效
 				String  commentContent = commentInput.getText().toString();
 				if(StringUtils.isBlank(commentContent)){
@@ -535,6 +539,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				postComment(designerId, toId, commentContent);
 				break;
 			case R.id.btnComment:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑页中点击评论");
+				
 				toId = designerId;
 				commentInput.requestFocus();
 				commentInput.setSelection(commentInput.length());
@@ -542,6 +548,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 				break;
 			case R.id.btnLike:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_LIKE, "专辑页中点击赞");
+				
 				if(!isLike){
 //					postLike(albumId, designerId, 1);
 					OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
@@ -551,8 +559,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				break;
 			case R.id.btnFavorite:
 				if(isFavorite){//取消收藏
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFAVORITE, "专辑页中取消收藏");
 					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 				}else{//收藏
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_FAVORITE, "专辑页中点击收藏");
 					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
 				}
 				OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
@@ -560,6 +570,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				break;
 			case R.id.btnShare:
 				//构造分享对象
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE, "专辑页中点击分享");
+				
 				SharePanelView sharePanel = new SharePanelView(context, generalSharedInfo);
 				sharePanel.show(findViewById(R.id.commentPanel));
 				break;

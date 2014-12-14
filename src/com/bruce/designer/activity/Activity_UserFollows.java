@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
@@ -24,6 +25,7 @@ import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
@@ -177,6 +179,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 			followViewHolder.friendView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "关注页中查看个人主页");
+					
 					Activity_UserHome.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
 				}
 			});
@@ -199,6 +203,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 				followViewHolder.btnFollow.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击关注");
+						
 						followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
 						followViewHolder.btnFollow.setVisibility(View.GONE);
 						new Thread(new Runnable(){
@@ -220,6 +226,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 				followViewHolder.btnUnfollow.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击取消关注");
+						
 						followViewHolder.btnFollow.setVisibility(View.VISIBLE);
 						followViewHolder.btnUnfollow.setVisibility(View.GONE);
 						new Thread(new Runnable(){
@@ -242,6 +250,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 				followViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "关注页中打开私信");
 						Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
 					}
 				});

@@ -11,12 +11,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.BindPushTokenApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
@@ -137,6 +139,7 @@ public class Activity_Settings extends BaseActivity {
 				Activity_Settings.show(context);
 				break;
 			case R.id.pushSetting:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "进入Push设置");
 				if(AppApplication.isGuest()){
 					UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);
 				}else{
@@ -144,9 +147,11 @@ public class Activity_Settings extends BaseActivity {
 				}
 				break;
 			case R.id.aboutUs:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "关于我们");
 				Activity_AboutUs.show(context);
 				break;
 			case R.id.clearCache:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "清除缓存");
 				// 弹起popWindow
 				// 新建一个poppopWindow，并显示里面的内容
 //				PopupWindow popupWindow = makePopupWindow(context);
@@ -157,6 +162,8 @@ public class Activity_Settings extends BaseActivity {
 				clearDialog.show();
 				break;
 			case R.id.websiteView:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "打开网站");
+				
 				//启动web浏览器访问主页
 				Intent intent = new Intent();        
 				intent.setAction("android.intent.action.VIEW");
@@ -165,6 +172,8 @@ public class Activity_Settings extends BaseActivity {
 				startActivity(intent);
 				break;
 			case R.id.login:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "立即登录");
+				
 				//清除本机的登录信息
 				AppApplication.clearAccount();
 				//TODO 清除DB缓存的数据
@@ -173,6 +182,7 @@ public class Activity_Settings extends BaseActivity {
 				Activity_Login.show(context);
 				break;
 			case R.id.logout:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "用户注销");
 				if(!AppApplication.isGuest()){//登录用户需要解绑pushToken
 					//获取push信息
 					String pushUserId = SharedPreferenceUtil.getSharePreStr(context, Config.SP_KEY_BAIDU_PUSH_USER_ID, "");

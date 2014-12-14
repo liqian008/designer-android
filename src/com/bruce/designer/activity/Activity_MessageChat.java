@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -22,12 +23,14 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -47,6 +50,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  * @author liqian
  *
  */
+@SuppressLint("NewApi")
 public class Activity_MessageChat extends BaseActivity implements OnRefreshListener2<ListView>{
 	
 	private static final int HANDLER_FLAG_CHAT_LIST_RESULT = 1;
@@ -343,6 +347,9 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 				finish();
 				break;
 			case R.id.btnCommentPost:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_CHAT, "私信页中发送私信");
+				
+				
 				String chatContent = messageInput.getText().toString();
 				//检查内容不为空
 				if(StringUtils.isBlank(chatContent)){

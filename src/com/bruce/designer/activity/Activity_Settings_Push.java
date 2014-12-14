@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostPushSettingsApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
@@ -120,6 +122,8 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushChatedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_PUSH_SETTING, "私信消息"+checkState);
+				
 				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | chatedSettings);//默认处理为打开
 				if (!checkState) {
@@ -132,6 +136,8 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushFollowedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_PUSH_SETTING, "关注消息"+checkState);
+				
 				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | followedSettings);//默认处理为打开
 				if (!checkState) {
@@ -144,6 +150,8 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushFavoritedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_PUSH_SETTING, "收藏消息"+checkState);
+				
 				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | favoritedSettings);//默认处理为打开
 				if (!checkState) {
@@ -156,6 +164,8 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushLikedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_PUSH_SETTING, "赞消息"+checkState);
+				
 				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | likedSettings);//默认处理为打开
 				if (!checkState) {
@@ -168,6 +178,8 @@ public class Activity_Settings_Push extends BaseActivity {
 		pushCommentedSwitcher.OnChangedListener(new SwitcherView.OnChangedListener() {
 			@Override
 			public void OnChanged(boolean checkState) {
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_PUSH_SETTING, "评论消息"+checkState);
+				
 				long cachedPushMask = SharedPreferenceUtil.getSharePreLong(context,  Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 				long newPushMask = (cachedPushMask | commentedSettings);//默认处理为打开
 				if (!checkState) {

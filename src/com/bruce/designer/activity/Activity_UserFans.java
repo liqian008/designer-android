@@ -17,11 +17,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.result.ApiResult;
@@ -180,6 +182,8 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				fanViewHolder.btnSendMsg.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "粉丝页中打开私信");
+						
 						Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
 					}
 				});
@@ -190,10 +194,11 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 			fanViewHolder.friendView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "粉丝页中查看个人主页");
+					
 					Activity_UserHome.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
 				}
 			});
-			
 			
 			return convertView;
 		}

@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_MyFavorite;
@@ -32,6 +33,7 @@ import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.user.MyInfoApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
@@ -40,6 +42,8 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ImageUtil;
+import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -93,6 +97,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			switch(msg.what){
 				case HANDLER_FLAG_USERINFO_RESULT:
 					if(apiResult!=null&&apiResult.getResult()==1){
+						SharedPreferenceUtil.putSharePre(activity, getRefreshKey(), System.currentTimeMillis());
 						Map<String, Object> userinfoDataMap = (Map<String, Object>) apiResult.getData();
 						if(userinfoDataMap!=null){
 							User userinfo = (User) userinfoDataMap.get("userinfo");
@@ -250,8 +255,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		
 		
 		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
-		if(AppApplication.isGuest()){
-			pullRefreshView.setMode(Mode.DISABLED);//游客无操作
+		if(AppApplication.isGuest()){pullRefreshView.setMode(Mode.DISABLED);//游客无操作
 		}else{
 			pullRefreshView.setMode(Mode.PULL_FROM_END);
 		}
@@ -310,8 +314,15 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onResume() {
 		super.onResume();
-		if(!AppApplication.isGuest()){//登录用户进入时，重刷数据
-			pullRefreshView.setRefreshing(false);
+		if(!AppApplication.isGuest()){//登录用户进入时，才需要重刷数据
+			//判断缓存时间
+			long currentTime = System.currentTimeMillis();
+			String tabRefreshKey = getRefreshKey();
+			long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
+			long interval = currentTime - lastRefreshTime;
+			if(interval > (TimeUtil.TIME_UNIT_MINUTE*2)){//距离上次请求时间>2分钟，才再次刷新（减少请求次数）
+				pullRefreshView.setRefreshing(false);
+			}
 		}
 	}
 	
@@ -367,21 +378,32 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 
 			switch (view.getId()) {
 			case R.id.btnSettings:
+				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "我的Fragment中查看设置");
+				
 				Activity_Settings.show(activity);
 				break;
 			case R.id.followsContainer:
+				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FOLLOWS, "我的Fragment中查看关注页");
+				
 				Activity_UserFollows.show(activity, HOST_ID);
 				break;
 			case R.id.fansContainer:
+				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FANS, "我的Fragment中查看粉丝页");
+				
 				Activity_UserFans.show(activity, HOST_ID);
 				break;
 			case R.id.btnMyFavorite:
+				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中查看收藏");
+				
 				Activity_MyFavorite.show(activity);
 				break;
 //			case R.id.btnPubAlbum:
 //				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");
 //				break;
 			case R.id.btnUserInfo:
+				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_PROFILE, "我的Fragment中点击个人资料");
+				
+				
 				//Activity_UserInfo.show(activity, HOST_ID);
 				Intent intent = new Intent(activity, Activity_UserInfo.class);
 				intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
@@ -426,5 +448,14 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				}
 			}
 		}
+	}
+	
+	/**
+	 * 我的主页中刷新的sp-key
+	 * @param tabIndex
+	 * @return
+	 */
+	private static String getRefreshKey(){
+		return ConstantsKey.LAST_REFRESH_TIME_MYHOME_PREFIX;
 	}
 }

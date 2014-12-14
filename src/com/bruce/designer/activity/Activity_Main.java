@@ -15,20 +15,22 @@ import android.widget.ImageView;
 
 import com.baidu.android.pushservice.PushConstants;
 import com.baidu.android.pushservice.PushManager;
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
-import com.bruce.designer.activity.fragment.Fragment_Msgbox.MessageListener;
+import com.bruce.designer.activity.fragment.Fragment_Msgbox.MessageChangedListener;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
 
-public class Activity_Main extends BaseActivity implements MessageListener{
+public class Activity_Main extends BaseActivity implements MessageChangedListener{
 	
 	private static final int TAB_NUM = 4;
 	private long lastQuitTime = 0;
-	private int currentTabIndex = 0 ;
+	private int currentTabIndex = -1 ;
 	
 	private FragmentManager fragmentManager;
 	
@@ -105,23 +107,22 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 		highLight(currentTabIndex);
 	}
 	
-	
-	
 	/**
 	 * highLight
 	 * @param index
 	 */
 	private void highLight(int index) {
-		if(index>=TAB_NUM||index<0){
-			index = 0;
+		if(index==-1||index!=currentTabIndex){//当前tab与目标tab不一致时才进行切换
+			if(index>=TAB_NUM||index<0){
+				index = 0;
+			}
+			currentTabIndex = index;
+			for(ImageButton tab:footerTabs){
+				tab.setBackgroundResource(R.color.tab_normal_color);
+			}
+			footerTabs[index].setBackgroundResource(R.color.tab_active_color);
+			showFragment(index);
 		}
-		currentTabIndex = index;
-		for(ImageButton tab:footerTabs){
-			tab.setBackgroundResource(R.color.tab_normal_color);
-		}
-		footerTabs[index].setBackgroundResource(R.color.tab_active_color);
-		showFragment(index);
-		
 		//StatService.onEvent(context, "Activity_Main", "进入Tab"+index);
 	}
 	
@@ -145,10 +146,12 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 		public void onSingleClick(View view) {
 			switch(view.getId()){
 				case R.id.btnTabMain:{
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_MAIN_TAB, "点击Tab0");
 					highLight(0);
 					break;
 				}
 				case R.id.btnTabHotAlbums:{
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_MAIN_TAB, "点击Tab1");
 					highLight(1);
 					break;
 				}
@@ -157,10 +160,12 @@ public class Activity_Main extends BaseActivity implements MessageListener{
 //					break;
 //				}
 				case R.id.btnTabMsgbox:{
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_MAIN_TAB, "点击Tab2");
 					highLight(2);
 					break;
 				}
 				case R.id.btnTabHome:{
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_MAIN_TAB, "点击Tab3");
 					highLight(3);
 					break;
 				}default:{

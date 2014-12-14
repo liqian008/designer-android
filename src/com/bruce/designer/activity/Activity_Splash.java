@@ -164,9 +164,9 @@ public class Activity_Splash extends BaseActivity {
 		String deniedText = versionCheckResult.getDeniedText();
 		deniedText = StringUtils.isBlank(deniedText)?"下次再说":deniedText;
 		
-		if (updateStatus == 1) {
+		if (updateStatus == 1) {//建议更新
 			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, ignoreListener);
-		}else if (updateStatus == 2) {
+		}else if (updateStatus == 2) {//强制更新
 			downloadPromptDialog = UiUtil.showAlertDialog(context, title, message, agreeText, new DownloadListener(apkUrl), deniedText, quitListener);
 		}else{
 			//无更新

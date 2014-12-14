@@ -17,6 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.adapter.ViewPagerAdapter;
@@ -25,6 +26,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.hot.HotAlbumListApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
@@ -44,8 +46,6 @@ public class Fragment_Hot_Albums extends BaseFragment{
 	private static final int HANDLER_FLAG_TAB0_RESULT = 0;
 	private static final int HANDLER_FLAG_TAB1_RESULT = 1;
 	private static final int HANDLER_FLAG_TAB2_RESULT = 2;
-	
-	private static final int HANDLER_FLAG_ERROR = -1;
 	
 	/* tab个数*/
 	private static final int TAB_NUM = 3;
@@ -101,6 +101,8 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			tabView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_HOT_ALBUMS_TAB_REFRESH, "热门作品fragment中点击上方Tab"+tabIndex);
+					
 					highLightTab(tabIndex);
 				}
 			});
@@ -345,6 +347,8 @@ public class Fragment_Hot_Albums extends BaseFragment{
 					case 0:
 					case 1:
 					case 2:
+						StatService.onEvent(activity, ConstantsStatEvent.EVENT_HOT_ALBUMS_TAB_REFRESH, "热门作品Fragment中刷新Tab"+currentTab);
+						
 						pullRefreshViews[currentTab].setRefreshing(false);
 						break;
 				}

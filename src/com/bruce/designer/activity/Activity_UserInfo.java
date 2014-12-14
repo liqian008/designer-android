@@ -27,8 +27,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.fragment.Fragment_MyHome;
@@ -37,6 +37,7 @@ import com.bruce.designer.api.user.UserInfoApi;
 import com.bruce.designer.api.user.UserUploadAvatarApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.crop.ModifyAvatarDialog;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
@@ -92,7 +93,6 @@ public class Activity_UserInfo extends BaseActivity {
 		public void handleMessage(Message msg) {
 			ApiResult apiResult = (ApiResult) msg.obj;
 			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
 			
 			switch (msg.what) {
 			case HANDLER_FLAG_USERINFO_RESULT:
@@ -181,14 +181,15 @@ public class Activity_UserInfo extends BaseActivity {
 		shopTextView = (TextView) findViewById(R.id.shopTextView);
 		introduceTextView = (TextView) findViewById(R.id.introduceTextView);
 
+		// 从sp中读取用户资料
 		User userinfo = SharedPreferenceUtil.readObjectFromSp(User.class,
 				Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
 		if (queryUserId == HOST_ID && (userinfo != null && userinfo.getId() != null && userinfo.getId() > 0)) {
-			// 从sp中读取用户资料
+			//从缓存中获取userinfo，为了复用handler，需要伪造apiResult
 			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			dataMap.put("userinfo", userinfo);
-			message.obj = dataMap;
+			message.obj = new ApiResult(1, userinfo, 0,null);
 			message.sendToTarget();
 		} else {
 			// 启动获取个人资料详情
@@ -205,6 +206,8 @@ public class Activity_UserInfo extends BaseActivity {
 				finish();
 				break;
 			case R.id.modifyAvatar:// 点击更换头像
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_CHANGE_AVATAR, "修改头像");
+				
 				if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
 					// 调用选择那种方式的dialog
 					ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
@@ -295,7 +298,7 @@ public class Activity_UserInfo extends BaseActivity {
 				if (!TextUtils.isEmpty(uri.getAuthority())) {
 					Cursor cursor = getContentResolver().query(uri, new String[] { MediaStore.Images.Media.DATA }, null, null, null);
 					if (null == cursor) {
-						Toast.makeText(context, "图片没找到", 0).show();
+						UiUtil.showShortToast(context, "图片没找到");
 						return;
 					}
 					cursor.moveToFirst();
@@ -336,6 +339,7 @@ public class Activity_UserInfo extends BaseActivity {
 						UserUploadAvatarApi api = new UserUploadAvatarApi(path, null);
 						ApiResult apiResult = ApiManager.invoke(context, api);
 						Message message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_RESULT);
+						message.obj = apiResult;
 						message.sendToTarget();
 //						if (apiResult != null && apiResult.getResult() == 1) {
 //							message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_RESULT);

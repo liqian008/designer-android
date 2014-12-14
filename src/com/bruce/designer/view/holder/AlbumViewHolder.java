@@ -9,19 +9,19 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_UserHome;
 import com.bruce.designer.adapter.AlbumSlidesAdapter;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.AlbumAuthorInfo;
 import com.bruce.designer.model.AlbumSlide;
-import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UniversalImageUtil;
-import com.bruce.designer.view.SharePanelView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class AlbumViewHolder {
@@ -63,6 +63,8 @@ public class AlbumViewHolder {
 			OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "专辑列表中查看个人主页");
+					
 					//跳转至个人资料页
 					Activity_UserHome.show(context, album.getUserId(), authorInfo.getDesignerNickname(), authorInfo.getDesignerAvatar(), true, authorInfo.isFollowed());
 				}
@@ -137,6 +139,8 @@ public class AlbumViewHolder {
 			albumItemView.setOnClickListener(new OnSingleClickListener() {
 				@Override
 				public void onSingleClick(View view) {
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_ALBUM, "专辑列表中打开专辑详情");
+					
 					Activity_AlbumInfo.show(context, album, authorInfo, false);
 				}
 			});

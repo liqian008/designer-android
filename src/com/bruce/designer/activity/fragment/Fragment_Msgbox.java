@@ -16,11 +16,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_MessageChat;
 import com.bruce.designer.activity.Activity_MessageList;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageBoxApi;
+import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -53,7 +55,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	
 	private PullToRefreshListView pullRefreshView; 
 	
-	public MessageListener messageListener;
+	public MessageChangedListener messageListener;
 	
 	
 	@Override
@@ -98,7 +100,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
-		messageListener = (MessageListener) activity;
+		messageListener = (MessageChangedListener) activity;
 	}
 	
 	
@@ -192,8 +194,11 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 				@Override
 				public void onSingleClick(View v) {
 					if(MessageUtil.isChatMessage(message.getMessageType())){//私信消息
+						StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_CHAT, "消息Fragment中打开私信");
+						
 						Activity_MessageChat.show(context, message.getMessageType(), chatNickname, message.getChatUser().getHeadImg());
 					}else{//普通消息
+						StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_MSGLIST, "消息Fragment中打开消息列表");
 						Activity_MessageList.show(context, message.getMessageType());
 					}
 				}
@@ -300,7 +305,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	}
 	
 	
-	public interface MessageListener {
+	public interface MessageChangedListener {
 		public void unreadMsgNotify();
 		public void unreadMsgClear();
 	}
