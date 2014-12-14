@@ -70,12 +70,12 @@ public class OnAlbumListener implements IOnAlbumListener{
 			public void run() {
 				Message message;
 				PostLikeApi api = new PostLikeApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
 					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST);
+						message = handler.obtainMessage(HANDLER_FLAG_LIKE_POST_RESULT);
 					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST);
+						message = handler.obtainMessage(HANDLER_FLAG_UNLIKE_POST_RESULT);
 					}
 					message.obj = albumId;
 					message.sendToTarget();
@@ -95,12 +95,12 @@ public class OnAlbumListener implements IOnAlbumListener{
 			public void run() {
 				Message message;
 				PostFavoriteApi api = new PostFavoriteApi(albumId, designerId, mode);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
 					if(mode==1){
-						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST);
+						message = handler.obtainMessage(HANDLER_FLAG_FAVORITE_POST_RESULT);
 					}else{
-						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST);
+						message = handler.obtainMessage(HANDLER_FLAG_UNFAVORITE_POST_RESULT);
 					}
 					message.obj = albumId;
 					message.sendToTarget();

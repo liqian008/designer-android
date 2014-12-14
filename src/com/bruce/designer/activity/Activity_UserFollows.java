@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -28,6 +27,7 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -37,8 +37,11 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_UserFollows extends BaseActivity implements OnRefreshListener2<ListView>{
 
-	private static final int HANDLER_FLAG_FOLLOW = 100;
-	private static final int HANDLER_FLAG_UNFOLLOW = 101;
+	private static final int HANDLER_FLAG_FOLLOW_RESULT = 100;
+	private static final int HANDLER_FLAG_UNFOLLOW_RESULT = 101;
+
+	private static final int HANDLER_FLAG_USERFOLLOWS_RESULT = 1;
+	
 	
 	private View titlebarView;
 
@@ -48,6 +51,9 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 
 	private int queryUserId;
 	private boolean isHost;
+	
+	private PullToRefreshListView pullRefreshView =null;
+	
 	
 	public static void show(Context context, int queryUserId){
 		Intent intent = new Intent(context, Activity_UserFollows.class);
@@ -71,15 +77,15 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText((isHost?"我":"TA") + "的关注");
 		
-		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-		ListView followsListView = pullRefresh.getRefreshableView();
-		pullRefresh.setMode(Mode.PULL_FROM_START);
-		pullRefresh.setOnRefreshListener(this);
+		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		ListView followsListView = pullRefreshView.getRefreshableView();
+		pullRefreshView.setMode(Mode.PULL_FROM_START);
+		pullRefreshView.setOnRefreshListener(this);
 		
 		followsListAdapter = new FollowsListAdapter(context, null, null);
 		followsListView.setAdapter(followsListAdapter);
 		
-		pullRefresh.setRefreshing(false);
+		pullRefreshView.setRefreshing(false);
 		//获取关注列表
 //		getFollows(queryUserId);
 	}
@@ -200,9 +206,12 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 							public void run() {
 								PostFollowApi api = new PostFollowApi(followUserId, 1);
 								ApiResult apiResult = ApiManager.invoke(context, api);
-								if(apiResult!=null&&apiResult.getResult()==1){
-									handler.obtainMessage(HANDLER_FLAG_FOLLOW).sendToTarget();
-								}
+								Message message = handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT);
+								message.obj = apiResult;
+								message.sendToTarget();
+//								if(apiResult!=null&&apiResult.getResult()==1){
+//									handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT).sendToTarget();
+//								}
 							}
 						}).start();
 					}
@@ -218,9 +227,12 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 							public void run() {
 								PostFollowApi api = new PostFollowApi(followUserId, 0);
 								ApiResult apiResult = ApiManager.invoke(context, api);
-								if(apiResult!=null&&apiResult.getResult()==1){
-									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW).sendToTarget();
-								}
+								Message message = handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT);
+								message.obj = apiResult;
+								message.sendToTarget();
+//								if(apiResult!=null&&apiResult.getResult()==1){
+//									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT).sendToTarget();
+//								}
 							}
 						}).start();
 					}
@@ -250,13 +262,15 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 				Message message;
 				
 				UserFollowsApi api = new UserFollowsApi(queryUserId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(0);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_USERFOLLOWS_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = handler.obtainMessage(0);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -266,26 +280,33 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 			switch(msg.what){
-				case 0:
-					Map<String, Object> userFollowsDataMap = (Map<String, Object>) msg.obj;
-					if(userFollowsDataMap!=null){
-						List<UserFollow> followList = (List<UserFollow>)  userFollowsDataMap.get("followList");
-						Map<Integer, Boolean> followMap = (Map<Integer, Boolean>)  userFollowsDataMap.get("followMap");
-						if(followList!=null&&followList.size()>0){
-							followsListAdapter.setFollowUserList(followList);
-							followsListAdapter.setFollowUserMap(followMap);
-							followsListAdapter.notifyDataSetChanged();
+				case HANDLER_FLAG_USERFOLLOWS_RESULT:
+					pullRefreshView.onRefreshComplete();
+					if(successResult){
+						Map<String, Object> userFollowsDataMap = (Map<String, Object>) apiResult.getData();
+						if(userFollowsDataMap!=null){
+							List<UserFollow> followList = (List<UserFollow>)  userFollowsDataMap.get("followList");
+							Map<Integer, Boolean> followMap = (Map<Integer, Boolean>)  userFollowsDataMap.get("followMap");
+							if(followList!=null&&followList.size()>0){
+								followsListAdapter.setFollowUserList(followList);
+								followsListAdapter.setFollowUserMap(followMap);
+								followsListAdapter.notifyDataSetChanged();
+							}
 						}
+					}else{
+						UiUtil.showShortToast(context, "获取关注数据失败，请重试");
 					}
 					break;
-				case HANDLER_FLAG_FOLLOW:
+				case HANDLER_FLAG_FOLLOW_RESULT:
 					//广播
-					NotificationBuilder.createNotification(context, "成功关注");
+					NotificationBuilder.createNotification(context, successResult?"您已成功关注":"关注失败");
 					break;
-				case HANDLER_FLAG_UNFOLLOW:
+				case HANDLER_FLAG_UNFOLLOW_RESULT:
 					//广播
-					NotificationBuilder.createNotification(context, "取消关注成功");
+					NotificationBuilder.createNotification(context, successResult?"取消关注成功":"取消关注失败");
 					break;
 				default:
 					break;

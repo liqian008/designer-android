@@ -26,6 +26,7 @@ import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -38,7 +39,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<ListView> {
 	
-	private static final int HANDLER_FLAG_MSGBOX = 1;
+	private static final int HANDLER_FLAG_MSGBOX_RESULT = 1;
 	
 	private View titlebarView;
 
@@ -211,13 +212,13 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 			public void run() {
 				android.os.Message message;
 				MessageBoxApi api = new MessageBoxApi();
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_MSGBOX);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(activity, api);
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+////					message.obj = jsonResult.getData();
+//				}
+				message = handler.obtainMessage(HANDLER_FLAG_MSGBOX_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
 			}
 		});
 		thread.start();
@@ -226,27 +227,32 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
 			switch(msg.what){
-				case HANDLER_FLAG_MSGBOX:
+				case HANDLER_FLAG_MSGBOX_RESULT:
 					pullRefreshView.onRefreshComplete();
-					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
-					if(userFansDataMap!=null){
-						List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
-						if(messageBoxList!=null&&messageBoxList.size()>0){
-							//判断是否有未读消息
-							boolean hasUnreadMsg = false;
-							for(Message message: messageBoxList){
-								if(message.getUnread()!=null&&message.getUnread()>0){
-									hasUnreadMsg = true;//有未读消息
+					if(apiResult!=null&&apiResult.getResult()==1){
+						Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
+						if(userFansDataMap!=null){
+							List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
+							if(messageBoxList!=null&&messageBoxList.size()>0){
+								//判断是否有未读消息
+								boolean hasUnreadMsg = false;
+								for(Message message: messageBoxList){
+									if(message.getUnread()!=null&&message.getUnread()>0){
+										hasUnreadMsg = true;//有未读消息
+									}
 								}
+								if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
+									messageListener.unreadMsgNotify();
+								}else{
+									messageListener.unreadMsgClear();
+								}
+								messageBoxAdapter.setMessageBoxList(messageBoxList);
+								messageBoxAdapter.notifyDataSetChanged();
 							}
-							if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
-								messageListener.unreadMsgNotify();
-							}else{
-								messageListener.unreadMsgClear();
-							}
-							messageBoxAdapter.setMessageBoxList(messageBoxList);
-							messageBoxAdapter.notifyDataSetChanged();
+						}else{
+							UiUtil.showShortToast(activity, "获取消息数据失败，请重试");
 						}
 					}
 					break;

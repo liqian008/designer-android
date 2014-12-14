@@ -21,7 +21,6 @@ import android.widget.ImageView;
 
 import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
-import com.bruce.designer.activity.Activity_ImageBrowser.UniversialLoadListener;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.account.GuestLoginApi;
 import com.bruce.designer.api.account.OAuthBindApi;
@@ -54,23 +53,21 @@ public class Activity_Login extends BaseActivity{
 		thirdpartyMap.put("3", "微信");
 	}
 	
-	/*默认处理*/
-	private static final int HANDLER_FLAG_ERROR = 0;
 	/*微博登录成功*/
-	private static final int HANDLER_FLAG_WEIBO_LOGIN_SUCCESS = 10;
-	/*微博登录失败*/
-	private static final int HANDLER_FLAG_WEIBO_LOGIN_FAILED = 11;
+	private static final int HANDLER_FLAG_WEIBO_LOGIN_RESULT = 10;
+//	/*微博登录失败*/
+//	private static final int HANDLER_FLAG_WEIBO_LOGIN_FAILED = 11;
 	
 	/*微信登录成功*/
-	private static final int HANDLER_FLAG_WEIXIN_LOGIN_SUCCESS = 30;
-	/*微信登录失败*/
-	private static final int HANDLER_FLAG_WEIXIN_LOGIN_FAILED = 31;
+	private static final int HANDLER_FLAG_WEIXIN_LOGIN_RESULT = 30;
+//	/*微信登录失败*/
+//	private static final int HANDLER_FLAG_WEIXIN_LOGIN_FAILED = 31;
 	
 	/*测试登录成功*/
-	private static final int HANDLER_GUEST_LOGIN_SUCCEED = 100000;
+	private static final int HANDLER_GUEST_LOGIN_RESULT = 100000;
 	
-	protected static final int HANDLER_FLAG_BIND_SUCCESS = 1;
-	protected static final int HANDLER_FLAG_BIND_FAILED = 2;
+	protected static final int HANDLER_FLAG_BIND_RESULT = 1;
+//	protected static final int HANDLER_FLAG_BIND_FAILED = 2;
 	
 	private ProgressDialog progressDialog;
 	
@@ -240,66 +237,77 @@ public class Activity_Login extends BaseActivity{
     private Handler loginHandler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			progressDialog.dismiss();
 			switch(msg.what){
-				case HANDLER_FLAG_WEIBO_LOGIN_SUCCESS:
-				case HANDLER_GUEST_LOGIN_SUCCEED:
-					Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
-					UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
-					User hostUser = (User) dataMap.get("hostUser");
-					if(userPassport!=null){//之前绑定过，可以直接获取数据
-						//TODO
-						UiUtil.showLongToast(context, "您已成功登录，正在进入主界面..");
-						//设置对象缓存
-						AppApplication.setUserPassport(userPassport);
-						AppApplication.setHostUser(hostUser);
-						
-						//直接跳转至主屏界面
-						Activity_Main.show(context);
-						finish();
-					}else{//server未查到，认为是新用户，则必须要进行绑定（注册或绑定）
-						boolean needBind = (Boolean) dataMap.get("needBind");
-						thirdpartyType = (String) dataMap.get("thirdpartyType");
-						uname = (String) dataMap.get("thirdpartyUname");
-						uavatar = (String) dataMap.get("thirdpartyAvatar");
-						if(needBind){
-							uname = uname==null?"":uname;
-							uavatar = uavatar==null?"":uavatar;
+				case HANDLER_FLAG_WEIBO_LOGIN_RESULT:
+				case HANDLER_GUEST_LOGIN_RESULT:
+					if(successResult){
+						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
+						UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
+						User hostUser = (User) dataMap.get("hostUser");
+						if(userPassport!=null){//之前绑定过，可以直接获取数据
+							//TODO
+							UiUtil.showLongToast(context, "您已成功登录，正在进入主界面..");
+							//设置对象缓存
+							AppApplication.setUserPassport(userPassport);
+							AppApplication.setHostUser(hostUser);
 							
-							//加载第三方头像
-							ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
-							
-							registeNicknameText.setText(uname);
-//							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
-							UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
-							//默认显示注册页
-							snsLoginContainer.setVisibility(View.GONE);
-							accountContainer.setVisibility(View.VISIBLE);
+							//直接跳转至主屏界面
+							Activity_Main.show(context);
+							finish();
+						}else{//server未查到，认为是新用户，则必须要进行绑定（注册或绑定）
+							boolean needBind = (Boolean) dataMap.get("needBind");
+							thirdpartyType = (String) dataMap.get("thirdpartyType");
+							uname = (String) dataMap.get("thirdpartyUname");
+							uavatar = (String) dataMap.get("thirdpartyAvatar");
+							if(needBind){
+								uname = uname==null?"":uname;
+								uavatar = uavatar==null?"":uavatar;
+								
+								//加载第三方头像
+								ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
+								
+								registeNicknameText.setText(uname);
+	//							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
+								UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
+								//默认显示注册页
+								snsLoginContainer.setVisibility(View.GONE);
+								accountContainer.setVisibility(View.VISIBLE);
+							}
 						}
+					}else{
+						UiUtil.showShortToast(context, "登录失败，请重试");
 					}
 					break;
-				case HANDLER_FLAG_WEIBO_LOGIN_FAILED:
-					UiUtil.showShortToast(context, "新浪微博登录失败，请重试");
-					progressDialog.dismiss();
-					break;
-				case HANDLER_FLAG_WEIXIN_LOGIN_FAILED:
-					UiUtil.showShortToast(context, "微信登录失败，请重试");
-					progressDialog.dismiss();
-					break;
-				case HANDLER_FLAG_BIND_SUCCESS:
-					Map<String, Object> bindDataMap = (Map<String, Object>) msg.obj;
-					UserPassport bindUserPassport = (UserPassport) bindDataMap.get("userPassport");
-					User bindHostUser = (User) bindDataMap.get("hostUser");
-					//设置对象缓存
-					AppApplication.setUserPassport(bindUserPassport);
-					AppApplication.setHostUser(bindHostUser);
-					UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，精彩内容即将开启..");
-					
-					//绑定成功，跳转至主屏界面
-					Activity_Main.show(context);
-					finish();
-				case HANDLER_FLAG_BIND_FAILED:
-					//绑定失败
+//				case HANDLER_FLAG_WEIBO_LOGIN_FAILED:
+//					UiUtil.showShortToast(context, "新浪微博登录失败，请重试");
+//					progressDialog.dismiss();
+//					break;
+//				case HANDLER_FLAG_WEIXIN_LOGIN_FAILED:
+//					UiUtil.showShortToast(context, "微信登录失败，请重试");
+//					progressDialog.dismiss();
+//					break;
+				case HANDLER_FLAG_BIND_RESULT:
+					if(successResult){
+						Map<String, Object> bindDataMap = (Map<String, Object>) apiResult.getData();
+						UserPassport bindUserPassport = (UserPassport) bindDataMap.get("userPassport");
+						User bindHostUser = (User) bindDataMap.get("hostUser");
+						//设置对象缓存
+						AppApplication.setUserPassport(bindUserPassport);
+						AppApplication.setHostUser(bindHostUser);
+						UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，精彩内容即将开启..");
+						
+						//绑定成功，跳转至主屏界面
+						Activity_Main.show(context);
+						finish();
+					}else{
+						UiUtil.showShortToast(context, "绑定失败");
+					}
+//				case HANDLER_FLAG_BIND_FAILED:
+//					//绑定失败
 				default:
 					break;
 			}
@@ -337,12 +345,16 @@ public class Activity_Login extends BaseActivity{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						ApiResult jsonResult = ApiManager.invoke(context,new GuestLoginApi());
-						if (jsonResult != null && jsonResult.getResult() == 1) {
-							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_SUCCEED);
-							message.obj = jsonResult.getData();
-							message.sendToTarget();
-						}
+						ApiResult apiResult = ApiManager.invoke(context,new GuestLoginApi());
+						Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_RESULT);
+						message.obj = apiResult;
+						message.sendToTarget();
+						
+//						if (jsonResult != null && jsonResult.getResult() == 1) {
+//							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_SUCCEED);
+//							message.obj = jsonResult.getData();
+//							message.sendToTarget();
+//						}
 					}
 				}).start();
 				
@@ -411,13 +423,17 @@ public class Activity_Login extends BaseActivity{
 			public void run() {
 				WeiboLoginApi api = new WeiboLoginApi(uid, accessToken, refreshToken, expiresTime);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIBO_LOGIN_SUCCESS);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}else{//数据异常
-//					UiUtil.showShortToast(context, "登录失败，请重试");
-				}
+				Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIBO_LOGIN_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIBO_LOGIN_SUCCESS);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}else{//数据异常
+////					UiUtil.showShortToast(context, "登录失败，请重试");
+//				}
 			}
 		}).start();
 	}
@@ -437,17 +453,22 @@ public class Activity_Login extends BaseActivity{
 			public void run() {
 				WeixinLoginApi api = new WeixinLoginApi(code, state);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					//微信登录成功
-					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIXIN_LOGIN_SUCCESS);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}else{//数据异常
-					//微信登录失败
-					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIXIN_LOGIN_FAILED);
-					message.obj = apiResult.getMessage();
-					message.sendToTarget();
-				}
+				Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIXIN_LOGIN_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					//微信登录成功
+//					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIXIN_LOGIN_SUCCESS);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}else{//数据异常
+//					//微信登录失败
+//					Message message = loginHandler.obtainMessage(HANDLER_FLAG_WEIXIN_LOGIN_FAILED);
+//					message.obj = apiResult.getMessage();
+//					message.sendToTarget();
+//				}
 			}
 		}).start();
 	}
@@ -472,13 +493,16 @@ public class Activity_Login extends BaseActivity{
 			public void run() {
 				OAuthBindApi api = new OAuthBindApi(thirdpartyType, email, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}else{//数据异常
-					
-				}
+				Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}else{//数据异常
+//				}
 			}
 		}).start();
 	}
@@ -502,13 +526,16 @@ public class Activity_Login extends BaseActivity{
 			public void run() {
 				OAuthRegisteApi api = new OAuthRegisteApi(thirdpartyType, email, nickname, password, uid, uname, uavatar, accessToken, refreshToken, expiresTime);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}else{//数据异常
-					
-				}
+				Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					Message message = loginHandler.obtainMessage(HANDLER_FLAG_BIND_SUCCESS);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}else{//数据异常
+//				}
 			}
 		}).start();
 	}

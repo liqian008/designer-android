@@ -35,6 +35,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -42,11 +43,11 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 public class Fragment_Main extends BaseFragment{
 
-	private static final int HANDLER_FLAG_TAB0 = 0;
-	private static final int HANDLER_FLAG_TAB1 = 1;
-	private static final int HANDLER_FLAG_TAB2 = 2;
+	private static final int HANDLER_FLAG_TAB0_RESULT = 0;
+	private static final int HANDLER_FLAG_TAB1_RESULT = 1;
+	private static final int HANDLER_FLAG_TAB2_RESULT = 2;
 	
-	private static final int HANDLER_FLAG_ERROR = -1;
+//	private static final int HANDLER_FLAG_ERROR = -1;
 //	private static final int HANDLER_FLAG_TAB0_ERROR = 10;
 //	private static final int HANDLER_FLAG_TAB1_ERROR = 11;
 	
@@ -228,22 +229,26 @@ public class Fragment_Main extends BaseFragment{
 			public void run() {
 				Message message;
 				AbstractApi api = null;
-				if(tabIndex==1){
+				if(tabIndex==HANDLER_FLAG_TAB1_RESULT){//精选推荐
 					api = new AlbumRecommendApi();
-				}else if(tabIndex==2){
+				}else if(tabIndex==HANDLER_FLAG_TAB2_RESULT){//我的
 					api = new FollowAlbumListApi(albumTailId);
-				}else{
+				}else{//最新
 					api = new AlbumListApi(0, albumTailId);
 				}
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = tabDataHandler.obtainMessage(tabIndex);
-					message.obj = jsonResult.getData();
-					message.sendToTarget(); 
-				}else{//发送失败消息
-					int errorFlag = HANDLER_FLAG_ERROR;
-					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(activity, api);
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = tabDataHandler.obtainMessage(tabIndex);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget(); 
+//				}else{//发送失败消息
+//					int errorFlag = HANDLER_FLAG_ERROR;
+//					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
+//				}
+				
+				message = tabDataHandler.obtainMessage(tabIndex);
+				message.obj = apiResult;
+				message.sendToTarget();
 			}
 		});
 		thread.start();
@@ -253,64 +258,73 @@ public class Fragment_Main extends BaseFragment{
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			int what = msg.what;
+			ApiResult jsonResult = (ApiResult) msg.obj;
 			switch(what){
-				case HANDLER_FLAG_TAB1:
+				case HANDLER_FLAG_TAB1_RESULT:
 					pullRefreshViews[1].onRefreshComplete();
-					Map<String, Object> tab1DataMap = (Map<String, Object>) msg.obj;
-					if(tab1DataMap!=null){
-						List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
-						if(albumList!=null&&albumList.size()>0){
-							AlbumDB.deleteByTab(activity, 1);
-							//save to db
-							AlbumDB.saveAlbumsByTab(activity, albumList, 1);
-							listViewAdapters[1].setAlbumList(albumList);
-							listViewAdapters[1].notifyDataSetChanged();
+					if(jsonResult!=null&&jsonResult.getResult()==1){
+						Map<String, Object> tab1DataMap = (Map<String, Object>) jsonResult.getData();
+						if(tab1DataMap!=null){
+							List<Album> albumList = (List<Album>) tab1DataMap.get("albumList");
+							if(albumList!=null&&albumList.size()>0){
+								AlbumDB.deleteByTab(activity, 1);
+								//save to db
+								AlbumDB.saveAlbumsByTab(activity, albumList, 1);
+								listViewAdapters[1].setAlbumList(albumList);
+								listViewAdapters[1].notifyDataSetChanged();
+							}
 						}
+						SharedPreferenceUtil.putSharePre(activity, getRefreshKey(1), System.currentTimeMillis());
+					}else{
+						UiUtil.showShortToast(activity, "获取数据失败，请重试");
 					}
-					SharedPreferenceUtil.putSharePre(activity, getRefreshKey(1), System.currentTimeMillis());
 					break;
-				case HANDLER_FLAG_TAB0:
-				case HANDLER_FLAG_TAB2:
+				case HANDLER_FLAG_TAB0_RESULT:
+				case HANDLER_FLAG_TAB2_RESULT:
 					int tabIndex = what;
 					//关闭刷新控件
 					pullRefreshViews[tabIndex].onRefreshComplete();
-					
-					Map<String, Object> tabedDataMap = (Map<String, Object>) msg.obj;
-					if(tabedDataMap!=null){
-						List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
-						Integer fromTailId = (Integer) tabedDataMap.get("fromTailId");
-						Integer newTailId = (Integer) tabedDataMap.get("newTailId");
-						if(albumList!=null&&albumList.size()>0){
-							//缓存本次刷新的时间
-							SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
-							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								tabAlbumTailIds[tabIndex] = newTailId;
-								pullRefreshViews[tabIndex].setMode(Mode.BOTH);
-							}else{
-								tabAlbumTailIds[tabIndex] = 0;
-								pullRefreshViews[tabIndex].setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+					if(jsonResult!=null&&jsonResult.getResult()==1){
+						
+						Map<String, Object> tabedDataMap = (Map<String, Object>) jsonResult.getData();
+						if(tabedDataMap!=null){
+							List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
+							Integer fromTailId = (Integer) tabedDataMap.get("fromTailId");
+							Integer newTailId = (Integer) tabedDataMap.get("newTailId");
+							if(albumList!=null&&albumList.size()>0){
+								//缓存本次刷新的时间
+								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
+								if(newTailId!=null&&newTailId>0){//还有可加载的数据
+									tabAlbumTailIds[tabIndex] = newTailId;
+									pullRefreshViews[tabIndex].setMode(Mode.BOTH);
+								}else{
+									tabAlbumTailIds[tabIndex] = 0;
+									pullRefreshViews[tabIndex].setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+								}
+								
+								List<Album> oldAlbumList = listViewAdapters[tabIndex].getAlbumList();
+								if(oldAlbumList==null){
+									oldAlbumList = new ArrayList<Album>();
+								}
+								//判断加载位置，以确定是list增量还是覆盖
+								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+								if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+									oldAlbumList.addAll(albumList);
+								}else{//下拉加载，需覆盖原数据
+									AlbumDB.deleteByTab(activity, tabIndex);
+									AlbumDB.saveAlbumsByTab(activity, albumList, tabIndex);
+									oldAlbumList = null;
+									oldAlbumList = albumList; 
+								}
+								listViewAdapters[tabIndex].setAlbumList(oldAlbumList);
+								listViewAdapters[tabIndex].notifyDataSetChanged();
 							}
-							
-							List<Album> oldAlbumList = listViewAdapters[tabIndex].getAlbumList();
-							if(oldAlbumList==null){
-								oldAlbumList = new ArrayList<Album>();
-							}
-							//判断加载位置，以确定是list增量还是覆盖
-							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
-								oldAlbumList.addAll(albumList);
-							}else{//下拉加载，需覆盖原数据
-								AlbumDB.deleteByTab(activity, tabIndex);
-								AlbumDB.saveAlbumsByTab(activity, albumList, tabIndex);
-								oldAlbumList = null;
-								oldAlbumList = albumList; 
-							}
-							listViewAdapters[tabIndex].setAlbumList(oldAlbumList);
-							listViewAdapters[tabIndex].notifyDataSetChanged();
 						}
+					}else{
+						UiUtil.showShortToast(activity, "获取数据失败，请重试");
 					}
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
 					int likedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -329,7 +343,7 @@ public class Fragment_Main extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "赞操作成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
 					int favoritedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -348,7 +362,7 @@ public class Fragment_Main extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "收藏成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
 					int unfavoritedAlbumId = (Integer) msg.obj; 
 					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
 					//更新ui展示

@@ -23,6 +23,7 @@ import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.MessageUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -37,7 +38,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  */
 public class Activity_MessageList extends BaseActivity implements OnRefreshListener2<ListView>{
 
-	private static final int HANDLER_FLAG_MESSAGELIST = 1;
+	private static final int HANDLER_FLAG_MESSAGELIST_RESULT = 1;
 	
 	private View titlebarView;
 	private TextView titleView;
@@ -211,12 +212,16 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 			public void run() {
 				android.os.Message message;
 				MessageListApi api = new MessageListApi(messageType, messageTailId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if (jsonResult != null && jsonResult.getResult() == 1) {
-					message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+//				if (jsonResult != null && jsonResult.getResult() == 1) {
+//					message = handler.obtainMessage(HANDLER_FLAG_MESSAGELIST_RESULT);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -225,36 +230,43 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	private Handler handler = new Handler() {
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			switch (msg.what) {
-			case HANDLER_FLAG_MESSAGELIST:
+			case HANDLER_FLAG_MESSAGELIST_RESULT:
 				pullRefreshView.onRefreshComplete();
-				Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
-				if (messagesDataMap != null) {
-					//解析响应数据
-					Long fromTailId = (Long) messagesDataMap.get("fromTailId");
-					Long newTailId = (Long) messagesDataMap.get("newTailId");
-					
-					List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
-					if(messageList!=null&&messageList.size()>0){
-						if(newTailId!=null&&newTailId>0){//还有可加载的数据
-							messageTailId = newTailId;
-							pullRefreshView.setMode(Mode.BOTH);
-						}else{
-							messageTailId = 0;
-							pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新查询历史消息 
+				if(successResult){
+					Map<String, Object> messagesDataMap = (Map<String, Object>) apiResult.getData();
+					if (messagesDataMap != null) {
+						//解析响应数据
+						Long fromTailId = (Long) messagesDataMap.get("fromTailId");
+						Long newTailId = (Long) messagesDataMap.get("newTailId");
+						
+						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
+						if(messageList!=null&&messageList.size()>0){
+							if(newTailId!=null&&newTailId>0){//还有可加载的数据
+								messageTailId = newTailId;
+								pullRefreshView.setMode(Mode.BOTH);
+							}else{
+								messageTailId = 0;
+								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新查询历史消息 
+							}
+							List<Message> oldMessageList = messageListAdapter.getMessageList();
+							//判断加载位置，以确定是list增量还是覆盖
+							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+							if(fallloadAppend){//加载更多操作，需添加至list的开始
+								oldMessageList.addAll(0, messageList);
+							}else{//下拉加载，需覆盖原数据
+								oldMessageList = null;
+								oldMessageList = messageList;
+							}
+							messageListAdapter.setMessageList(oldMessageList);
+							messageListAdapter.notifyDataSetChanged();
 						}
-						List<Message> oldMessageList = messageListAdapter.getMessageList();
-						//判断加载位置，以确定是list增量还是覆盖
-						boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-						if(fallloadAppend){//加载更多操作，需添加至list的开始
-							oldMessageList.addAll(0, messageList);
-						}else{//下拉加载，需覆盖原数据
-							oldMessageList = null;
-							oldMessageList = messageList;
-						}
-						messageListAdapter.setMessageList(oldMessageList);
-						messageListAdapter.notifyDataSetChanged();
 					}
+				}else{
+					UiUtil.showShortToast(context, "获取我的消息失败，请重试");
 				}
 				break;
 			default:

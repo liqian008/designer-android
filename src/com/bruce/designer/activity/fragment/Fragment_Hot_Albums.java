@@ -33,6 +33,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -40,9 +41,9 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 public class Fragment_Hot_Albums extends BaseFragment{
 
-	private static final int HANDLER_FLAG_TAB0 = 0;
-	private static final int HANDLER_FLAG_TAB1 = 1;
-	private static final int HANDLER_FLAG_TAB2 = 2;
+	private static final int HANDLER_FLAG_TAB0_RESULT = 0;
+	private static final int HANDLER_FLAG_TAB1_RESULT = 1;
+	private static final int HANDLER_FLAG_TAB2_RESULT = 2;
 	
 	private static final int HANDLER_FLAG_ERROR = -1;
 	
@@ -220,15 +221,18 @@ public class Fragment_Hot_Albums extends BaseFragment{
 				int mode = mapModeByTabIndex(tabIndex);
 				AbstractApi api = new HotAlbumListApi(mode);
 				
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = tabDataHandler.obtainMessage(tabIndex);
-					message.obj = jsonResult.getData();
-					message.sendToTarget(); 
-				}else{//发送失败消息
-					int errorFlag = HANDLER_FLAG_ERROR;
-					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(activity, api);
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = tabDataHandler.obtainMessage(tabIndex);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget(); 
+//				}else{//发送失败消息
+//					int errorFlag = HANDLER_FLAG_ERROR;
+//					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
+//				}
+				message = tabDataHandler.obtainMessage(tabIndex);
+				message.obj = apiResult;
+				message.sendToTarget();
 			}
 
 		});
@@ -239,28 +243,34 @@ public class Fragment_Hot_Albums extends BaseFragment{
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
 			int what = msg.what;
+			ApiResult jsonResult = (ApiResult) msg.obj;
 			switch(what){
-				case HANDLER_FLAG_TAB0:
-				case HANDLER_FLAG_TAB1:
-				case HANDLER_FLAG_TAB2:
+				case HANDLER_FLAG_TAB0_RESULT:
+				case HANDLER_FLAG_TAB1_RESULT:
+				case HANDLER_FLAG_TAB2_RESULT:
 					pullRefreshViews[what].onRefreshComplete();
-					int tabIndex = what;
-					Map<String, Object> tabedDataMap = (Map<String, Object>) msg.obj;
-					if(tabedDataMap!=null){
-						List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
-						if(albumList!=null&&albumList.size()>0){
-							
-							AlbumDB.deleteHotByTab(activity, tabIndex);
-							AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
-							
-							//缓存本次刷新的时间
-							SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
-							listViewAdapters[tabIndex].setAlbumList(albumList);
-							listViewAdapters[tabIndex].notifyDataSetChanged();
+					if(jsonResult!=null&&jsonResult.getResult()==1){
+					
+						int tabIndex = what;
+						Map<String, Object> tabedDataMap = (Map<String, Object>) jsonResult.getData();
+						if(tabedDataMap!=null){
+							List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
+							if(albumList!=null&&albumList.size()>0){
+								
+								AlbumDB.deleteHotByTab(activity, tabIndex);
+								AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
+								
+								//缓存本次刷新的时间
+								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
+								listViewAdapters[tabIndex].setAlbumList(albumList);
+								listViewAdapters[tabIndex].notifyDataSetChanged();
+							}
 						}
+					}else{
+						UiUtil.showShortToast(activity, "获取数据失败，请重试");
 					}
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
 					int likedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -279,7 +289,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "赞操作成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
 					int favoritedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -298,7 +308,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 					//发送广播
 					NotificationBuilder.createNotification(activity, "收藏成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
 					int unfavoritedAlbumId = (Integer) msg.obj; 
 					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
 					//更新ui展示

@@ -37,11 +37,11 @@ import com.bruce.designer.util.UiUtil;
 public class Activity_Splash extends BaseActivity {
 	
 	/* 检查更新 */
-	private static final int CHECK_UPDATE = 0;
+	private static final int HANDLER_FLAG_CHECK_UPDATE_RESULT = 0;
 	/* 有新下载 */
-	private static final int DOWNLOADING = 1;
+	private static final int HANDLER_FLAG_DOWNLOADING = 1;
 	/* 下载完成 */
-	private static final int DOWNLOAD_OVER = 2;
+	private static final int HANDLER_FLAG_DOWNLOAD_OVER = 2;
 	
 	private Dialog downloadPromptDialog;
 	private Dialog downloadingDialog;
@@ -61,34 +61,42 @@ public class Activity_Splash extends BaseActivity {
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			switch (msg.what) {
-			case CHECK_UPDATE:
-				Map<String, Object> dataMap = (Map<String, Object>) msg.obj;
-				//判断是否需要用户登录（游客也需要登录）
-				needLogin = (Boolean) dataMap.get("needLogin");
-				if(!needLogin){//已登录用户
-					//加载最新的用户资料
-					User hostUser = (User) dataMap.get("hostUser");
-					if(hostUser!=null){
-						AppApplication.setHostUser(hostUser);
+				case HANDLER_FLAG_CHECK_UPDATE_RESULT:
+					if(successResult){
+						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
+						//判断是否需要用户登录（游客也需要登录）
+						needLogin = (Boolean) dataMap.get("needLogin");
+						if(!needLogin){//已登录用户
+							//加载最新的用户资料
+							User hostUser = (User) dataMap.get("hostUser");
+							if(hostUser!=null){
+								AppApplication.setHostUser(hostUser);
+							}
+						}
+						VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
+						if(versionCheckResult!=null){
+							updateStatus = versionCheckResult.getUpdateStatus();
+							processUpdateResult(versionCheckResult);
+						}
+					}else{
+						//版本检查失败
+						UiUtil.showShortToast(context, "无法连接到服务器，请重试");
 					}
-				}
-				VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
-				if(versionCheckResult!=null){
-					updateStatus = versionCheckResult.getUpdateStatus();
-					processUpdateResult(versionCheckResult);
-				}
-				break;
-			case DOWNLOADING:
-				mProgress.setProgress(progress);
-				break;
-			case DOWNLOAD_OVER:
-				String apkFilePath = (String) msg.obj;
-				installApk(apkFilePath);
-				break;
-			default:
-				//出错了
-				break;
+					break;
+				case HANDLER_FLAG_DOWNLOADING:
+					mProgress.setProgress(progress);
+					break;
+				case HANDLER_FLAG_DOWNLOAD_OVER:
+					String apkFilePath = (String) msg.obj;
+					installApk(apkFilePath);
+					break;
+				default:
+					//出错了
+					break;
 			}
 		};
 	};
@@ -109,27 +117,31 @@ public class Activity_Splash extends BaseActivity {
 
 		//启动线程
 		 Thread thread = new Thread(new Runnable() {
-			 private boolean testApi = false;
+//			 private boolean tempTest = false;
 
 			@Override
 			 public void run() {
-				 if(testApi){
-					//测试mcap api
-					 ApiResult apiResult = ApiManager.invoke(context, new SystemCheckApi());
-				 }else{
+//				 if(tempTest){
+//					//测试mcap api
+//					 ApiResult apiResult = ApiManager.invoke(context, new SystemCheckApi());
+//				 }else{
 					 //TODO 检查客户端版本
-					 try {
-						Thread.sleep(1000);
-						ApiResult jsonResult = ApiManager.invoke(context, new SystemCheckApi());
-						if (jsonResult != null && jsonResult.getResult() == 1) {
-							Message message = handler.obtainMessage(CHECK_UPDATE);
-							message.obj = jsonResult.getData();
-							message.sendToTarget();
-						}
-					 } catch (Exception e) {
-						 e.printStackTrace();
-					 }
+				 try {
+					Thread.sleep(1000);//先展示1S
+					ApiResult apiResult = ApiManager.invoke(context, new SystemCheckApi());
+					Message message = handler.obtainMessage(HANDLER_FLAG_CHECK_UPDATE_RESULT);
+					message.obj = apiResult;
+					message.sendToTarget();
+					
+//					if (jsonResult != null && jsonResult.getResult() == 1) {
+//						Message message = handler.obtainMessage(CHECK_UPDATE);
+//						message.obj = jsonResult.getData();
+//						message.sendToTarget();
+//					}
+				 } catch (Exception e) {
+					 e.printStackTrace();
 				 }
+//				 }
 			 }
 		 });
 		 thread.start();
@@ -269,10 +281,10 @@ public class Activity_Splash extends BaseActivity {
 					count += numread;
 					progress = (int) (((float) count / length) * 100);
 					// 更新进度
-					handler.sendEmptyMessage(DOWNLOADING);
+					handler.sendEmptyMessage(HANDLER_FLAG_DOWNLOADING);
 					if (numread <= 0) {
 						String apkFilePath = apkFile.getAbsolutePath();
-						Message message = handler.obtainMessage(DOWNLOAD_OVER);
+						Message message = handler.obtainMessage(HANDLER_FLAG_DOWNLOAD_OVER);
 						message.obj = apkFilePath;
 						// 下载完成通知安装
 						message.sendToTarget();

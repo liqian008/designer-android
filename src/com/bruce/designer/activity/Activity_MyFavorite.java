@@ -23,6 +23,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener2;
@@ -35,7 +36,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class Activity_MyFavorite extends BaseActivity implements OnRefreshListener2<ListView>{
 	
-	private static final int HANDLER_FLAG_SLIDE = 1;
+	private static final int HANDLER_FLAG_SLIDE_RESULT = 1;
 	
 	private static final int HANDLER_FLAG_UNFAVORITE_POST = 11;
 	
@@ -59,41 +60,47 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 			switch(msg.what){
-				case HANDLER_FLAG_SLIDE:
+				case HANDLER_FLAG_SLIDE_RESULT:
 					pullRefreshView.onRefreshComplete();
-					Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
-					if(albumsDataMap!=null){
-						List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
-						Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");
-						Integer newTailId = (Integer) albumsDataMap.get("newTailId");
-						if(albumList!=null&&albumList.size()>0){
-							
-							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								favoriteTailId = newTailId;
-								pullRefreshView.setMode(Mode.BOTH);
-							}else{
-								favoriteTailId = 0;
-								pullRefreshView.setMode(Mode.PULL_FROM_START);
-							}
-							List<Album> oldAlbumList = albumListAdapter.getAlbumList();
-							if(oldAlbumList==null){
-								oldAlbumList = new ArrayList<Album>();
-							}
-							//判断加载位置，以确定是list增量还是覆盖
-							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
-								oldAlbumList.addAll(albumList);
-							}else{//下拉加载，需覆盖原数据
-								//TODO saveToDB
+					if(successResult){
+						Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
+						if(albumsDataMap!=null){
+							List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
+							Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");
+							Integer newTailId = (Integer) albumsDataMap.get("newTailId");
+							if(albumList!=null&&albumList.size()>0){
 								
-								
-								oldAlbumList = null;
-								oldAlbumList = albumList;
+								if(newTailId!=null&&newTailId>0){//还有可加载的数据
+									favoriteTailId = newTailId;
+									pullRefreshView.setMode(Mode.BOTH);
+								}else{
+									favoriteTailId = 0;
+									pullRefreshView.setMode(Mode.PULL_FROM_START);
+								}
+								List<Album> oldAlbumList = albumListAdapter.getAlbumList();
+								if(oldAlbumList==null){
+									oldAlbumList = new ArrayList<Album>();
+								}
+								//判断加载位置，以确定是list增量还是覆盖
+								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+								if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+									oldAlbumList.addAll(albumList);
+								}else{//下拉加载，需覆盖原数据
+									//TODO saveToDB
+									
+									
+									oldAlbumList = null;
+									oldAlbumList = albumList;
+								}
+								albumListAdapter.setAlbumList(oldAlbumList);
+								albumListAdapter.notifyDataSetChanged();
 							}
-							albumListAdapter.setAlbumList(oldAlbumList);
-							albumListAdapter.notifyDataSetChanged();
 						}
+					}else{
+						UiUtil.showShortToast(context, "获取收藏数据失败，请重试");
 					}
 					break;
 				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
@@ -156,12 +163,16 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 				
 				FavoriteAlbumsListApi api = new FavoriteAlbumsListApi(favoriteTailId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_SLIDE_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
 				
-				if(apiResult!=null&&apiResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}
+				
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					message = handler.obtainMessage(HANDLER_FLAG_SLIDE_RESULT);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();

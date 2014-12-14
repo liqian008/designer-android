@@ -32,7 +32,9 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.DipUtil;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -47,9 +49,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  */
 public class Activity_MessageChat extends BaseActivity implements OnRefreshListener2<ListView>{
 	
-	private static final int HANDLER_FLAG_CHAT_LIST = 1;
+	private static final int HANDLER_FLAG_CHAT_LIST_RESULT = 1;
 
-	protected static final int HANDLER_FLAG_CHAT_POST = 11;
+	protected static final int HANDLER_FLAG_CHAT_POST_RESULT = 11;
 	
 	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
 	
@@ -235,12 +237,16 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 			public void run() {
 				android.os.Message message;
 				MessageListApi api = new MessageListApi(messageType, messageTailId); 
-				ApiResult jsonResult = ApiManager.invoke(context, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_CHAT_LIST);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_CHAT_LIST_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = handler.obtainMessage(HANDLER_FLAG_CHAT_LIST_RESULT);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -249,52 +255,63 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			switch(msg.what){
-				case HANDLER_FLAG_CHAT_LIST:
+				case HANDLER_FLAG_CHAT_LIST_RESULT:
 					pullRefreshView.onRefreshComplete();
-					Map<String, Object> messagesDataMap = (Map<String, Object>) msg.obj;
-					if(messagesDataMap!=null){
-						//解析响应数据
-						Long fromTailId = (Long) messagesDataMap.get("fromTailId");
-						Long newTailId = (Long) messagesDataMap.get("newTailId");
-						
-						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
-						if(messageList!=null&&messageList.size()>0){
-							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								messageTailId = newTailId;
-								pullRefreshView.setMode(Mode.BOTH);
-							}else{
-								messageTailId = 0;
-								pullRefreshView.setMode(Mode.PULL_FROM_END);//禁用下拉刷新查询历史消息 
-							}
+					if(successResult){
+						Map<String, Object> messagesDataMap = (Map<String, Object>) apiResult.getData();
+						if(messagesDataMap!=null){
+							//解析响应数据
+							Long fromTailId = (Long) messagesDataMap.get("fromTailId");
+							Long newTailId = (Long) messagesDataMap.get("newTailId");
 							
-							Collections.reverse(messageList);//聊天界面需要反转list，保证最新消息在最下方
-							List<Message> oldMessageList = messageListAdapter.getMessageList();
-							//判断加载位置，以确定是list增量还是覆盖
-							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-							if(fallloadAppend){//加载更多操作，需添加至list的开始
-								oldMessageList.addAll(0, messageList);
-							}else{//下拉加载，需覆盖原数据
-								oldMessageList = null;
-								oldMessageList = messageList;
-							}
-							messageListAdapter.setMessageList(oldMessageList);
-							messageListAdapter.notifyDataSetChanged();
-							if(!fallloadAppend){
-								//非加载更多的场景，需要直接滚动到底部
-								messageListView.setSelection(messageListView.getBottom());
+							List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
+							if(messageList!=null&&messageList.size()>0){
+								if(newTailId!=null&&newTailId>0){//还有可加载的数据
+									messageTailId = newTailId;
+									pullRefreshView.setMode(Mode.BOTH);
+								}else{
+									messageTailId = 0;
+									pullRefreshView.setMode(Mode.PULL_FROM_END);//禁用下拉刷新查询历史消息 
+								}
+								
+								Collections.reverse(messageList);//聊天界面需要反转list，保证最新消息在最下方
+								List<Message> oldMessageList = messageListAdapter.getMessageList();
+								//判断加载位置，以确定是list增量还是覆盖
+								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+								if(fallloadAppend){//加载更多操作，需添加至list的开始
+									oldMessageList.addAll(0, messageList);
+								}else{//下拉加载，需覆盖原数据
+									oldMessageList = null;
+									oldMessageList = messageList;
+								}
+								messageListAdapter.setMessageList(oldMessageList);
+								messageListAdapter.notifyDataSetChanged();
+								if(!fallloadAppend){
+									//非加载更多的场景，需要直接滚动到底部
+									messageListView.setSelection(messageListView.getBottom());
+								}
 							}
 						}
+					}else{
+						UiUtil.showShortToast(context, "获取私信数据失败，请重试");
 					}
 					break;
-				case HANDLER_FLAG_CHAT_POST:
-					NotificationBuilder.createNotification(context, "消息发送成功...");
-					messageInput.setText("");//清空评论框内容
-					//隐藏软键盘
-					InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-					inputManager.hideSoftInputFromWindow(messageInput.getWindowToken(), 0);
-					//重新加载评论列表
-					getMessageList(0);
+				case HANDLER_FLAG_CHAT_POST_RESULT:
+					if(successResult){
+						NotificationBuilder.createNotification(context, "私信发送成功...");
+						messageInput.setText("");//清空评论框内容
+						//隐藏软键盘
+						InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+						inputManager.hideSoftInputFromWindow(messageInput.getWindowToken(), 0);
+						//重新加载评论列表
+						getMessageList(0);
+					}else{
+						NotificationBuilder.createNotification(context, "私信发送失败...");
+					}
 					break;
 				default:
 					break;
@@ -326,9 +343,14 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 				finish();
 				break;
 			case R.id.btnCommentPost:
+				String chatContent = messageInput.getText().toString();
 				//检查内容不为空
+				if(StringUtils.isBlank(chatContent)){
+					UiUtil.showShortToast(context, "消息内容不能为空");
+					break;
+				}
 				//启动线程发布回复消息
-				postChat(messageType, messageInput.getText().toString());
+				postChat(messageType, chatContent);
 				break;
 			default:
 				break;
@@ -347,13 +369,16 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 			public void run() {
 				android.os.Message message;
 				PostChatApi api = new PostChatApi(toId, content);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_CHAT_POST_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
 				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_CHAT_POST);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = handler.obtainMessage(HANDLER_FLAG_CHAT_POST_RESULT);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();

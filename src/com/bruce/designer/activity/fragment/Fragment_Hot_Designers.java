@@ -190,10 +190,10 @@ public class Fragment_Hot_Designers extends BaseFragment{
 				int mode = 1;
 				AbstractApi api = new HotDesignerListApi(mode);
 				
-				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				if(jsonResult!=null&&jsonResult.getResult()==1){
+				ApiResult apiResult = ApiManager.invoke(activity, api);
+				if(apiResult!=null&&apiResult.getResult()==1){
 					message = tabDataHandler.obtainMessage(tabIndex);
-					message.obj = jsonResult.getData();
+					message.obj = apiResult.getData();
 					message.sendToTarget(); 
 				}else{//发送失败消息
 					int errorFlag = HANDLER_FLAG_ERROR;

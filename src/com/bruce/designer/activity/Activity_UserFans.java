@@ -25,6 +25,7 @@ import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -34,6 +35,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_UserFans extends BaseActivity implements OnRefreshListener2<ListView>{
 	
+	private static final int HANDLER_FLAG_USERFANS_RESULT = 1;
+	
 	private View titlebarView;
 
 	private TextView titleView;
@@ -42,6 +45,8 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 
 	private int queryUserId;
 	private boolean isHost;
+	
+	private PullToRefreshListView pullRefreshView =null;
 	
 	
 	public static void show(Context context, int queryUserId){
@@ -69,15 +74,15 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText((isHost?"我":"TA") + "的粉丝");
 		
-		PullToRefreshListView pullRefresh = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
-		ListView fansListView = pullRefresh.getRefreshableView();
-		pullRefresh.setMode(Mode.PULL_FROM_START);
-		pullRefresh.setOnRefreshListener(this);
+		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
+		ListView fansListView = pullRefreshView.getRefreshableView();
+		pullRefreshView.setMode(Mode.PULL_FROM_START);
+		pullRefreshView.setOnRefreshListener(this);
 		
 		fansListAdapter = new FansListAdapter(context, null, null);
 		fansListView.setAdapter(fansListAdapter);
 		
-		pullRefresh.setRefreshing(false);
+		pullRefreshView.setRefreshing(false);
 		
 		//获取粉丝列表
 //		getFans(queryUserId);
@@ -207,13 +212,16 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 //				JsonResultBean jsonResult = ApiUtil.getUserFans(userId);
 				
 				UserFansApi api = new UserFansApi(queryUserId);
-				ApiResult jsonResult = ApiManager.invoke(context, api);
+				ApiResult apiResult = ApiManager.invoke(context, api);
+				message = handler.obtainMessage(HANDLER_FLAG_USERFANS_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
 				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(0);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = handler.obtainMessage(0);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -223,17 +231,24 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 	private Handler handler = new Handler(){
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			ApiResult jsonResult = (ApiResult) msg.obj;
+			
 			switch(msg.what){
-				case 0:
-					Map<String, Object> userFansDataMap = (Map<String, Object>) msg.obj;
-					if(userFansDataMap!=null){
-						List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
-						Map<Integer, Boolean> fanMap = (Map<Integer, Boolean>)  userFansDataMap.get("fanMap");
-						if(fanList!=null&&fanList.size()>0){
-							fansListAdapter.setFanUserList(fanList);
-							fansListAdapter.setFanUserMap(fanMap);
-							fansListAdapter.notifyDataSetChanged();
+				case HANDLER_FLAG_USERFANS_RESULT:
+					pullRefreshView.onRefreshComplete();
+						if(jsonResult!=null&&jsonResult.getResult()==1){
+						Map<String, Object> userFansDataMap = (Map<String, Object>) jsonResult.getData();
+						if(userFansDataMap!=null){
+							List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
+							Map<Integer, Boolean> fanMap = (Map<Integer, Boolean>)  userFansDataMap.get("fanMap");
+							if(fanList!=null&&fanList.size()>0){
+								fansListAdapter.setFanUserList(fanList);
+								fansListAdapter.setFanUserMap(fanMap);
+								fansListAdapter.notifyDataSetChanged();
+							}
 						}
+					}else{
+						UiUtil.showShortToast(context, "获取粉丝数据失败，请重试");
 					}
 					break;
 				default:

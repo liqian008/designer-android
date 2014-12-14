@@ -50,11 +50,9 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class Activity_UserInfo extends BaseActivity {
 
-	private static final int HANDLER_FLAG_USERINFO = 1;
-	private static final int HANDLER_FLAG_AVATAR_UPLOAD_SUCCESS = 10;
-	private static final int HANDLER_FLAG_AVATAR_UPLOAD_FAILED = 11;
+	private static final int HANDLER_FLAG_USERINFO_RESULT = 1;
+	private static final int HANDLER_FLAG_AVATAR_UPLOAD_RESULT = 10;
 	
-
 	private static final int HOST_ID = AppApplication.getUserPassport().getUserId();
 
 	// 修改头像部分的定义-开始
@@ -92,41 +90,53 @@ public class Activity_UserInfo extends BaseActivity {
 
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
+			
 			switch (msg.what) {
-			case HANDLER_FLAG_USERINFO:
-				Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
-				if (userinfoDataMap != null) {
-					User userinfo = (User) userinfoDataMap.get("userinfo");
-					if (userinfo != null && userinfo.getId() > 0) {
-						// 刷新用户资料
-						if (userinfo.getHeadImg() != null) {
-							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-						}
-						nicknameTextView.setText(userinfo.getNickname());
-						usernameTextView.setText(userinfo.getUsername());
-						shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
-						introduceTextView.setText(userinfo.getDesignerIntroduction());
-						if(userinfo.getDesignerStatus()==2){//设计师身份
-							weixinNumberTextView.setText(userinfo.getWeixinNumber());
-							weixinNumberContainer.setVisibility(View.VISIBLE);
-							shopContainer.setVisibility(View.VISIBLE);
-							introduceContainer.setVisibility(View.VISIBLE);
-							userTypeTextView.setText("设计师");
-						}else{
-//							UiUtil.showShortToast(context, "非设计师");
-							weixinNumberContainer.setVisibility(View.GONE);
-							shopContainer.setVisibility(View.GONE);
-							introduceContainer.setVisibility(View.GONE);
+			case HANDLER_FLAG_USERINFO_RESULT:
+				if(successResult){
+					Map<String, Object> userinfoDataMap = (Map<String, Object>) apiResult.getData();
+					if (userinfoDataMap != null) {
+						User userinfo = (User) userinfoDataMap.get("userinfo");
+						if (userinfo != null && userinfo.getId() > 0) {
+							// 刷新用户资料
+							if (userinfo.getHeadImg() != null) {
+								ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+							}
+							nicknameTextView.setText(userinfo.getNickname());
+							usernameTextView.setText(userinfo.getUsername());
+							shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
+							introduceTextView.setText(userinfo.getDesignerIntroduction());
+							if(userinfo.getDesignerStatus()==2){//设计师身份
+								weixinNumberTextView.setText(userinfo.getWeixinNumber());
+								weixinNumberContainer.setVisibility(View.VISIBLE);
+								shopContainer.setVisibility(View.VISIBLE);
+								introduceContainer.setVisibility(View.VISIBLE);
+								userTypeTextView.setText("设计师");
+							}else{
+	//							UiUtil.showShortToast(context, "非设计师");
+								weixinNumberContainer.setVisibility(View.GONE);
+								shopContainer.setVisibility(View.GONE);
+								introduceContainer.setVisibility(View.GONE);
+							}
 						}
 					}
+				}else{
+//					UiUtil.showShortToast(context, "获取用户资料失败！");
 				}
 				break;
-			case HANDLER_FLAG_AVATAR_UPLOAD_SUCCESS:
-				UiUtil.showShortToast(context, "新头像上传成功！");
+			case HANDLER_FLAG_AVATAR_UPLOAD_RESULT:
+				if(successResult){
+					UiUtil.showShortToast(context, "新头像上传成功！");
+				}else{
+					UiUtil.showShortToast(context, "新头像上传成功！");
+				}
 				break;
-			case HANDLER_FLAG_AVATAR_UPLOAD_FAILED:
-				UiUtil.showShortToast(context, "新头像上传失败！");
-				break;
+//			case HANDLER_FLAG_AVATAR_UPLOAD_FAILED:
+//				UiUtil.showShortToast(context, "新头像上传失败！");
+//				break;
 			default:
 				break;
 			}
@@ -175,7 +185,7 @@ public class Activity_UserInfo extends BaseActivity {
 				Config.SP_CONFIG_ACCOUNT, Config.SP_KEY_USERINFO);
 		if (queryUserId == HOST_ID && (userinfo != null && userinfo.getId() != null && userinfo.getId() > 0)) {
 			// 从sp中读取用户资料
-			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
+			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			dataMap.put("userinfo", userinfo);
 			message.obj = dataMap;
@@ -261,12 +271,16 @@ public class Activity_UserInfo extends BaseActivity {
 				Message message;
 				UserInfoApi api = new UserInfoApi(userId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-
-				if (apiResult != null && apiResult.getResult() == 1) {
-					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}
+				message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+				
+//				if (apiResult != null && apiResult.getResult() == 1) {
+//					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -309,7 +323,6 @@ public class Activity_UserInfo extends BaseActivity {
 				
 				File file = new File(path);
 				LogUtil.d( "截取到的文件大小是 = " + file.length());
-				
 				LogUtil.d( "截取到的图片路径是 = " + path);
 				Bitmap b = BitmapFactory.decodeFile(path);
 				avatarView.setImageBitmap(b);
@@ -322,13 +335,14 @@ public class Activity_UserInfo extends BaseActivity {
 					public void run() {
 						UserUploadAvatarApi api = new UserUploadAvatarApi(path, null);
 						ApiResult apiResult = ApiManager.invoke(context, api);
-						Message message = null;
-						if (apiResult != null && apiResult.getResult() == 1) {
-							message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_SUCCESS);
-						}else{
-							message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_FAILED);
-						}
+						Message message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_RESULT);
 						message.sendToTarget();
+//						if (apiResult != null && apiResult.getResult() == 1) {
+//							message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_RESULT);
+//						}else{
+//							message = handler.obtainMessage(HANDLER_FLAG_AVATAR_UPLOAD_FAILED);
+//						}
+//						message.sendToTarget();
 					}
 				}).start();
 			}

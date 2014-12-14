@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.baidu.android.pushservice.PushManager;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostPushSettingsApi;
@@ -20,6 +19,7 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.view.SwitcherView;
 
 /**
@@ -30,8 +30,8 @@ import com.bruce.designer.view.SwitcherView;
 public class Activity_Settings_Push extends BaseActivity {
 	
 
-	protected static final int HANDLER_FLAG_PUSHMASK_READ = 0;
-	protected static final int HANDLER_FLAG_PUSHMASK_WRITE = 1;
+	protected static final int HANDLER_FLAG_PUSHMASK_READ_RESULT = 0;
+	protected static final int HANDLER_FLAG_PUSHMASK_WRITE_RESULT = 1;
 	
 //	public static final int RESULT_CODE_SETTINGS_PUSH = 10;
 	
@@ -56,14 +56,21 @@ public class Activity_Settings_Push extends BaseActivity {
 	
 	private Handler handler = new Handler() {
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
 			switch (msg.what) {
-			case HANDLER_FLAG_PUSHMASK_READ:
-				Map<String, Object> pushSettingsDataMap = (Map<String, Object>) msg.obj;
-				Long pushMask = (Long) pushSettingsDataMap.get("pushMask");
-				initPushSettings(pushMask==null?0:pushMask);
-				SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH_MASK, (pushMask==null?0:pushMask));
+			case HANDLER_FLAG_PUSHMASK_READ_RESULT:
+				if(successResult){
+					Map<String, Object> pushSettingsDataMap = (Map<String, Object>) apiResult.getData();
+					Long pushMask = (Long) pushSettingsDataMap.get("pushMask");
+					initPushSettings(pushMask==null?0:pushMask);
+					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH_MASK, (pushMask==null?0:pushMask));
+				}else{
+					UiUtil.showShortToast(context, "获取推送设置失败，请重试");
+				}
 				break;
-			case HANDLER_FLAG_PUSHMASK_WRITE:
+			case HANDLER_FLAG_PUSHMASK_WRITE_RESULT:
 				//do nothing
 				break;
 			default:
@@ -222,14 +229,17 @@ public class Activity_Settings_Push extends BaseActivity {
 				Message message;
 				PostPushSettingsApi api = new PostPushSettingsApi(0, Long.MAX_VALUE);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-
-				if (apiResult != null && apiResult.getResult() == 1) {
-					message = handler.obtainMessage(HANDLER_FLAG_PUSHMASK_READ);
-					message.obj = apiResult.getData();
-					
-					System.err.println("====apiResult.getData()"+apiResult.getData());
-					message.sendToTarget();
-				}
+				message = handler.obtainMessage(HANDLER_FLAG_PUSHMASK_READ_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+				
+				
+//				if (apiResult != null && apiResult.getResult() == 1) {
+//					message = handler.obtainMessage(HANDLER_FLAG_PUSHMASK_READ_RESULT);
+//					message.obj = apiResult.getData();
+//					System.err.println("====apiResult.getData()"+apiResult.getData());
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();

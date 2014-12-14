@@ -40,6 +40,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.ImageUtil;
+import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -54,8 +55,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
  */
 public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<ListView> {
 	
-	private static final int HANDLER_FLAG_USERINFO = 1;
-	private static final int HANDLER_FLAG_SLIDE = 2;
+	private static final int HANDLER_FLAG_USERINFO_RESULT = 1;
+	private static final int HANDLER_FLAG_SLIDE_RESULT = 2;
 	
 	public static final int REQUEST_CODE_USERINFO = 100;
 	public static final int RESULT_CODE_AVATAR_CHANGED = 200;
@@ -88,67 +89,76 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 
 		@SuppressWarnings("unchecked")
 		public void handleMessage(Message msg) {
+			ApiResult apiResult = (ApiResult) msg.obj;
 			switch(msg.what){
-				case HANDLER_FLAG_USERINFO:
-					Map<String, Object> userinfoDataMap = (Map<String, Object>) msg.obj;
-					if(userinfoDataMap!=null){
-						User userinfo = (User) userinfoDataMap.get("userinfo");
-						int fansCount = (Integer) userinfoDataMap.get("fansCount");
-						int followsCount = (Integer) userinfoDataMap.get("followsCount");
-						int albumsCount = (Integer) userinfoDataMap.get("albumsCount");
-						
-						if(userinfo!=null&&userinfo.getId()>0){
-							if(AppApplication.isHost(userinfo.getId())){
-								//缓存到sp
-								AppApplication.setHostUser(userinfo);
+				case HANDLER_FLAG_USERINFO_RESULT:
+					if(apiResult!=null&&apiResult.getResult()==1){
+						Map<String, Object> userinfoDataMap = (Map<String, Object>) apiResult.getData();
+						if(userinfoDataMap!=null){
+							User userinfo = (User) userinfoDataMap.get("userinfo");
+							int fansCount = (Integer) userinfoDataMap.get("fansCount");
+							int followsCount = (Integer) userinfoDataMap.get("followsCount");
+							int albumsCount = (Integer) userinfoDataMap.get("albumsCount");
+							
+							if(userinfo!=null&&userinfo.getId()>0){
+								if(AppApplication.isHost(userinfo.getId())){
+									//缓存到sp
+									AppApplication.setHostUser(userinfo);
+								}
+								//显示头像
+								ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+								
+								titleView.setText(userinfo.getNickname());
+								nicknameView.setText(userinfo.getNickname());
+								
+								albumsNumView.setText(String.valueOf(albumsCount));
+								fansNumView.setText(String.valueOf(fansCount));
+								followsNumView.setText(String.valueOf(followsCount));
 							}
-							//显示头像
-							ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-							
-							titleView.setText(userinfo.getNickname());
-							nicknameView.setText(userinfo.getNickname());
-							
-							albumsNumView.setText(String.valueOf(albumsCount));
-							fansNumView.setText(String.valueOf(fansCount));
-							followsNumView.setText(String.valueOf(followsCount));
 						}
+					}else{
+						UiUtil.showShortToast(activity, "获取个人资料失败，请重试");
 					}
 					break;
-				case HANDLER_FLAG_SLIDE:
+				case HANDLER_FLAG_SLIDE_RESULT:
 					pullRefreshView.onRefreshComplete();
-					Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
-					if(albumsDataMap!=null){
-						List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
-						Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");
-						Integer newTailId = (Integer) albumsDataMap.get("newTailId");
-						if(albumList!=null&&albumList.size()>0){
-							
-							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								albumTailId = newTailId;
+					if(apiResult!=null&&apiResult.getResult()==1){
+						Map<String, Object> albumsDataMap = (Map<String, Object>) apiResult.getData();
+						if(albumsDataMap!=null){
+							List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
+							Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");
+							Integer newTailId = (Integer) albumsDataMap.get("newTailId");
+							if(albumList!=null&&albumList.size()>0){
+								
+								if(newTailId!=null&&newTailId>0){//还有可加载的数据
+									albumTailId = newTailId;
+								}else{
+									albumTailId = 0;
+									pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+								}
+								List<Album> oldAlbumList = albumListAdapter.getAlbumList();
+								if(oldAlbumList==null){
+									oldAlbumList = new ArrayList<Album>();
+								}
+								//判断加载位置，以确定是list增量还是覆盖
+								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+								if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+									oldAlbumList.addAll(albumList);
+								}else{//下拉加载，需覆盖原数据
+									oldAlbumList = null;
+									oldAlbumList = albumList; 
+								}
+								albumListAdapter.setAlbumList(oldAlbumList);
+								albumListAdapter.notifyDataSetChanged();
 							}else{
-								albumTailId = 0;
-								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新
 							}
-							List<Album> oldAlbumList = albumListAdapter.getAlbumList();
-							if(oldAlbumList==null){
-								oldAlbumList = new ArrayList<Album>();
-							}
-							//判断加载位置，以确定是list增量还是覆盖
-							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-							if(fallloadAppend){//上拉加载更多，需添加至list的结尾
-								oldAlbumList.addAll(albumList);
-							}else{//下拉加载，需覆盖原数据
-								oldAlbumList = null;
-								oldAlbumList = albumList; 
-							}
-							albumListAdapter.setAlbumList(oldAlbumList);
-							albumListAdapter.notifyDataSetChanged();
-						}else{
-							pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新
 						}
+					}else{
+						UiUtil.showShortToast(activity, "获取专辑数据失败，请重试");
 					}
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST: //赞成功
+				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
 					int likedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -167,7 +177,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					//发送广播
 					NotificationBuilder.createNotification(activity, "赞操作成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST: //收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
 					int favoritedAlbumId = (Integer) msg.obj;
 					AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
 					//更新ui展示
@@ -186,7 +196,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					//发送广播
 					NotificationBuilder.createNotification(activity, "收藏成功...");
 					break;
-				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
 					int unfavoritedAlbumId = (Integer) msg.obj; 
 					AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
 					//更新ui展示
@@ -314,11 +324,14 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				
 				MyInfoApi api = new MyInfoApi();
 				ApiResult apiResult = ApiManager.invoke(activity, api);
-				if(apiResult!=null&&apiResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_USERINFO);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}
+				message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
+//				if(apiResult!=null&&apiResult.getResult()==1){
+//					message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
+//					message.obj = apiResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
@@ -334,12 +347,14 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				
 				AlbumListApi api = new AlbumListApi(HOST_ID, albumTailId);
 				ApiResult jsonResult = ApiManager.invoke(activity, api);
-				
-				if(jsonResult!=null&&jsonResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_SLIDE);
-					message.obj = jsonResult.getData();
-					message.sendToTarget();
-				}
+				message = handler.obtainMessage(HANDLER_FLAG_SLIDE_RESULT);
+				message.obj = jsonResult;
+				message.sendToTarget();
+//				if(jsonResult!=null&&jsonResult.getResult()==1){
+//					message = handler.obtainMessage(HANDLER_FLAG_SLIDE_RESULT);
+//					message.obj = jsonResult.getData();
+//					message.sendToTarget();
+//				}
 			}
 		});
 		thread.start();
