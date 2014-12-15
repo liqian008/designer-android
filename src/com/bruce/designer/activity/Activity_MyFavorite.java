@@ -20,6 +20,7 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.FavoriteAlbumsListApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
@@ -100,7 +101,8 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 							}
 						}
 					}else{
-						UiUtil.showShortToast(context, "获取收藏数据失败，请重试");
+						//UiUtil.showShortToast(context, "获取收藏数据失败，请重试");
+						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 					}
 					break;
 				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功

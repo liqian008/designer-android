@@ -19,6 +19,7 @@ import com.baidu.mobstat.StatService;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
@@ -269,7 +270,8 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 						}
 					}
 				}else{
-					UiUtil.showShortToast(context, "获取我的消息失败，请重试");
+					//UiUtil.showShortToast(context, "获取我的消息失败，请重试");
+					UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 				}
 				break;
 			default:

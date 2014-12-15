@@ -22,6 +22,7 @@ import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.UserFansApi;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -253,7 +254,8 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 							}
 						}
 					}else{
-						UiUtil.showShortToast(context, "获取粉丝数据失败，请重试");
+						//UiUtil.showShortToast(context, "获取粉丝数据失败，请重试");
+						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 					}
 					break;
 				default:

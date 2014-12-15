@@ -9,6 +9,10 @@ public class Config {
 	public static final String GUEST_TOAST_TEXT = "游客无法进行该操作，请先进行登录";
 	
 	public static final String NETWORK_UNAVAILABLE = "当前网络不可用";
+	
+	public static final String RESPONSE_ERROR = "网络连接不稳定，请重试";
+	
+	
 	/*客户端类型，1为ios，2为android*/
 	public static final int CLIENT_TYPE = 2;
 	/*用于web来路统计的参数名*/
@@ -32,7 +36,7 @@ public class Config {
 	//online mcap api	
 	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
 	//测试服务器的 mcap api	
-//	public static final String JINWAN_MOBILE_DOMAIN = "http://mtest.jinwanr.com";
+//	public static final String JINWAN_MOBILE_DOMAIN = "http://slb.jinwanr.com";
 	
 	//本机测试的 mcap api
 //	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";

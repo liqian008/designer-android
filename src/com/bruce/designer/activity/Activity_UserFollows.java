@@ -24,6 +24,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostFollowApi;
 import com.bruce.designer.api.user.UserFollowsApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -306,7 +307,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 							}
 						}
 					}else{
-						UiUtil.showShortToast(context, "获取关注数据失败，请重试");
+						//UiUtil.showShortToast(context, "获取关注数据失败，请重试");
+						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 					}
 					break;
 				case HANDLER_FLAG_FOLLOW_RESULT:

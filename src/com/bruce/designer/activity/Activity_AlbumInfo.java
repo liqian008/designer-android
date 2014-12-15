@@ -30,6 +30,7 @@ import com.bruce.designer.api.album.AlbumCommentsApi;
 import com.bruce.designer.api.album.AlbumInfoApi;
 import com.bruce.designer.api.album.PostCommentApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumCommentDB;
@@ -133,7 +134,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 							slideAdapter.notifyDataSetChanged();
 						}
 					}else{
-						UiUtil.showShortToast(context, "获取专辑信息失败，请重试");
+//						UiUtil.showShortToast(context, "获取专辑信息失败，请重试");
+						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 					}
 					break;
 				case HANDLER_FLAG_COMMENTS_RESULT:
