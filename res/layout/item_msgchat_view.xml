@@ -12,31 +12,28 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12.0dip"
-        android:background="@drawable/button_white_bg" >
-		
+        android:background="@color/white" >
+
         <TextView
             android:id="@+id/chatTime"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_centerHorizontal="true"
-               android:gravity="center"
-               android:text="发送时间"
-              android:paddingLeft="10dp"
-               android:paddingRight="10dp"
-               android:paddingTop="4dp"
-               android:paddingBottom="4dp"
-               android:textColor="@color/black2c"
-               android:textSize="11.0sp"
-               android:layout_marginBottom="10dp"
-                />
-        
-        
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:paddingBottom="4dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:text="发送时间"
+            android:textColor="@color/black2c"
+            android:textSize="11.0sp" />
+
         <RelativeLayout
             android:id="@+id/msgAvatarBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:layout_below="@+id/chatTime"
-            >
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/chatTime" >
 
             <ImageView
                 android:id="@+id/msgAvatar"
@@ -48,21 +45,20 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/chatTime"
             android:layout_marginLeft="10.0dip"
             android:layout_marginRight="10.0dip"
-            android:layout_toRightOf="@+id/msgAvatarBox"
-            android:layout_below="@+id/chatTime"
-             >
+            android:layout_toRightOf="@+id/msgAvatarBox" >
 
             <TextView
                 android:id="@+id/msgContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
+                android:lineSpacingMultiplier="1.3"
                 android:minHeight="50sp"
                 android:padding="10sp"
                 android:text=""
-                android:lineSpacingMultiplier="1.3"
                 android:textSize="16.0sp" />
         </RelativeLayout>
     </RelativeLayout>
@@ -74,35 +70,34 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12.0dip"
-        android:background="@drawable/button_white_bg" >
-		
+       	android:background="@color/white"
+        android:fastScrollEnabled="false"
+        android:focusableInTouchMode="false" >
+
         <TextView
             android:id="@+id/myChatTime"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_centerHorizontal="true"
-               android:gravity="center"
-               android:text="发送时间"
-               android:paddingLeft="10dp"
-               android:paddingRight="10dp"
-               android:paddingTop="4dp"
-               android:paddingBottom="4dp"
-               android:textColor="@color/black2c"
-               android:textSize="11.0sp"
-               android:layout_marginBottom="10dp"
-                />
-        
-        
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:paddingBottom="4dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:text="发送时间"
+            android:textColor="@color/black2c"
+            android:textSize="11.0sp" />
+
         <RelativeLayout
             android:id="@+id/myAvatarBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/myChatTime"
-             >
+            android:layout_below="@+id/myChatTime" >
 
             <ImageView
-                android:id="@+id/myAvatar"
+                android:id="@+id/myMsgAvatar"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:src="@drawable/default_avatar" />
@@ -111,26 +106,24 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/myChatTime"
             android:layout_marginLeft="10.0dip"
             android:layout_marginRight="10.0dip"
-            android:layout_toLeftOf="@+id/myAvatarBox"
-            android:layout_below="@+id/myChatTime"
-             >
+            android:layout_toLeftOf="@+id/myAvatarBox" >
 
             <TextView
                 android:id="@+id/myMsgContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
+                android:background="@color/green_button_normal_color"
                 android:gravity="center_vertical|left"
+                android:lineSpacingMultiplier="1.3"
                 android:minHeight="50sp"
                 android:padding="10sp"
                 android:text=""
-                android:background="@color/green_button_normal_color"
                 android:textColor="#fdfdfd"
-                android:textSize="16.0sp" 
-                android:lineSpacingMultiplier="1.3"
-                />
+                android:textSize="16.0sp" />
         </RelativeLayout>
     </RelativeLayout>
 

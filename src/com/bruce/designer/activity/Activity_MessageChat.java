@@ -33,6 +33,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
+import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.DipUtil;
 import com.bruce.designer.util.StringUtils;
@@ -167,67 +168,89 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 			return position;
 		}
 
+		
+		
+		
+		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//TODO 暂未使用convertView
 			Message message = getItem(position);
-			if(message!=null){
-				View itemView = inflater.inflate(R.layout.item_msgchat_view, null);
-				
-				RelativeLayout messageContainer = (RelativeLayout) itemView.findViewById(R.id.messageContainer);
-				RelativeLayout myMessageContainer = (RelativeLayout) itemView.findViewById(R.id.myMessageContainer);
-				if(message.getFromId()!= HOST_ID){//需要展示对方的对话消息
+			ChatViewHandler viewHolder = null;
+			if(convertView==null){
+				viewHolder = new ChatViewHandler();
+				if(message!=null){
+					convertView = inflater.inflate(R.layout.item_msgchat_view, null);
+//					RelativeLayout messageContainer = (RelativeLayout) convertView.findViewById(R.id.messageContainer);
+//					RelativeLayout myMessageContainer = (RelativeLayout) convertView.findViewById(R.id.myMessageContainer);
 					
-					messageContainer.setVisibility(View.VISIBLE);
-					myMessageContainer.setVisibility(View.GONE);
+					viewHolder.messageContainer = (RelativeLayout) convertView.findViewById(R.id.messageContainer);
+					viewHolder.myMessageContainer = (RelativeLayout) convertView.findViewById(R.id.myMessageContainer);
 					
-					TextView chatTimetView = (TextView) itemView.findViewById(R.id.chatTime);
-					chatTimetView.setText(TimeUtil.displayTime(message.getCreateTime()));
-					
-					GradientDrawable timeTextDrawable = new GradientDrawable();
-					timeTextDrawable.setColor(getResources().getColor(R.color.grey_button_normal_color));
-					float timeRadius = DipUtil.calcFromDip((Activity) context, 3);
-					timeTextDrawable.setCornerRadius(timeRadius);
-					chatTimetView.setBackground(timeTextDrawable);
-					
-					TextView msgContentView = (TextView) itemView.findViewById(R.id.msgContent);
-					msgContentView.setText(message.getMessage());
-					
-					GradientDrawable chatTextDrawable = new GradientDrawable();
-					chatTextDrawable.setColor(getResources().getColor(R.color.grey_button_active_color));
-					float radius = DipUtil.calcFromDip((Activity) context, 6);
-					chatTextDrawable.setCornerRadius(radius);
-					
-					msgContentView.setBackground(timeTextDrawable);
-					
-					//私信消息需要使用fromUser的头像
-					ImageView msgAvatrView = (ImageView) itemView.findViewById(R.id.msgAvatar);
-					ImageLoader.getInstance().displayImage(avatarUrl, msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-				}else{//需要展示自己的对话消息
-					TextView myChatTimetView = (TextView) itemView.findViewById(R.id.myChatTime);
-					myChatTimetView.setText(TimeUtil.displayTime(message.getCreateTime()));
-					
-					GradientDrawable timeTextDrawable = new GradientDrawable();
-					timeTextDrawable.setColor(getResources().getColor(R.color.grey_button_normal_color));
-					float timeRadius = DipUtil.calcFromDip((Activity) context, 3);
-					timeTextDrawable.setCornerRadius(timeRadius);
-					myChatTimetView.setBackground(timeTextDrawable);
-					
-					TextView myMsgContentView = (TextView) itemView.findViewById(R.id.myMsgContent);
-					myMsgContentView.setText(message.getMessage());
-					
-					GradientDrawable chatTextDrawable = new GradientDrawable();
-					chatTextDrawable.setColor(getResources().getColor(R.color.green_button_normal_color));
-					float radius = DipUtil.calcFromDip((Activity) context, 6);
-					chatTextDrawable.setCornerRadius(radius);
-					myMsgContentView.setBackground(chatTextDrawable);
-					
-					messageContainer.setVisibility(View.GONE);
-					myMessageContainer.setVisibility(View.VISIBLE);
+					viewHolder.chatTimetView = (TextView) convertView.findViewById(R.id.chatTime);
+					viewHolder.msgContentView = (TextView) convertView.findViewById(R.id.msgContent);
+					viewHolder.msgAvatarView = (ImageView) convertView.findViewById(R.id.msgAvatar);
+					//我的
+					viewHolder.myChatTimetView = (TextView) convertView.findViewById(R.id.myChatTime);
+					viewHolder.myMsgContentView = (TextView) convertView.findViewById(R.id.myMsgContent);
+					viewHolder.myMsgAvatarView = (ImageView) convertView.findViewById(R.id.myMsgAvatar);
+					convertView.setTag(viewHolder);
 				}
-				return itemView;
+			}else{
+				viewHolder = (ChatViewHandler) convertView.getTag();
 			}
-			return null;
+			
+			//构造view
+			if(message.getFromId()!= HOST_ID){//需要展示对方的对话消息
+				viewHolder.messageContainer.setVisibility(View.VISIBLE);
+				viewHolder.myMessageContainer.setVisibility(View.GONE);
+				
+				viewHolder.chatTimetView.setText(TimeUtil.displayTime(message.getCreateTime()));
+				
+				GradientDrawable timeTextDrawable = new GradientDrawable();
+				timeTextDrawable.setColor(getResources().getColor(R.color.grey_button_normal_color));
+				float timeRadius = DipUtil.calcFromDip((Activity) context, 3);
+				timeTextDrawable.setCornerRadius(timeRadius);
+				viewHolder.chatTimetView.setBackground(timeTextDrawable);
+				
+				viewHolder.msgContentView.setText(message.getMessage());
+				
+				GradientDrawable chatTextDrawable = new GradientDrawable();
+				chatTextDrawable.setColor(getResources().getColor(R.color.grey_button_active_color));
+				float radius = DipUtil.calcFromDip((Activity) context, 6);
+				chatTextDrawable.setCornerRadius(radius);
+				
+				viewHolder.msgContentView.setBackground(timeTextDrawable);
+				
+				//私信消息需要使用fromUser的头像
+				ImageLoader.getInstance().displayImage(avatarUrl, viewHolder.msgAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			}else{//需要展示自己的对话消息
+				User hostUser = AppApplication.getHostUser();
+				
+				viewHolder.messageContainer.setVisibility(View.GONE);
+				viewHolder.myMessageContainer.setVisibility(View.VISIBLE);
+				
+				viewHolder.myChatTimetView.setText(TimeUtil.displayTime(message.getCreateTime()));
+				
+				GradientDrawable timeTextDrawable = new GradientDrawable();
+				timeTextDrawable.setColor(getResources().getColor(R.color.grey_button_normal_color));
+				float timeRadius = DipUtil.calcFromDip((Activity) context, 3);
+				timeTextDrawable.setCornerRadius(timeRadius);
+				viewHolder.myChatTimetView.setBackground(timeTextDrawable);
+				
+				viewHolder.myMsgContentView.setText(message.getMessage());
+				
+				GradientDrawable chatTextDrawable = new GradientDrawable();
+				chatTextDrawable.setColor(getResources().getColor(R.color.green_button_normal_color));
+				float radius = DipUtil.calcFromDip((Activity) context, 6);
+				chatTextDrawable.setCornerRadius(radius);
+				viewHolder.myMsgContentView.setBackground(chatTextDrawable);
+				
+				//我的头像
+				ImageLoader.getInstance().displayImage(hostUser!=null?hostUser.getHeadImg():"", viewHolder.myMsgAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+			
+			}
+			return convertView;
 		}
 	}
 	
@@ -391,5 +414,22 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		thread.start();
 	}
 	
-	
+	/**
+	 * viewHolder
+	 * @author liqian
+	 *
+	 */
+	static class ChatViewHandler {
+
+		public View messageContainer;
+		public View myMessageContainer;
+		//对方的
+		public TextView chatTimetView;
+		public TextView msgContentView;
+		public ImageView msgAvatarView;
+		//我的
+		public TextView myChatTimetView;
+		public TextView myMsgContentView;
+		public ImageView myMsgAvatarView;
+	}
 }

@@ -510,6 +510,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				viewHolder.avatarView.setOnClickListener(new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "专辑页评论列表中查看个人主页");
+						
 						Activity_UserHome.show(context, comment.getFromId(), comment.getNickname(), comment.getUserHeadImg(), false, false);
 					}
 				});
