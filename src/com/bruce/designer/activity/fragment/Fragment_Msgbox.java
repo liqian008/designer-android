@@ -22,11 +22,13 @@ import com.bruce.designer.activity.Activity_MessageChat;
 import com.bruce.designer.activity.Activity_MessageList;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageBoxApi;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.MessageUtil;
+import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -56,6 +58,8 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	private PullToRefreshListView pullRefreshView; 
 	
 	public MessageChangedListener messageListener;
+	
+	private List<Message> messageBoxList;
 	
 	
 	@Override
@@ -94,7 +98,21 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		super.onResume();
 		//获取消息列表
 //		getMessageBox(0);
-		pullRefreshView.setRefreshing(false);
+		
+		//判断list中是否有数据（没有则立刻刷新，有则判断刷新时间间隔）
+		if(messageBoxList==null ||messageBoxList.size()<=0){//没有则立刻刷新
+			pullRefreshView.setRefreshing(false);
+		}else{
+			//判断上次刷新时间
+			long currentTime = System.currentTimeMillis();
+			String msgboxRefreshKey = getRefreshKey();
+			long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, msgboxRefreshKey, 0l);
+			long interval = currentTime - lastRefreshTime;
+			
+			if(interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
+				pullRefreshView.setRefreshing(false);
+			}
+		}
 	}
 	
 	@Override
@@ -233,17 +251,24 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		@SuppressWarnings("unchecked")
 		public void handleMessage(android.os.Message msg) {
 			ApiResult apiResult = (ApiResult) msg.obj;
+			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+			
+			
 			switch(msg.what){
 				case HANDLER_FLAG_MSGBOX_RESULT:
 					pullRefreshView.onRefreshComplete();
-					if(apiResult!=null&&apiResult.getResult()==1){
+					if(successResult){
 						Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
 						if(userFansDataMap!=null){
-							List<Message> messageBoxList = (List<Message>)  userFansDataMap.get("messageBoxList");
-							if(messageBoxList!=null&&messageBoxList.size()>0){
+							List<Message> messageBoxResultList = (List<Message>)  userFansDataMap.get("messageBoxList");
+							if(messageBoxResultList!=null&&messageBoxResultList.size()>0){
+								messageBoxList = messageBoxResultList;
+								//缓存本次刷新的时间
+								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(), System.currentTimeMillis());
+								
 								//判断是否有未读消息
 								boolean hasUnreadMsg = false;
-								for(Message message: messageBoxList){
+								for(Message message: messageBoxResultList){
 									if(message.getUnread()!=null&&message.getUnread()>0){
 										hasUnreadMsg = true;//有未读消息
 									}
@@ -253,7 +278,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 								}else{
 									messageListener.unreadMsgClear();
 								}
-								messageBoxAdapter.setMessageBoxList(messageBoxList);
+								messageBoxAdapter.setMessageBoxList(messageBoxResultList);
 								messageBoxAdapter.notifyDataSetChanged();
 							}
 						}else{
@@ -310,4 +335,11 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		public void unreadMsgClear();
 	}
 
+	/**
+	 * 生成记录其刷新的sp-key
+	 * @return
+	 */
+	private static String getRefreshKey(){
+		return ConstantsKey.LAST_REFRESH_TIME_MSGBOX_PREFIX;
+	}
 }

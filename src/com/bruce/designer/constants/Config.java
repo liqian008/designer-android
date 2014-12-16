@@ -65,6 +65,9 @@ public class Config {
 	/*SP中baidu push对象中channelId的key*/
 	public static final String SP_KEY_BAIDU_PUSH_CHANNEL_ID = "BAIDU_PUSH_CHANNEL_ID";
 
+	/*SP中微信公众帐号二维码图片的key*/
+	public static final String SP_KEY_WEIXINMP_QRCODE_URL = "WEIXINMP_QRCODE_URL";
+
 	
 	
 	

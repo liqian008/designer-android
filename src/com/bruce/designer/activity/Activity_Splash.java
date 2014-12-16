@@ -70,6 +70,10 @@ public class Activity_Splash extends BaseActivity {
 					
 					if(successResult){
 						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
+						//微信公众帐号二维码
+						String wxmpQrcodeUrl = (String) dataMap.get("wxmpQrcodeUrl");
+						SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_WEIXINMP_QRCODE_URL, wxmpQrcodeUrl);
+						
 						//判断是否需要用户登录（游客也需要登录）
 						needLogin = (Boolean) dataMap.get("needLogin");
 						if(!needLogin){//已登录用户
@@ -215,7 +219,7 @@ public class Activity_Splash extends BaseActivity {
 		public void onClick(DialogInterface dialog, int which) {
 			dialog.dismiss();
 			if(updateStatus==1){//建议更新
-				UiUtil.showShortToast(context, "which: "+which);
+//				UiUtil.showShortToast(context, "which: "+which);
 				if(which==-1){//positive option
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_UPDATE_SUGGEST, "忽略版本更新");
 					jumpToNextActivity();

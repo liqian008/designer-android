@@ -36,7 +36,7 @@ public class Activity_Settings extends BaseActivity {
 	/*账户绑定的container*/
 	private View accountBindContainer;
 	
-	private View pushSettingsView, aboutUsView, clearCacheView, websiteView;
+	private View pushSettingsView, aboutUsView, clearCacheView, wxmpView, websiteView;
 	private TextView pushStatusView;
 
 	private Button btnLogout, btnLogin;
@@ -73,6 +73,9 @@ public class Activity_Settings extends BaseActivity {
 
 		clearCacheView = findViewById(R.id.clearCache);
 		clearCacheView.setOnClickListener(listener);
+		
+		wxmpView = findViewById(R.id.wxmpView);
+		wxmpView.setOnClickListener(listener);
 		
 		websiteView = findViewById(R.id.websiteView);
 		websiteView.setOnClickListener(listener);
@@ -147,7 +150,12 @@ public class Activity_Settings extends BaseActivity {
 				}
 				break;
 			case R.id.aboutUs:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "关于我们");
+			case R.id.wxmpView:
+				if(view.getId()==R.id.aboutUs){
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "关于我们");
+				}else if(view.getId()==R.id.wxmpView){
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "微信公众帐号");
+				}
 				Activity_AboutUs.show(context);
 				break;
 			case R.id.clearCache:

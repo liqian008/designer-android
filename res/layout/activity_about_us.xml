@@ -19,14 +19,33 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="70.0dip"
             android:background="@drawable/logo_about_us" />
-
+        
         <TextView
             android:id="@+id/version"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/logo"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="21.0dip" />
+            android:layout_marginTop="21.0dip" 
+            android:text=""
+            />
+        
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerHorizontal="true"
+            android:gravity="center_horizontal"
+                android:layout_below="@+id/version"
+            android:layout_above="@+id/aboutUsEmail"
+            android:layout_marginTop="60.0dip"
+           
+            >
+             <ImageView
+            android:id="@+id/wxmpQrcodeImg"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+         
+            android:background="@drawable/wxmp_qrcode" />
+        </LinearLayout>
         
         
          <TextView

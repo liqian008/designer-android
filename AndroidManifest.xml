@@ -47,7 +47,15 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         
-        <!-- baiduPush  渠道名字（不能使用全数字）  -->
+        <!-- 
+        baiduPush  渠道名字（不能使用全数字）
+        渠道表：
+        jinwanr_android（金玩儿官网） 
+        jinwanr_android_yyb（应用宝）
+        jinwanr_android_xiaomi（小米）
+        jinwanr_android_qh60（奇虎360）
+        待添加...
+         -->
         <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr_android" />
         <!-- baiduStat 您从百度网站获取的 APP	KEY  -->
         <meta-data android:name="BaiduMobAd_STAT_ID" android:value="540d890b4c" /> 

@@ -101,7 +101,7 @@ public class Activity_Login extends BaseActivity{
 			thirdpartyType = "3";//微信登录类型
 			String code = intent.getStringExtra("weixin_oauth_code");
 			String state = intent.getStringExtra("weixin_oauth_state");
-			UiUtil.showShortToast(context, "接收到微信登录广播, code: "+code+", state: "+state);
+			//UiUtil.showShortToast(context, "接收到微信登录广播, code: "+code+", state: "+state);
 			//启动线程进行微信登录
 			weixinLogin(code, state);
 		}
@@ -273,8 +273,7 @@ public class Activity_Login extends BaseActivity{
 								ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
 								
 								registeNicknameText.setText(uname);
-	//							UiUtil.showLongToast(context, "这是您首次使用["+thirdpartyMap.get(thirdpartyType)+"]登录。如果您之前曾使用其他账户系统登录过本站账户，则可进行绑定操作；如若没有，则需要注册新账户");
-								UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
+								//UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
 								//默认显示注册页
 								snsLoginContainer.setVisibility(View.GONE);
 								accountContainer.setVisibility(View.VISIBLE);
@@ -573,7 +572,7 @@ public class Activity_Login extends BaseActivity{
     private boolean checkRegisteInput(){
 		String emailVal = registeEmailText.getText().toString();
 		if(StringUtils.isBlank(emailVal)){
-			UiUtil.showShortToast(context, "Email地址不合法");
+			UiUtil.showShortToast(context, "Email地址有误");
 			return false;
 		}
 		String nicknameVal = registeNicknameText.getText().toString();

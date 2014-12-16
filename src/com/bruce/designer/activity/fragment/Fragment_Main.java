@@ -179,7 +179,7 @@ public class Fragment_Main extends BaseFragment{
 			long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 			long interval = currentTime - lastRefreshTime;
 			
-			if(interval > (TimeUtil.TIME_UNIT_MINUTE*1)){
+			if(interval > (TimeUtil.TIME_UNIT_MINUTE*2)){
 				refreshAlbums(currentTab);
 			}
 		}
@@ -283,9 +283,10 @@ public class Fragment_Main extends BaseFragment{
 								AlbumDB.saveAlbumsByTab(activity, albumList, 1);
 								listViewAdapters[1].setAlbumList(albumList);
 								listViewAdapters[1].notifyDataSetChanged();
+								//缓存本次刷新的时间
+								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(1), System.currentTimeMillis());
 							}
 						}
-						SharedPreferenceUtil.putSharePre(activity, getRefreshKey(1), System.currentTimeMillis());
 					}else{
 						UiUtil.showShortToast(activity, "获取数据失败，请重试");
 					}
@@ -295,7 +296,7 @@ public class Fragment_Main extends BaseFragment{
 					int tabIndex = what;
 					//关闭刷新控件
 					pullRefreshViews[tabIndex].onRefreshComplete();
-					if(apiResult!=null&&apiResult.getResult()==1){
+					if(successResult){
 						
 						Map<String, Object> tabedDataMap = (Map<String, Object>) apiResult.getData();
 						if(tabedDataMap!=null){
@@ -305,6 +306,7 @@ public class Fragment_Main extends BaseFragment{
 							if(albumList!=null&&albumList.size()>0){
 								//缓存本次刷新的时间
 								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
+								
 								if(newTailId!=null&&newTailId>0){//还有可加载的数据
 									tabAlbumTailIds[tabIndex] = newTailId;
 									pullRefreshViews[tabIndex].setMode(Mode.BOTH);

@@ -30,7 +30,7 @@ public class OAuthRegisteApi extends AbstractApi{
 		paramMap.put("username", username);
 		paramMap.put("nickname", nickname);
 		paramMap.put("password", password);
-				
+		
 		paramMap.put("thirdpartyUid", String.valueOf(thirdpartyUid));
 		paramMap.put("thirdpartyUname", String.valueOf(thirdpartyUname));
 		paramMap.put("thirdpartyAvatar", String.valueOf(thirdpartyAvatar));

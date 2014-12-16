@@ -103,6 +103,10 @@ public class ApiManager {
 		fullParamMap.put("app_id", appId);
 		fullParamMap.put("v_name", appVersionName);
 		fullParamMap.put("v_code", String.valueOf(appVersionCode));
+		//客户度的clientType和channel
+		fullParamMap.put("client_type", String.valueOf(Config.CLIENT_TYPE));
+		fullParamMap.put("client_channel", String.valueOf(AppApplication.getChannel()));
+		
 		fullParamMap.put("call_id", Long.toString(System.currentTimeMillis()));
 		//构造用户级的请求参数
 		UserPassport userPassport = AppApplication.getUserPassport();

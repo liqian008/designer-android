@@ -177,7 +177,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			long lastRefreshTime = SharedPreferenceUtil.getSharePreLong(activity, tabRefreshKey, 0l);
 			long interval = currentTime - lastRefreshTime;
 			
-			if(interval > (TimeUtil.TIME_UNIT_HOUR *2)){//两小时后重新刷新
+			if(interval > (TimeUtil.TIME_UNIT_DAY)){//一天后重新刷新
 				refreshAlbums(currentTab);
 			}
 		}
@@ -275,10 +275,10 @@ public class Fragment_Hot_Albums extends BaseFragment{
 								AlbumDB.deleteHotByTab(activity, tabIndex);
 								AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
 								
-								//缓存本次刷新的时间
-								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
 								listViewAdapters[tabIndex].setAlbumList(albumList);
 								listViewAdapters[tabIndex].notifyDataSetChanged();
+								//缓存本次刷新的时间
+								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
 							}
 						}
 					}else{

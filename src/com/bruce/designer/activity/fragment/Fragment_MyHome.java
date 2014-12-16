@@ -139,6 +139,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 								
 								if(newTailId!=null&&newTailId>0){//还有可加载的数据
 									albumTailId = newTailId;
+									pullRefreshView.setMode(Mode.BOTH);
 								}else{
 									albumTailId = 0;
 									pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
@@ -153,12 +154,10 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 									oldAlbumList.addAll(albumList);
 								}else{//下拉加载，需覆盖原数据
 									oldAlbumList = null;
-									oldAlbumList = albumList; 
+									oldAlbumList = albumList;
 								}
 								albumListAdapter.setAlbumList(oldAlbumList);
 								albumListAdapter.notifyDataSetChanged();
-							}else{
-								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新
 							}
 						}
 					}else{
@@ -260,12 +259,11 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		btnSettings.setOnClickListener(listener);
 		btnSettings.setVisibility(View.VISIBLE);
 		
-		
-		
 		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
-		if(AppApplication.isGuest()){pullRefreshView.setMode(Mode.DISABLED);//游客无操作
+		if(AppApplication.isGuest()){
+			pullRefreshView.setMode(Mode.DISABLED);//游客无操作
 		}else{
-			pullRefreshView.setMode(Mode.PULL_FROM_END);
+			pullRefreshView.setMode(Mode.PULL_FROM_START);
 		}
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
@@ -323,6 +321,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	public void onResume() {
 		super.onResume();
 		if(!AppApplication.isGuest()){//登录用户进入时，才需要重刷数据
+			
+			
 			//判断缓存时间
 			long currentTime = System.currentTimeMillis();
 			String tabRefreshKey = getRefreshKey();
