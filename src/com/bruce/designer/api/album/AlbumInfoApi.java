@@ -15,15 +15,12 @@ import com.bruce.designer.util.ResponseBuilderUtil;
 
 public class AlbumInfoApi extends AbstractApi{
 	
-	
-	
 	private Map<String, String> paramMap = null;
 	
 	public AlbumInfoApi(int albumId){
 		paramMap = new TreeMap<String, String>();
 		paramMap.put("albumId", String.valueOf(albumId));
 	}
-	
 	
 //	@Override
 //	public JsonResultBean processResponse(String response) {

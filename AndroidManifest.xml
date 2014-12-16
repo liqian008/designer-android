@@ -4,7 +4,7 @@
     android:versionCode="1"
     android:versionName="1.0.0" >
     <!-- 版本号说明，格式为：1.x.x，发布版本的最后一位需为奇数，测试版本中为偶数 --> 
- 
+ 	<!-- 线上版本还需屏蔽Log的Debug -->
     <uses-sdk
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
@@ -164,7 +164,7 @@
         
         <receiver android:name="com.bruce.designer.broadcast.DesignerReceiver">
             <intent-filter>
-                <action android:name="com.bruce.designer" />
+                <action android:name="com.bruce.designer.action" />
             </intent-filter>
         </receiver>
         

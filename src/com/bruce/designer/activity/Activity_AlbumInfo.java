@@ -98,6 +98,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/*评论tailId*/
 	private long commentsTailId = 0;
 	
+	private long likeAmount, favoriteAmount;//赞，收藏的数量
+	
 	private InputMethodManager inputManager;
 	
 	private Handler handler = new Handler(){
@@ -189,6 +191,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				case HANDLER_FLAG_LIKE_POST: //赞成功
 					AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
 					NotificationBuilder.createNotification(context, "赞操作成功...");
+					likeAmount+=1;//增加赞数量
+					btnLike.setText("喜欢("+String.valueOf(likeAmount)+")");
 					isLike = false;
 					break;
 //				case HANDLER_FLAG_UNLIKE_POST: //取消赞成功
@@ -197,11 +201,15 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
 					AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
 					NotificationBuilder.createNotification(context, "收藏成功...");
+					favoriteAmount+=1;//增加收藏数量
+					btnFavorite.setText("收藏("+String.valueOf(likeAmount)+")");
 					isFavorite = true;
 					break;
 				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
 					AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
 					NotificationBuilder.createNotification(context, "取消收藏成功...");
+					favoriteAmount = favoriteAmount<1?0:favoriteAmount-1;//扣减收藏数量
+					btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
 					isFavorite = false;
 					break;
 				default:
@@ -303,6 +311,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		}else{//intent中传的是album
 			albumId = album.getId();
 			designerId = album.getUserId();
+			
+			likeAmount = album.getLikeCount();
+			favoriteAmount = album.getFavoriteCount();
 			
 			isLike = album.isLike();
 			isFavorite = album.isFavorite();

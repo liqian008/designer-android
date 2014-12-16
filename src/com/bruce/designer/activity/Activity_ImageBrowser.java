@@ -68,6 +68,11 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 		slideTitleList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_TITLE_LIST);
 		slideDescList = intent.getStringArrayListExtra(kEY_BROWSE_SLIDE_DESC_LIST);
 		
+		albumSlideIndicatorView = (TextView) findViewById(R.id.albumSlideIndicator);
+		albumSlideTitleView = (TextView) findViewById(R.id.albumSlideTitle);
+		albumSlideDescView = (TextView) findViewById(R.id.albumSlideDesc);
+		
+		
 		viewPager = (ViewPager) findViewById(R.id.viewPager);
 		if(imageUrlList!=null&&imageUrlList.size()>0){
 			totalSize = imageUrlList.size();
@@ -100,13 +105,10 @@ public class Activity_ImageBrowser extends BaseActivity implements OnPageChangeL
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("详情展示");
 		
-		albumSlideIndicatorView = (TextView) findViewById(R.id.albumSlideIndicator);
 		albumSlideIndicatorView.setText((currentIndex+1) + "/" + totalSize);
 		
-		albumSlideTitleView = (TextView) findViewById(R.id.albumSlideTitle);
 		albumSlideTitleView.setText(slideTitleList.get(currentIndex));
 		
-		albumSlideDescView = (TextView) findViewById(R.id.albumSlideDesc);
 		albumSlideDescView.setText(slideDescList.get(currentIndex));
 		
 	}

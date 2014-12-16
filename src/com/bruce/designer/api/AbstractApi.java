@@ -63,21 +63,21 @@ public abstract class AbstractApi {
 	protected abstract ApiResult processApiResult(int result, int errorcode, String message, String dataStr);
 	
 	
-	public final ApiResult processResponse(String response) throws Exception{
-		JSONObject jsonObject = new JSONObject(response);
-		int result = jsonObject.optInt("result", 0);
-		int errorcode = jsonObject.optInt("errorcode");
-		String message = jsonObject.optString("message");
-		String dataStr = jsonObject.optString("data");
-		
-		if(result!=1){//处理平台级的异常
-			if(errorcode == ErrorCode.SYSTEM_MISSING_PARAM){
-				throw new DesignerException(ErrorCode.SYSTEM_MISSING_PARAM);
-			}
-		}
-		//交由子类处理业务数据
-		return processApiResult(result, errorcode, message, dataStr);
-	}
+//	public final ApiResult processResponse(String response) throws Exception{
+//		JSONObject jsonObject = new JSONObject(response);
+//		int result = jsonObject.optInt("result", 0);
+//		int errorcode = jsonObject.optInt("errorcode");
+//		String message = jsonObject.optString("message");
+//		String dataStr = jsonObject.optString("data");
+//		
+//		if(result!=1){//处理平台级的异常
+//			if(errorcode == ErrorCode.SYSTEM_MISSING_PARAM){
+//				throw new DesignerException(ErrorCode.SYSTEM_MISSING_PARAM);
+//			}
+//		}
+//		//交由子类处理业务数据
+//		return processApiResult(result, errorcode, message, dataStr);
+//	}
 
 	public boolean isMultipart() {
 		return multipart;

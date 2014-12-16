@@ -170,9 +170,11 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 			//填充数据
 			final int fanUserId = user.getFanId();
 			final String fanNickname = user.getFanUser().getNickname();
+			final String fanAvatar = user.getFanUser()!=null?user.getFanUser().getHeadImg():null;
+			
 			final boolean isDesigner = true;
 			final boolean hasFollowed = true;
-			fanViewHolder.usernameView.setText(user.getFanUser().getNickname());
+			fanViewHolder.usernameView.setText(fanNickname);
 			
 			if(AppApplication.isHost(fanUserId)){//查看的用户为自己，需要隐藏交互按钮
 				fanViewHolder.btnFollow.setVisibility(View.GONE);
@@ -184,8 +186,11 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "粉丝页中打开私信");
-						
-						Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
+						if(AppApplication.isGuest()){
+							UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+						}else{
+							Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
+						}
 					}
 				});
 			}
@@ -197,7 +202,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 				public void onSingleClick(View view) {
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "粉丝页中查看个人主页");
 					
-					Activity_UserHome.show(context, fanUserId, fanNickname , null, isDesigner, hasFollowed);
+					Activity_UserHome.show(context, fanUserId, fanNickname , fanAvatar, isDesigner, hasFollowed);
 				}
 			});
 			

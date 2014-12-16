@@ -3,6 +3,8 @@ package com.bruce.designer.api;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.json.JSONObject;
+
 import android.content.Context;
 
 import com.bruce.designer.AppApplication;
@@ -46,7 +48,6 @@ public class ApiManager {
 			return errorResult;
 		}
 		
-		
 		try {
 			String requestUri = api.getRequestUri();
 			String response = null;
@@ -69,12 +70,19 @@ public class ApiManager {
 			}
 			//对返回结果做通用性检查（主要检查sig参数及session失效），两种情况下都认为失败
 			if(response!=null){
-				//子类处理逻辑
-				return api.processResponse(response);
-			}
-		} catch (DesignerException e) {
-			if(e.getErrorCode()==ErrorCode.E_SYS_INVALID_SIG || e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM || e.getErrorCode()==ErrorCode.SYSTEM_MISSING_PARAM){//签名错误，需要重新登录
-				BroadcastSender.back2Login(context);
+				JSONObject jsonObject = new JSONObject(response);
+				int result = jsonObject.optInt("result", 0);
+				int errorcode = jsonObject.optInt("errorcode");
+				String message = jsonObject.optString("message");
+				String dataStr = jsonObject.optString("data");
+				
+				if(result!=1){//处理平台级的异常
+					if(errorcode == ErrorCode.E_SYS_INVALID_SIG||errorcode==ErrorCode.E_SYS_INVALID_TICKET){//签名或ticket异常，需要重新登录
+						BroadcastSender.back2Login(context);
+					}
+				}
+				//交由子类处理业务数据
+				return api.processApiResult(result, errorcode, message, dataStr);
 			}
 		} catch (Exception e) {
 			//请求系统异常

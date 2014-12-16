@@ -170,6 +170,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 			//填充数据
 			final int followUserId = user.getFollowId();
 			final String followNickname = user.getFollowUser().getNickname();
+			final String followAvatar = user.getFollowUser()!=null?user.getFollowUser().getHeadImg():null;
+			
 			final boolean isDesigner = true;
 			final boolean hasFollowed = true;
 			
@@ -182,7 +184,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 				public void onSingleClick(View view) {
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "关注页中查看个人主页");
 					
-					Activity_UserHome.show(context, followUserId, followNickname , null, isDesigner, hasFollowed);
+					Activity_UserHome.show(context, followUserId, followNickname , followAvatar, isDesigner, hasFollowed);
 				}
 			});
 			
@@ -205,22 +207,25 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击关注");
-						
-						followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
-						followViewHolder.btnFollow.setVisibility(View.GONE);
-						new Thread(new Runnable(){
-							@Override
-							public void run() {
-								PostFollowApi api = new PostFollowApi(followUserId, 1);
-								ApiResult apiResult = ApiManager.invoke(context, api);
-								Message message = handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT);
-								message.obj = apiResult;
-								message.sendToTarget();
-//								if(apiResult!=null&&apiResult.getResult()==1){
-//									handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT).sendToTarget();
-//								}
-							}
-						}).start();
+						if(AppApplication.isGuest()){
+							UiUtil.showShortToast(context, "游客身份无法关注，请先登录");
+						}else{
+							followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
+							followViewHolder.btnFollow.setVisibility(View.GONE);
+							new Thread(new Runnable(){
+								@Override
+								public void run() {
+									PostFollowApi api = new PostFollowApi(followUserId, 1);
+									ApiResult apiResult = ApiManager.invoke(context, api);
+									Message message = handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT);
+									message.obj = apiResult;
+									message.sendToTarget();
+	//								if(apiResult!=null&&apiResult.getResult()==1){
+	//									handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT).sendToTarget();
+	//								}
+								}
+							}).start();
+						}
 					}
 				});
 				//取消关注事件
@@ -229,21 +234,25 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击取消关注");
 						
-						followViewHolder.btnFollow.setVisibility(View.VISIBLE);
-						followViewHolder.btnUnfollow.setVisibility(View.GONE);
-						new Thread(new Runnable(){
-							@Override
-							public void run() {
-								PostFollowApi api = new PostFollowApi(followUserId, 0);
-								ApiResult apiResult = ApiManager.invoke(context, api);
-								Message message = handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT);
-								message.obj = apiResult;
-								message.sendToTarget();
-//								if(apiResult!=null&&apiResult.getResult()==1){
-//									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT).sendToTarget();
-//								}
-							}
-						}).start();
+						if(AppApplication.isGuest()){
+							UiUtil.showShortToast(context, "游客身份无法取消关注，请先登录");
+						}else{
+							followViewHolder.btnFollow.setVisibility(View.VISIBLE);
+							followViewHolder.btnUnfollow.setVisibility(View.GONE);
+							new Thread(new Runnable(){
+								@Override
+								public void run() {
+									PostFollowApi api = new PostFollowApi(followUserId, 0);
+									ApiResult apiResult = ApiManager.invoke(context, api);
+									Message message = handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT);
+									message.obj = apiResult;
+									message.sendToTarget();
+	//								if(apiResult!=null&&apiResult.getResult()==1){
+	//									handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT).sendToTarget();
+	//								}
+								}
+							}).start();
+						}
 					}
 				});
 				
@@ -252,8 +261,12 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "关注页中打开私信");
-						Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
-					}
+						if(AppApplication.isGuest()){
+							UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+						}else{
+							Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
+						}
+					}	
 				});
 			}
 			return convertView;

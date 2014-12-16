@@ -36,6 +36,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -125,6 +126,10 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 							boolean hasFollowed = (Boolean) userinfoDataMap.get("hasFollowed");
 							
 							if(userinfo!=null&&userinfo.getId()>0){
+								if(!StringUtils.isBlank(userinfo.getHeadImg())&&!userinfo.getHeadImg().equals(queryUserAvatar)){
+									//显示头像
+									ImageLoader.getInstance().displayImage(queryUserAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+								}
 								//设计师or用户
 								if(userinfo.getDesignerStatus()!=null&&userinfo.getDesignerStatus()==ConstantDesigner.DESIGNER_APPLY_APPROVED){//设计师状态
 									titleView.setText("设计师");
@@ -310,12 +315,13 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 		
 		
 		avatarView = (ImageView) headerView.findViewById(R.id.avatar);
-		//显示头像
-		ImageLoader.getInstance().displayImage(queryUserAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+		if(!StringUtils.isBlank(queryUserAvatar)){
+			//显示头像
+			ImageLoader.getInstance().displayImage(queryUserAvatar, avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+		}
 		//显示昵称
 		nicknameView = (TextView) headerView.findViewById(R.id.txtNickname);
 		nicknameView.setText(queryUserNickname);
-		
 		
 		albumsTabTitle = (TextView) headerView.findViewById(R.id.albumsTabTitle);
 		if(!isDesigner){
@@ -426,39 +432,49 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 			case R.id.btnFollow:
 				StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中关注");
 				
-				btnUnfollow.setVisibility(View.VISIBLE);
-				btnFollow.setVisibility(View.GONE);
-				new Thread(new Runnable(){
-					@Override
-					public void run() {
-						PostFollowApi api = new PostFollowApi(queryUserId, 1);
-						ApiResult apiResult = ApiManager.invoke(context, api);
-						if(apiResult!=null&&apiResult.getResult()==1){
-							handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT).sendToTarget();
+				if(AppApplication.isGuest()){
+					UiUtil.showShortToast(context, "游客身份无法关注，请先登录");
+				}else{
+					btnUnfollow.setVisibility(View.VISIBLE);
+					btnFollow.setVisibility(View.GONE);
+					new Thread(new Runnable(){
+						@Override
+						public void run() {
+							PostFollowApi api = new PostFollowApi(queryUserId, 1);
+							ApiResult apiResult = ApiManager.invoke(context, api);
+							Message message = handler.obtainMessage(HANDLER_FLAG_FOLLOW_RESULT);
+							message.obj = apiResult;
+							message.sendToTarget();
 						}
-					}
-				}).start();
+					}).start();
+				}
 				break;
 			case R.id.btnUnfollow:
 				StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中取消关注");
-				
-				btnFollow.setVisibility(View.VISIBLE);
-				btnUnfollow.setVisibility(View.GONE);
-				new Thread(new Runnable(){
-					@Override
-					public void run() {
-						PostFollowApi api = new PostFollowApi(queryUserId, 0);
-						ApiResult apiResult = ApiManager.invoke(context, api);
-						if(apiResult!=null&&apiResult.getResult()==1){
-							handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT).sendToTarget();
+				if(AppApplication.isGuest()){
+					UiUtil.showShortToast(context, "游客身份无法取消关注，请先登录");
+				}else{
+					btnFollow.setVisibility(View.VISIBLE);
+					btnUnfollow.setVisibility(View.GONE);
+					new Thread(new Runnable(){
+						@Override
+						public void run() {
+							PostFollowApi api = new PostFollowApi(queryUserId, 0);
+							ApiResult apiResult = ApiManager.invoke(context, api);
+							Message message = handler.obtainMessage(HANDLER_FLAG_UNFOLLOW_RESULT);
+							message.obj = apiResult;
+							message.sendToTarget();
 						}
-					}
-				}).start();
+					}).start();
+				}
 				break;
 			case R.id.btnSendMsg://发私信
 				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "个人主页中打开私信");
-				
-				Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
+				if(AppApplication.isGuest()){
+					UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+				}else{
+					Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
+				}
 				break;
 			case R.id.btnUserInfo://个人资料页
 				StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_PROFILE, "个人主页中点击个人资料");

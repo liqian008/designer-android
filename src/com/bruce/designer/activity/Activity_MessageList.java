@@ -156,18 +156,16 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 				viewHolder.msgAvatrView.setImageResource(R.drawable.icon_msgbox_sys);
 			}else{//其他消息需要使用fromUser的头像
 				ImageLoader.getInstance().displayImage(message.getFromUser().getHeadImg(), viewHolder.msgAvatrView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+				// 头像点击事件
+				viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "消息列表页中查看个人主页");
+						// 跳转个人主页
+						Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
+					}
+				});
 			}
-			
-			// 头像点击事件
-			viewHolder.msgAvatrView.setOnClickListener(new OnSingleClickListener() {
-				@Override
-				public void onSingleClick(View v) {
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_HOME, "消息列表页中查看个人主页");
-					// 跳转个人主页
-					Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
-				}
-			});
-			
 			
 			//未读消息数
 			int unreadNum = message.getUnread();

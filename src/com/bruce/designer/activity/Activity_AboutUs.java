@@ -40,7 +40,7 @@ public class Activity_AboutUs extends BaseActivity {
 		titlebarView = findViewById(R.id.titlebar_return);
 		titlebarView.setOnClickListener(onclickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
-		titleView.setText("关于我们");
+		titleView.setText("金玩儿网");
 
 		version = (TextView) findViewById(R.id.version);
 		version.setText("版本号: " + Config.APP_VERSION_NAME);

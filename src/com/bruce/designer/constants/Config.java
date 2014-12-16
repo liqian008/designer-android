@@ -34,9 +34,9 @@ public class Config {
 	//online website	
 	public static final String JINWAN_WEB_DOMAIN = "http://www.jinwanr.com";
 	//online mcap api	
-	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
+//	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
 	//测试服务器的 mcap api	
-//	public static final String JINWAN_MOBILE_DOMAIN = "http://mtest.jinwanr.com";
+	public static final String JINWAN_MOBILE_DOMAIN = "http://mtest.jinwanr.com";
 	//本机测试的 mcap api
 //	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
 	
