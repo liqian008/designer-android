@@ -19,6 +19,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.BindPushTokenApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
@@ -144,7 +145,7 @@ public class Activity_Settings extends BaseActivity {
 			case R.id.pushSetting:
 				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "进入Push设置");
 				if(AppApplication.isGuest()){
-					UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);
+					UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);
 				}else{
 					Activity_Settings_Push.show(context);
 				}
@@ -201,7 +202,8 @@ public class Activity_Settings extends BaseActivity {
 //				PushManager.stopWork(context);//只退出，不结束push
 				//清除本机的登录信息
 				AppApplication.clearAccount();
-				//TODO 清除DB缓存的数据
+				//清除DB缓存的数据
+				AlbumDB.delete(context, AlbumDB.TB_ALBUM_FOLLOW);//清除我的关注数据
 				
 				AppManager.getInstance().finishAllActivity();
 				UiUtil.showShortToast(context, "注销成功");

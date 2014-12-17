@@ -8,9 +8,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.bruce.designer.AppApplication;
-import com.bruce.designer.broadcast.BroadcastSender;
 import com.bruce.designer.constants.Config;
-import com.bruce.designer.exception.DesignerException;
 import com.bruce.designer.exception.ErrorCode;
 import com.bruce.designer.model.UserPassport;
 import com.bruce.designer.model.result.ApiResult;
@@ -18,6 +16,7 @@ import com.bruce.designer.util.HttpClientUtil;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.MD5;
 import com.bruce.designer.util.MobileUtils;
+import com.bruce.designer.util.ResponseBuilderUtil;
 import com.bruce.designer.util.StringUtils;
 
 public class ApiManager {
@@ -38,14 +37,16 @@ public class ApiManager {
 		//检查网络状态
 		if(!MobileUtils.isNetworkConnected(context)){//未联网
 			//无网情况下的处理
-			BroadcastSender.networkUnavailable(context);
-			return errorResult;
+//			BroadcastSender.networkUnavailable(context);//弃用广播的方式，改用handler的方式
+			return ResponseBuilderUtil.buildErrorResult(ErrorCode.CLIENT_NETWORK_UNAVAILABLE);
+//			return errorResult;
 		}
 		
 		if(api.needAuth()&&AppApplication.isGuest()){
 			//游客的操作检查
-			BroadcastSender.guestDenied(context);
-			return errorResult;
+//			BroadcastSender.guestDenied(context);//弃用广播的方式，改用handler的方式
+			return ResponseBuilderUtil.buildErrorResult(ErrorCode.CLIENT_GUEST_ACCESS_DENIED);
+//			return errorResult;
 		}
 		
 		try {
@@ -78,7 +79,7 @@ public class ApiManager {
 				
 				if(result!=1){//处理平台级的异常
 					if(errorcode == ErrorCode.E_SYS_INVALID_SIG||errorcode==ErrorCode.E_SYS_INVALID_TICKET){//签名或ticket异常，需要重新登录
-						BroadcastSender.back2Login(context);
+						return ResponseBuilderUtil.buildErrorResult(errorcode, message);
 					}
 				}
 				//交由子类处理业务数据

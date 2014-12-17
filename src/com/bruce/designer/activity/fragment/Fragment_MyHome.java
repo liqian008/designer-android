@@ -35,6 +35,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -80,7 +81,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	
 	private TextView albumsNumView, followsNumView, fansNumView;
 	
-	private Button btnMyFavorite, btnSendMsg, btnUserInfo;
+	private Button btnAppDesigner, btnNewAlbum,  btnMyFavorite, btnSendMsg, btnUserInfo;
 //	private Button btnPubAlbum;//发布新作品
 	
 	private ImageButton btnSettings;
@@ -89,10 +90,13 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	
 	private int albumTailId = 0;
 	
-	private Handler handler = new Handler(){
-
+	private Handler handler;
+	private OnClickListener onClickListener;
+	
+	private Handler initHandler(){ 
+		Handler handler = new DesignerHandler(activity){
 		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
+		public void processHandlerMessage(Message msg) {
 			ApiResult apiResult = (ApiResult) msg.obj;
 			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 			
@@ -232,6 +236,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			}
 		}
 	};
+	return handler;
+}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -239,9 +245,12 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		activity = getActivity();
 		this.inflater = inflater;
 		
-		View mainView = inflater.inflate(R.layout.activity_user_home, null);
+		handler = initHandler();
+		onClickListener = initListener();
 		
+		View mainView = inflater.inflate(R.layout.activity_user_home, null);
 		initView(mainView);
+		
 		
 		return mainView;
 	}
@@ -256,7 +265,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		
 		//setting按钮及点击事件
 		btnSettings = (ImageButton) mainView.findViewById(R.id.btnSettings);
-		btnSettings.setOnClickListener(listener);
+		btnSettings.setOnClickListener(onClickListener);
 		btnSettings.setVisibility(View.VISIBLE);
 		
 		pullRefreshView = (PullToRefreshListView) mainView.findViewById(R.id.pull_refresh_list);
@@ -286,30 +295,34 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		
 		albumsView = (View) headerView.findViewById(R.id.albumsContainer);
 		albumsNumView = (TextView) headerView.findViewById(R.id.txtAlbumsNum);
-		albumsView.setOnClickListener(listener);
+		albumsView.setOnClickListener(onClickListener);
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
-		fansView.setOnClickListener(listener);
+		fansView.setOnClickListener(onClickListener);
 		
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
-		followsView.setOnClickListener(listener);
+		followsView.setOnClickListener(onClickListener);
 		
 		
 		btnSendMsg = (Button)headerView.findViewById(R.id.btnSendMsg);
 		btnSendMsg.setVisibility(View.GONE);
 		
+		
 		btnMyFavorite = (Button)headerView.findViewById(R.id.btnMyFavorite);
-		btnMyFavorite.setOnClickListener(listener);
+		btnMyFavorite.setOnClickListener(onClickListener);
 		btnMyFavorite.setVisibility(View.VISIBLE);
-
-//		btnPubAlbum = (Button)headerView.findViewById(R.id.btnPubAlbum);
-//		btnPubAlbum.setVisibility(View.VISIBLE);
-//		btnPubAlbum.setOnClickListener(listener);
+		
+		//普通用户展示申请设计师，设计师展示发布新作品
+//		if(!AppApplication.isGuest()){
+//			btnNewAlbum = (Button)headerView.findViewById(R.id.btnNewAlbum);
+//			btnNewAlbum.setVisibility(View.VISIBLE);
+//			btnNewAlbum.setOnClickListener(onClickListener);
+//		}
 		
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
-		btnUserInfo.setOnClickListener(listener);
+		btnUserInfo.setOnClickListener(onClickListener);
 		
 //		//启动获取个人资料详情
 //		getUserinfo(HOST_ID);
@@ -379,49 +392,51 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		thread.start();
 	}
 	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
 	
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-
-			switch (view.getId()) {
-			case R.id.btnSettings:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "我的Fragment中查看设置");
-				
-				Activity_Settings.show(activity);
-				break;
-			case R.id.followsContainer:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FOLLOWS, "我的Fragment中查看关注页");
-				
-				Activity_UserFollows.show(activity, HOST_ID);
-				break;
-			case R.id.fansContainer:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FANS, "我的Fragment中查看粉丝页");
-				
-				Activity_UserFans.show(activity, HOST_ID);
-				break;
-			case R.id.btnMyFavorite:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中查看收藏");
-				
-				Activity_MyFavorite.show(activity);
-				break;
-//			case R.id.btnPubAlbum:
-//				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");
-//				break;
-			case R.id.btnUserInfo:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_PROFILE, "我的Fragment中点击个人资料");
-				
-				
-				//Activity_UserInfo.show(activity, HOST_ID);
-				Intent intent = new Intent(activity, Activity_UserInfo.class);
-				intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
-				startActivityForResult(intent, REQUEST_CODE_USERINFO);
-				break;
-			default:
-				break;
+				switch (view.getId()) {
+				case R.id.btnSettings:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "我的Fragment中查看设置");
+					
+					Activity_Settings.show(activity);
+					break;
+				case R.id.followsContainer:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FOLLOWS, "我的Fragment中查看关注页");
+					
+					Activity_UserFollows.show(activity, HOST_ID);
+					break;
+				case R.id.fansContainer:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FANS, "我的Fragment中查看粉丝页");
+					
+					Activity_UserFans.show(activity, HOST_ID);
+					break;
+				case R.id.btnMyFavorite:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中查看收藏");
+					
+					Activity_MyFavorite.show(activity);
+					break;
+	//			case R.id.btnPubAlbum:
+	//				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");
+	//				break;
+				case R.id.btnUserInfo:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_PROFILE, "我的Fragment中点击个人资料");
+					
+					
+					//Activity_UserInfo.show(activity, HOST_ID);
+					Intent intent = new Intent(activity, Activity_UserInfo.class);
+					intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
+					startActivityForResult(intent, REQUEST_CODE_USERINFO);
+					break;
+				default:
+					break;
+				}
 			}
-		}
-	};
+		};
+		return listener;
+	}
 	
 	/**
 	 * 下拉刷新

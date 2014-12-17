@@ -7,7 +7,11 @@ public class ErrorCode {
 	// public static final int SUCCESS = 0;
 
 	/* 系统错误分配100内的错误码 */
-
+	
+	public final static int CLIENT_NETWORK_UNAVAILABLE = -1;
+	public final static int CLIENT_GUEST_ACCESS_DENIED = -2;
+	
+	
 	/* 系统未知错误 */
 	public final static int SYSTEM_ERROR = 1;
 

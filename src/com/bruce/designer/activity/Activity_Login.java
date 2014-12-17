@@ -31,6 +31,7 @@ import com.bruce.designer.api.account.WeixinLoginApi;
 import com.bruce.designer.constants.ConstantOAuth;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
@@ -73,7 +74,7 @@ public class Activity_Login extends BaseActivity{
 	
 	private ProgressDialog progressDialog;
 	
-	private Context context;
+//	private Context context;
 	private SsoHandler mSsoHandler; 
 	private Oauth2AccessToken mAccessToken;
 	
@@ -91,6 +92,9 @@ public class Activity_Login extends BaseActivity{
 	private String thirdpartyType;
 	private String uid, uname, uavatar, accessToken, refreshToken; 
 	private long expiresTime;
+	
+	private Handler loginHandler;
+	private OnClickListener onClickListener;
 	
 	/**
 	 * 微信登录的receiver
@@ -116,8 +120,10 @@ public class Activity_Login extends BaseActivity{
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.context = Activity_Login.this;
 		setContentView(R.layout.activity_login);
+		loginHandler = initHandler();
+		onClickListener = initListener();
+		
 		
 		//注册receiver，用于接收微信登录的广播
 		registerReceiver(weixinOAuthReceiver, new IntentFilter(ConstantsKey.BROADCAST_ACTION_WEIXIN_LOGIN));
@@ -162,6 +168,7 @@ public class Activity_Login extends BaseActivity{
 		
 		progressDialog = ProgressDialog.show(context, null, "登录中...", true, false);
 		progressDialog.dismiss();
+		
 	}
 	
 	@Override
@@ -235,183 +242,188 @@ public class Activity_Login extends BaseActivity{
             mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
         }
     }
-    
-    private Handler loginHandler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			progressDialog.dismiss();
-			switch(msg.what){
-				case HANDLER_FLAG_WEIBO_LOGIN_RESULT:
-				case HANDLER_GUEST_LOGIN_RESULT:
-					if(successResult){
-						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
-						UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
-						User hostUser = (User) dataMap.get("hostUser");
-						if(userPassport!=null){//之前绑定过，可以直接获取数据
-							//TODO
-							UiUtil.showLongToast(context, "您已成功登录，正在进入主界面..");
+    private Handler initHandler(){
+	    Handler loginHandler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				progressDialog.dismiss();
+				switch(msg.what){
+					case HANDLER_FLAG_WEIBO_LOGIN_RESULT:
+					case HANDLER_GUEST_LOGIN_RESULT:
+						if(successResult){
+							Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
+							UserPassport userPassport = (UserPassport) dataMap.get("userPassport");
+							User hostUser = (User) dataMap.get("hostUser");
+							if(userPassport!=null){//之前绑定过，可以直接获取数据
+								//TODO
+								UiUtil.showLongToast(context, "您已成功登录，正在进入主界面..");
+								//设置对象缓存
+								AppApplication.setUserPassport(userPassport);
+								AppApplication.setHostUser(hostUser);
+								
+								//直接跳转至主屏界面
+								Activity_Main.show(context);
+								finish();
+							}else{//server未查到，认为是新用户，则必须要进行绑定（注册或绑定）
+								boolean needBind = (Boolean) dataMap.get("needBind");
+								thirdpartyType = (String) dataMap.get("thirdpartyType");
+								uname = (String) dataMap.get("thirdpartyUname");
+								uavatar = (String) dataMap.get("thirdpartyAvatar");
+								if(needBind){
+									uname = uname==null?"":uname;
+									uavatar = uavatar==null?"":uavatar;
+									
+									//加载第三方头像
+									ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
+									
+									registeNicknameText.setText(uname);
+									//UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
+									//默认显示注册页
+									snsLoginContainer.setVisibility(View.GONE);
+									accountContainer.setVisibility(View.VISIBLE);
+								}
+							}
+						}else{
+							UiUtil.showShortToast(context, "登录失败，请重试");
+						}
+						break;
+	//				case HANDLER_FLAG_WEIBO_LOGIN_FAILED:
+	//					UiUtil.showShortToast(context, "新浪微博登录失败，请重试");
+	//					progressDialog.dismiss();
+	//					break;
+	//				case HANDLER_FLAG_WEIXIN_LOGIN_FAILED:
+	//					UiUtil.showShortToast(context, "微信登录失败，请重试");
+	//					progressDialog.dismiss();
+	//					break;
+					case HANDLER_FLAG_BIND_RESULT:
+						if(successResult){
+							Map<String, Object> bindDataMap = (Map<String, Object>) apiResult.getData();
+							UserPassport bindUserPassport = (UserPassport) bindDataMap.get("userPassport");
+							User bindHostUser = (User) bindDataMap.get("hostUser");
 							//设置对象缓存
-							AppApplication.setUserPassport(userPassport);
-							AppApplication.setHostUser(hostUser);
+							AppApplication.setUserPassport(bindUserPassport);
+							AppApplication.setHostUser(bindHostUser);
+							UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，精彩内容即将开启..");
 							
-							//直接跳转至主屏界面
+							//绑定成功，跳转至主屏界面
 							Activity_Main.show(context);
 							finish();
-						}else{//server未查到，认为是新用户，则必须要进行绑定（注册或绑定）
-							boolean needBind = (Boolean) dataMap.get("needBind");
-							thirdpartyType = (String) dataMap.get("thirdpartyType");
-							uname = (String) dataMap.get("thirdpartyUname");
-							uavatar = (String) dataMap.get("thirdpartyAvatar");
-							if(needBind){
-								uname = uname==null?"":uname;
-								uavatar = uavatar==null?"":uavatar;
-								
-								//加载第三方头像
-								ImageLoader.getInstance().displayImage(uavatar, thirdpartyAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION); 
-								
-								registeNicknameText.setText(uname);
-								//UiUtil.showLongToast(context, "您正在使用"+thirdpartyMap.get(thirdpartyType)+"连接[金玩儿网]，还差一步您即可完成登录");
-								//默认显示注册页
-								snsLoginContainer.setVisibility(View.GONE);
-								accountContainer.setVisibility(View.VISIBLE);
-							}
+						}else{
+							UiUtil.showShortToast(context, "绑定失败");
 						}
-					}else{
-						UiUtil.showShortToast(context, "登录失败，请重试");
-					}
+	//				case HANDLER_FLAG_BIND_FAILED:
+	//					//绑定失败
+					default:
+						break;
+				}
+			};
+		};
+		return loginHandler;
+    }
+    
+    private OnClickListener initListener(){
+		OnClickListener onClickListener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.weiboLoginButton:
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "微博登录");
+					progressDialog.setMessage("新浪微博登录中...");
+					progressDialog.show();
+					//跳转wb oauth
+					WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY, ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
+					//SSO登录
+					mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
+					mSsoHandler.authorize(new AuthListener());
 					break;
-//				case HANDLER_FLAG_WEIBO_LOGIN_FAILED:
-//					UiUtil.showShortToast(context, "新浪微博登录失败，请重试");
-//					progressDialog.dismiss();
-//					break;
-//				case HANDLER_FLAG_WEIXIN_LOGIN_FAILED:
-//					UiUtil.showShortToast(context, "微信登录失败，请重试");
-//					progressDialog.dismiss();
-//					break;
-				case HANDLER_FLAG_BIND_RESULT:
-					if(successResult){
-						Map<String, Object> bindDataMap = (Map<String, Object>) apiResult.getData();
-						UserPassport bindUserPassport = (UserPassport) bindDataMap.get("userPassport");
-						User bindHostUser = (User) bindDataMap.get("hostUser");
-						//设置对象缓存
-						AppApplication.setUserPassport(bindUserPassport);
-						AppApplication.setHostUser(bindHostUser);
-						UiUtil.showShortToast(context, "您已成功绑定金玩儿网账户，精彩内容即将开启..");
-						
-						//绑定成功，跳转至主屏界面
-						Activity_Main.show(context);
-						finish();
-					}else{
-						UiUtil.showShortToast(context, "绑定失败");
+				case R.id.weixinLoginButton://微信登录
+	//				暂时不支持微信登录
+	//				progressDialog.setMessage("微信登录中...");
+	//				progressDialog.show();
+	//				SendAuth.Req req = new SendAuth.Req();
+	//				req.scope = "snsapi_userinfo";
+	//				req.state = "";
+	//				//微信登录
+	//				AppApplication.getWxApi().sendReq(req);
+					
+					//UiUtil.showShortToast(context, "微信登录功能即将开启，敬请期待...");
+					
+					break;
+				case R.id.guestLoginButton: //【游客登录】按钮
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "游客登录");
+					
+					progressDialog.show();
+					new Thread(new Runnable() {
+						@Override
+						public void run() {
+							ApiResult apiResult = ApiManager.invoke(context,new GuestLoginApi());
+							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_RESULT);
+							message.obj = apiResult;
+							message.sendToTarget();
+							
+	//						if (jsonResult != null && jsonResult.getResult() == 1) {
+	//							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_SUCCEED);
+	//							message.obj = jsonResult.getData();
+	//							message.sendToTarget();
+	//						}
+						}
+					}).start();
+					
+					break;
+				case R.id.bindTab: //绑定资料按钮
+					//显示绑定登录layout, 隐藏注册layout
+					bindContainer.setVisibility(View.VISIBLE);
+					registeContainer.setVisibility(View.GONE);
+					
+					bindTab.setBackgroundResource(R.drawable.button_orange_bg);
+					bindTab.setTextColor(getResources().getColor(R.color.white));
+					registeTab.setBackgroundResource(R.drawable.button_grey_bg);
+					registeTab.setTextColor(getResources().getColor(R.color.black));
+					
+					break;
+				case R.id.registeTab: //注册资料按钮
+					//隐藏绑定登录layout, 显示注册layout
+					bindContainer.setVisibility(View.GONE);
+					registeContainer.setVisibility(View.VISIBLE);
+					
+					bindTab.setBackgroundResource(R.drawable.button_grey_bg);
+					bindTab.setTextColor(getResources().getColor(R.color.black));
+					registeTab.setBackgroundResource(R.drawable.button_orange_bg);
+					registeTab.setTextColor(getResources().getColor(R.color.white));
+					break;	
+				case R.id.btnBind: //绑定按钮
+					final String username = loginEmail.getText().toString();
+					final String password = loginPassword.getText().toString();
+					//检查数据输入是否完整
+					if(!checkBindInput()){
+						break;
 					}
-//				case HANDLER_FLAG_BIND_FAILED:
-//					//绑定失败
+					progressDialog.show();
+					oauthBind(thirdpartyType, username, password, uid, uname, accessToken, refreshToken, expiresTime);
+					
+					break;
+				case R.id.btnRegiste: //注册按钮
+					final String registeUsername = registeEmailText.getText().toString();
+					final String registeNickname = registeNicknameText.getText().toString();
+					final String registePassword = registePasswordText.getText().toString();
+					//检查数据输入是否完整
+					if(!checkRegisteInput()){
+						break;
+					}
+					progressDialog.setMessage("资料提交中...");
+					progressDialog.show();
+					oauthRegiste(thirdpartyType, registeUsername, registeNickname, registePassword, uid, uname, accessToken, refreshToken, expiresTime);
+					break;
 				default:
 					break;
+				}
 			}
 		};
-	};
-    
-	private OnClickListener onClickListener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.weiboLoginButton:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "微博登录");
-				progressDialog.setMessage("新浪微博登录中...");
-				progressDialog.show();
-				//跳转wb oauth
-				WeiboAuth mWeiboAuth = new WeiboAuth(context, ConstantOAuth.APP_KEY, ConstantOAuth.REDIRECT_URL, ConstantOAuth.SCOPE);
-				//SSO登录
-				mSsoHandler = new SsoHandler((Activity) context, mWeiboAuth);
-				mSsoHandler.authorize(new AuthListener());
-				break;
-			case R.id.weixinLoginButton://微信登录
-//				暂时不支持微信登录
-//				progressDialog.setMessage("微信登录中...");
-//				progressDialog.show();
-//				SendAuth.Req req = new SendAuth.Req();
-//				req.scope = "snsapi_userinfo";
-//				req.state = "";
-//				//微信登录
-//				AppApplication.getWxApi().sendReq(req);
-				
-				//UiUtil.showShortToast(context, "微信登录功能即将开启，敬请期待...");
-				
-				break;
-			case R.id.guestLoginButton: //【游客登录】按钮
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_LOGIN, "游客登录");
-				
-				progressDialog.show();
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						ApiResult apiResult = ApiManager.invoke(context,new GuestLoginApi());
-						Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_RESULT);
-						message.obj = apiResult;
-						message.sendToTarget();
-						
-//						if (jsonResult != null && jsonResult.getResult() == 1) {
-//							Message message = loginHandler.obtainMessage(HANDLER_GUEST_LOGIN_SUCCEED);
-//							message.obj = jsonResult.getData();
-//							message.sendToTarget();
-//						}
-					}
-				}).start();
-				
-				break;
-			case R.id.bindTab: //绑定资料按钮
-				//显示绑定登录layout, 隐藏注册layout
-				bindContainer.setVisibility(View.VISIBLE);
-				registeContainer.setVisibility(View.GONE);
-				
-				bindTab.setBackgroundResource(R.drawable.button_orange_bg);
-				bindTab.setTextColor(getResources().getColor(R.color.white));
-				registeTab.setBackgroundResource(R.drawable.button_grey_bg);
-				registeTab.setTextColor(getResources().getColor(R.color.black));
-				
-				break;
-			case R.id.registeTab: //注册资料按钮
-				//隐藏绑定登录layout, 显示注册layout
-				bindContainer.setVisibility(View.GONE);
-				registeContainer.setVisibility(View.VISIBLE);
-				
-				bindTab.setBackgroundResource(R.drawable.button_grey_bg);
-				bindTab.setTextColor(getResources().getColor(R.color.black));
-				registeTab.setBackgroundResource(R.drawable.button_orange_bg);
-				registeTab.setTextColor(getResources().getColor(R.color.white));
-				break;	
-			case R.id.btnBind: //绑定按钮
-				final String username = loginEmail.getText().toString();
-				final String password = loginPassword.getText().toString();
-				//检查数据输入是否完整
-				if(!checkBindInput()){
-					break;
-				}
-				progressDialog.show();
-				oauthBind(thirdpartyType, username, password, uid, uname, accessToken, refreshToken, expiresTime);
-				
-				break;
-			case R.id.btnRegiste: //注册按钮
-				final String registeUsername = registeEmailText.getText().toString();
-				final String registeNickname = registeNicknameText.getText().toString();
-				final String registePassword = registePasswordText.getText().toString();
-				//检查数据输入是否完整
-				if(!checkRegisteInput()){
-					break;
-				}
-				progressDialog.setMessage("资料提交中...");
-				progressDialog.show();
-				oauthRegiste(thirdpartyType, registeUsername, registeNickname, registePassword, uid, uname, accessToken, refreshToken, expiresTime);
-				break;
-			default:
-				break;
-			}
-		}
-	};
+		return onClickListener;
+    }
 	
 	/**
      * 微博登录，根据用户的accessToken换取用户资料

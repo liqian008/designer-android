@@ -18,6 +18,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostPushSettingsApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.SharedPreferenceUtil;
@@ -50,44 +51,54 @@ public class Activity_Settings_Push extends BaseActivity {
 	private View titlebarView;
 	private TextView titleView;
 	private SwitcherView pushFollowedSwitcher, pushChatedSwitcher, pushLikedSwitcher, pushFavoritedSwitcher, pushCommentedSwitcher;
-
+	
+	private Handler handler;
+	private OnClickListener onClickListener;
+	
 	public static void show(Context context) {
 		Intent intent = new Intent(context, Activity_Settings_Push.class);
 		context.startActivity(intent);
 	}
 	
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			switch (msg.what) {
-			case HANDLER_FLAG_PUSHMASK_READ_RESULT:
-				if(successResult){
-					Map<String, Object> pushSettingsDataMap = (Map<String, Object>) apiResult.getData();
-					Long pushMask = (Long) pushSettingsDataMap.get("pushMask");
-					initPushSettings(pushMask==null?0:pushMask);
-					SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH_MASK, (pushMask==null?0:pushMask));
-				}else{
-					UiUtil.showShortToast(context, "获取推送设置失败，请重试");
+	public Handler initHandler(){
+		Handler handler = new DesignerHandler(Activity_Settings_Push.this){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch (msg.what) {
+				case HANDLER_FLAG_PUSHMASK_READ_RESULT:
+					if(successResult){
+						Map<String, Object> pushSettingsDataMap = (Map<String, Object>) apiResult.getData();
+						Long pushMask = (Long) pushSettingsDataMap.get("pushMask");
+						initPushSettings(pushMask==null?0:pushMask);
+						SharedPreferenceUtil.putSharePre(context,  Config.SP_KEY_BAIDU_PUSH_MASK, (pushMask==null?0:pushMask));
+					}else{
+						UiUtil.showShortToast(context, "获取推送设置失败，请重试");
+					}
+					break;
+				case HANDLER_FLAG_PUSHMASK_WRITE_RESULT:
+					//do nothing
+					break;
+				default:
+					break;
 				}
-				break;
-			case HANDLER_FLAG_PUSHMASK_WRITE_RESULT:
-				//do nothing
-				break;
-			default:
-				break;
 			}
-		}
-	};
+		};
+		return handler;
+	}
 	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings_push);
+		handler = initHandler();
+		onClickListener = initListener();
 
 		initView();
+		
 		//进入时记录pushMask
 		cachedPushMask = SharedPreferenceUtil.getSharePreLong(context, Config.SP_KEY_BAIDU_PUSH_MASK, Long.MAX_VALUE);
 		//启动线程获取server端的pushSettings
@@ -99,7 +110,7 @@ public class Activity_Settings_Push extends BaseActivity {
 	private void initView() {
 		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("推送设置");
 
@@ -190,22 +201,22 @@ public class Activity_Settings_Push extends BaseActivity {
 		});
 	}
 
-	
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				processBeforeFinish();
-				finish();
-				break;
-			default:
-				break;
+	private OnClickListener  initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					processBeforeFinish();
+					finish();
+					break;
+				default:
+					break;
+				}
 			}
-		}
-
-		
-	};
+		};
+		return listener;
+	}
 	
 	/**
 	 * 加载push设置

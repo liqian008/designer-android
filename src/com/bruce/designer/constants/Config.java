@@ -6,9 +6,9 @@ public class Config {
 	
 	public static final boolean DEBUG = true;
 	
-	public static final String GUEST_TOAST_TEXT = "游客无法进行该操作，请先进行登录";
+	public static final String GUEST_ACCESS_DENIED_TEXT = "游客无法进行该操作，请先进行登录";
 	
-	public static final String NETWORK_UNAVAILABLE = "当前网络不可用";
+	public static final String NETWORK_UNAVAILABLE_TEXT = "当前网络不可用";
 	
 	public static final String RESPONSE_ERROR = "网络连接不稳定，请重试";
 	

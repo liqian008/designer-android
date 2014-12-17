@@ -31,6 +31,7 @@ import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.User;
@@ -76,6 +77,9 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	
 	private long messageTailId;
 	
+	private Handler handler;
+	private OnClickListener onClickListener;
+	
 	/**
 	 * Chat消息的messageType 实为对方的userId
 	 * @param context
@@ -83,11 +87,17 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	 * @param nickname 
 	 */
 	public static void show(Context context, int messageType, String nickname, String avatarUrl){
-		Intent intent = new Intent(context, Activity_MessageChat.class);
-		intent.putExtra("messageType", messageType);
-		intent.putExtra("nickname", nickname);
-		intent.putExtra("avatarUrl", avatarUrl);
-		context.startActivity(intent);
+		if(!AppApplication.isGuest()){//游客身份不能发送私信
+			if(messageType!=AppApplication.getUserPassport().getUserId()){//不能跟自己进行私信
+				Intent intent = new Intent(context, Activity_MessageChat.class);
+				intent.putExtra("messageType", messageType);
+				intent.putExtra("nickname", nickname);
+				intent.putExtra("avatarUrl", avatarUrl);
+				context.startActivity(intent);
+			}
+		}else{
+			UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+		}
 	}
 	
 	
@@ -95,6 +105,9 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_msg_chat);
+		handler = initHandler();
+		onClickListener = initListener();
+		
 		
 		Intent intent = getIntent();
 		//获取messageType
@@ -104,7 +117,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(onclickListener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText(nickname);
 		
@@ -114,7 +127,7 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		//评论框
 		messageInput = (EditText) findViewById(R.id.commentInput);
 		Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
-		btnCommentPost.setOnClickListener(onclickListener);
+		btnCommentPost.setOnClickListener(onClickListener);
 		
 		pullRefreshView = (PullToRefreshListView) findViewById(R.id.pull_refresh_list);
 		pullRefreshView.setMode(Mode.PULL_FROM_END);//在聊天界面，上拉刷新为获取最新数据
@@ -278,10 +291,10 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		});
 		thread.start();
 	}
-	
-	private Handler handler = new Handler(){
+	private Handler initHandler(){ 
+		Handler handler = new DesignerHandler(context){
 		@SuppressWarnings("unchecked")
-		public void handleMessage(android.os.Message msg) {
+		public void processHandlerMessage(android.os.Message msg) {
 			ApiResult apiResult = (ApiResult) msg.obj;
 			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 			
@@ -342,9 +355,11 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 					break;
 				default:
 					break;
+				}
 			}
-		}
-	};
+		};
+		return handler;
+	}
 	
 	/**
 	 * 下拉刷新
@@ -362,31 +377,34 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		getMessageList(0);
 	}
 
-	private OnClickListener onclickListener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				finish();
-				break;
-			case R.id.btnCommentPost:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_CHAT, "私信页中发送私信");
-				
-				
-				String chatContent = messageInput.getText().toString();
-				//检查内容不为空
-				if(StringUtils.isBlank(chatContent)){
-					UiUtil.showShortToast(context, "消息内容不能为空");
+	private OnClickListener initListener(){
+		OnClickListener onclickListener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					finish();
+					break;
+				case R.id.btnCommentPost:
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_CHAT, "私信页中发送私信");
+					
+					
+					String chatContent = messageInput.getText().toString();
+					//检查内容不为空
+					if(StringUtils.isBlank(chatContent)){
+						UiUtil.showShortToast(context, "消息内容不能为空");
+						break;
+					}
+					//启动线程发布回复消息
+					postChat(messageType, chatContent);
+					break;
+				default:
 					break;
 				}
-				//启动线程发布回复消息
-				postChat(messageType, chatContent);
-				break;
-			default:
-				break;
 			}
-		}
-	};
+		};
+		return onclickListener;
+	}	
 	
 	
 	/**

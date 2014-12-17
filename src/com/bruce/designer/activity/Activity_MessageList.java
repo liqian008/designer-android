@@ -21,6 +21,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -53,6 +54,8 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	private int messageType;
 	
 	private long messageTailId;
+	private Handler handler;
+	private OnClickListener onClickListener;
 
 	public static void show(Context context, int messageType) {
 		Intent intent = new Intent(context, Activity_MessageList.class);
@@ -64,6 +67,9 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_msg_list);
+		handler = initHandler();
+		onClickListener = initListener();
+		
 
 		Intent intent = getIntent();
 		// 获取messageType
@@ -71,7 +77,7 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 
 		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText(MessageUtil.buildMessageTitle(messageType, null));
 		
@@ -228,68 +234,74 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 		});
 		thread.start();
 	}
-
-	private Handler handler = new Handler() {
-		@SuppressWarnings("unchecked")
-		public void handleMessage(android.os.Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			switch (msg.what) {
-			case HANDLER_FLAG_MESSAGELIST_RESULT:
-				pullRefreshView.onRefreshComplete();
-				if(successResult){
-					Map<String, Object> messagesDataMap = (Map<String, Object>) apiResult.getData();
-					if (messagesDataMap != null) {
-						//解析响应数据
-						Long fromTailId = (Long) messagesDataMap.get("fromTailId");
-						Long newTailId = (Long) messagesDataMap.get("newTailId");
-						
-						List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
-						if(messageList!=null&&messageList.size()>0){
-							if(newTailId!=null&&newTailId>0){//还有可加载的数据
-								messageTailId = newTailId;
-								pullRefreshView.setMode(Mode.BOTH);
-							}else{
-								messageTailId = 0;
-								pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新查询历史消息 
+	
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(android.os.Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch (msg.what) {
+				case HANDLER_FLAG_MESSAGELIST_RESULT:
+					pullRefreshView.onRefreshComplete();
+					if(successResult){
+						Map<String, Object> messagesDataMap = (Map<String, Object>) apiResult.getData();
+						if (messagesDataMap != null) {
+							//解析响应数据
+							Long fromTailId = (Long) messagesDataMap.get("fromTailId");
+							Long newTailId = (Long) messagesDataMap.get("newTailId");
+							
+							List<Message> messageList = (List<Message>)  messagesDataMap.get("messageList");
+							if(messageList!=null&&messageList.size()>0){
+								if(newTailId!=null&&newTailId>0){//还有可加载的数据
+									messageTailId = newTailId;
+									pullRefreshView.setMode(Mode.BOTH);
+								}else{
+									messageTailId = 0;
+									pullRefreshView.setMode(Mode.PULL_FROM_START);//禁用下拉刷新查询历史消息 
+								}
+								List<Message> oldMessageList = messageListAdapter.getMessageList();
+								//判断加载位置，以确定是list增量还是覆盖
+								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+								if(fallloadAppend){//加载更多操作，需添加至list的开始
+									oldMessageList.addAll(0, messageList);
+								}else{//下拉加载，需覆盖原数据
+									oldMessageList = null;
+									oldMessageList = messageList;
+								}
+								messageListAdapter.setMessageList(oldMessageList);
+								messageListAdapter.notifyDataSetChanged();
 							}
-							List<Message> oldMessageList = messageListAdapter.getMessageList();
-							//判断加载位置，以确定是list增量还是覆盖
-							boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-							if(fallloadAppend){//加载更多操作，需添加至list的开始
-								oldMessageList.addAll(0, messageList);
-							}else{//下拉加载，需覆盖原数据
-								oldMessageList = null;
-								oldMessageList = messageList;
-							}
-							messageListAdapter.setMessageList(oldMessageList);
-							messageListAdapter.notifyDataSetChanged();
 						}
+					}else{
+						//UiUtil.showShortToast(context, "获取我的消息失败，请重试");
+						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 					}
-				}else{
-					//UiUtil.showShortToast(context, "获取我的消息失败，请重试");
-					UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
 			}
-		}
-	};
-
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				finish();
-				break;
-			default:
-				break;
+		};
+		return handler;
+	}
+	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					finish();
+					break;
+				default:
+					break;
+				}
 			}
-		}
-	};
+		};
+		return listener;
+	}
 
 	
 	/**

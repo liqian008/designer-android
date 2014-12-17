@@ -47,7 +47,7 @@ public class OnAlbumListener implements IOnAlbumListener{
 		if (!AppApplication.isGuest()) {
 			postLike(context, handler, albumId, designerId, mode);
 		} else {
-			UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);// 游客无法操作
+			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
 		}
 	}
 
@@ -56,7 +56,7 @@ public class OnAlbumListener implements IOnAlbumListener{
 		if (!AppApplication.isGuest()) {
 			postFavorite(context, handler, albumId, designerId, mode);
 		} else {
-			UiUtil.showShortToast(context, Config.GUEST_TOAST_TEXT);// 游客无法操作
+			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
 		}
 	}
 	

@@ -29,6 +29,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.system.SystemCheckApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
@@ -61,57 +62,65 @@ public class Activity_Splash extends BaseActivity {
 	/*需要跳转至登录界面的标志*/
 	private boolean needLogin = true; 
 	
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
-				case HANDLER_FLAG_CHECK_UPDATE_RESULT:
-					ApiResult apiResult = (ApiResult) msg.obj;
-					boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-					
-					if(successResult){
-						Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
-						//微信公众帐号二维码
-						String wxmpQrcodeUrl = (String) dataMap.get("wxmpQrcodeUrl");
-						SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_WEIXINMP_QRCODE_URL, wxmpQrcodeUrl);
+	private Handler handler;
+	
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				switch (msg.what) {
+					case HANDLER_FLAG_CHECK_UPDATE_RESULT:
+						ApiResult apiResult = (ApiResult) msg.obj;
+						boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 						
-						//判断是否需要用户登录（游客也需要登录）
-						needLogin = (Boolean) dataMap.get("needLogin");
-						if(!needLogin){//已登录用户
-							//加载最新的用户资料
-							User hostUser = (User) dataMap.get("hostUser");
-							if(hostUser!=null){
-								AppApplication.setHostUser(hostUser);
+						if(successResult){
+							Map<String, Object> dataMap = (Map<String, Object>) apiResult.getData();
+							//微信公众帐号二维码
+							String wxmpQrcodeUrl = (String) dataMap.get("wxmpQrcodeUrl");
+							SharedPreferenceUtil.putSharePre(context, Config.SP_KEY_WEIXINMP_QRCODE_URL, wxmpQrcodeUrl);
+							
+							//判断是否需要用户登录（游客也需要登录）
+							needLogin = (Boolean) dataMap.get("needLogin");
+							if(!needLogin){//已登录用户
+								//加载最新的用户资料
+								User hostUser = (User) dataMap.get("hostUser");
+								if(hostUser!=null){
+									AppApplication.setHostUser(hostUser);
+								}
 							}
+							VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
+							if(versionCheckResult!=null){
+								updateStatus = versionCheckResult.getUpdateStatus();
+								processUpdateResult(versionCheckResult);
+							}
+						}else{
+							//版本检查失败
+							UiUtil.showShortToast(context, "无法连接到服务器，请重试");
 						}
-						VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
-						if(versionCheckResult!=null){
-							updateStatus = versionCheckResult.getUpdateStatus();
-							processUpdateResult(versionCheckResult);
-						}
-					}else{
-						//版本检查失败
-						UiUtil.showShortToast(context, "无法连接到服务器，请重试");
-					}
-					break;
-				case HANDLER_FLAG_DOWNLOADING:
-					mProgress.setProgress(progress);
-					break;
-				case HANDLER_FLAG_DOWNLOAD_OVER:
-					String apkFilePath = (String) msg.obj;
-					installApk(apkFilePath);
-					break;
-				default:
-					//出错了
-					break;
-			}
+						break;
+					case HANDLER_FLAG_DOWNLOADING:
+						mProgress.setProgress(progress);
+						break;
+					case HANDLER_FLAG_DOWNLOAD_OVER:
+						String apkFilePath = (String) msg.obj;
+						installApk(apkFilePath);
+						break;
+					default:
+						//出错了
+						break;
+				}
+			};
 		};
-	};
+		return handler;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		this.context = Activity_Splash.this;
+//		this.context = Activity_Splash.this;
+		
+		handler = initHandler();
 		setContentView(R.layout.activity_splash);
 		
 		boolean appFirstOpen = SharedPreferenceUtil.getSharePreBoolean(context, Config.SP_KEY_APP_FIRST_OPEN, true);

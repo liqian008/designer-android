@@ -39,6 +39,7 @@ import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.crop.ModifyAvatarDialog;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
@@ -82,78 +83,88 @@ public class Activity_UserInfo extends BaseActivity {
 	private int queryUserId;
 	/*头像的数据*/
 	private byte[] avatarData;
+	private Handler handler;
+	private OnClickListener onClickListener;
 
 	public static void show(Context context, int queryUserId) {
-		Intent intent = new Intent(context, Activity_UserInfo.class);
-		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
-		context.startActivity(intent);
+		if(!AppApplication.isGuest(queryUserId)){//游客木有个人主页
+			Intent intent = new Intent(context, Activity_UserInfo.class);
+			intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
+			context.startActivity(intent);
+		}
 	}
-
-	private Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			switch (msg.what) {
-			case HANDLER_FLAG_USERINFO_RESULT:
-				if(successResult){
-					Map<String, Object> userinfoDataMap = (Map<String, Object>) apiResult.getData();
-					if (userinfoDataMap != null) {
-						User userinfo = (User) userinfoDataMap.get("userinfo");
-						if (userinfo != null && userinfo.getId() > 0) {
-							// 刷新用户资料
-							if (userinfo.getHeadImg() != null) {
-								ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
-							}
-							nicknameTextView.setText(userinfo.getNickname());
-							usernameTextView.setText(userinfo.getUsername());
-							shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
-							introduceTextView.setText(userinfo.getDesignerIntroduction());
-							if(userinfo.getDesignerStatus()==2){//设计师身份
-								weixinNumberTextView.setText(userinfo.getWeixinNumber());
-								weixinNumberContainer.setVisibility(View.VISIBLE);
-								shopContainer.setVisibility(View.VISIBLE);
-								introduceContainer.setVisibility(View.VISIBLE);
-								userTypeTextView.setText("设计师");
-							}else{
-	//							UiUtil.showShortToast(context, "非设计师");
-								weixinNumberContainer.setVisibility(View.GONE);
-								shopContainer.setVisibility(View.GONE);
-								introduceContainer.setVisibility(View.GONE);
+	
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch (msg.what) {
+				case HANDLER_FLAG_USERINFO_RESULT:
+					if(successResult){
+						Map<String, Object> userinfoDataMap = (Map<String, Object>) apiResult.getData();
+						if (userinfoDataMap != null) {
+							User userinfo = (User) userinfoDataMap.get("userinfo");
+							if (userinfo != null && userinfo.getId() > 0) {
+								// 刷新用户资料
+								if (userinfo.getHeadImg() != null) {
+									ImageLoader.getInstance().displayImage(userinfo.getHeadImg(), avatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+								}
+								nicknameTextView.setText(userinfo.getNickname());
+								usernameTextView.setText(userinfo.getUsername());
+								shopTextView.setText(userinfo.getDesignerTaobaoHomepage());
+								introduceTextView.setText(userinfo.getDesignerIntroduction());
+								if(userinfo.getDesignerStatus()==2){//设计师身份
+									weixinNumberTextView.setText(userinfo.getWeixinNumber());
+									weixinNumberContainer.setVisibility(View.VISIBLE);
+									shopContainer.setVisibility(View.VISIBLE);
+									introduceContainer.setVisibility(View.VISIBLE);
+									userTypeTextView.setText("设计师");
+								}else{
+		//							UiUtil.showShortToast(context, "非设计师");
+									weixinNumberContainer.setVisibility(View.GONE);
+									shopContainer.setVisibility(View.GONE);
+									introduceContainer.setVisibility(View.GONE);
+								}
 							}
 						}
+					}else{
+	//					UiUtil.showShortToast(context, "获取用户资料失败！");
 					}
-				}else{
-//					UiUtil.showShortToast(context, "获取用户资料失败！");
+					break;
+				case HANDLER_FLAG_AVATAR_UPLOAD_RESULT:
+					if(successResult){
+						UiUtil.showShortToast(context, "新头像上传成功！");
+					}else{
+						UiUtil.showShortToast(context, "新头像上传成功！");
+					}
+					break;
+	//			case HANDLER_FLAG_AVATAR_UPLOAD_FAILED:
+	//				UiUtil.showShortToast(context, "新头像上传失败！");
+	//				break;
+				default:
+					break;
 				}
-				break;
-			case HANDLER_FLAG_AVATAR_UPLOAD_RESULT:
-				if(successResult){
-					UiUtil.showShortToast(context, "新头像上传成功！");
-				}else{
-					UiUtil.showShortToast(context, "新头像上传成功！");
-				}
-				break;
-//			case HANDLER_FLAG_AVATAR_UPLOAD_FAILED:
-//				UiUtil.showShortToast(context, "新头像上传失败！");
-//				break;
-			default:
-				break;
 			}
-		}
-	};
+		};
+		return handler;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_info);
+		handler = initHandler();
+		onClickListener = initListener();
 
 		Intent intent = getIntent();
 		queryUserId = intent.getIntExtra(ConstantsKey.BUNDLE_USER_INFO_ID, 0);
 
 		// init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("个人资料");
@@ -167,7 +178,7 @@ public class Activity_UserInfo extends BaseActivity {
 		modifyAvatarView = (TextView) findViewById(R.id.modifyAvatar);
 		if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
 			modifyAvatarView.setText("修改头像");
-			modifyAvatarView.setOnClickListener(listener);
+			modifyAvatarView.setOnClickListener(onClickListener);
 			usernameContainer.setVisibility(View.VISIBLE);
 		}else{
 			modifyAvatarView.setText("头像");
@@ -196,75 +207,78 @@ public class Activity_UserInfo extends BaseActivity {
 			getUserinfo(queryUserId);
 		}
 	}
-
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				processBeforeFinish();
-				finish();
-				break;
-			case R.id.modifyAvatar:// 点击更换头像
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_CHANGE_AVATAR, "修改头像");
-				
-				if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
-					// 调用选择那种方式的dialog
-					ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
-						// 选择本地相册
-						@Override
-						public void doGoToImg() {
-							this.dismiss();
-							Intent intent = new Intent();
-							intent.setAction(Intent.ACTION_PICK);
-							intent.setType("image/*");
-							startActivityForResult(intent, FLAG_CHOOSE_ALBUM);
-						}
-
-						// 选择相机拍照
-						@Override
-						public void doGoToPhone() {
-							this.dismiss();
-							String status = Environment.getExternalStorageState();
-							if (status.equals(Environment.MEDIA_MOUNTED)) {
-								try {
-									localTempImageFileName = "";
-									localTempImageFileName = String.valueOf(System.currentTimeMillis()) + ".png";
-									File filePath = FILE_PIC_SCREENSHOT;
-									if (!filePath.exists()) {
-										filePath.mkdirs();
+	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					processBeforeFinish();
+					finish();
+					break;
+				case R.id.modifyAvatar:// 点击更换头像
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_CHANGE_AVATAR, "修改头像");
+					
+					if(AppApplication.isHost(queryUserId)&&!AppApplication.isGuest()){
+						// 调用选择那种方式的dialog
+						ModifyAvatarDialog modifyAvatarDialog = new ModifyAvatarDialog(context) {
+							// 选择本地相册
+							@Override
+							public void doGoToImg() {
+								this.dismiss();
+								Intent intent = new Intent();
+								intent.setAction(Intent.ACTION_PICK);
+								intent.setType("image/*");
+								startActivityForResult(intent, FLAG_CHOOSE_ALBUM);
+							}
+	
+							// 选择相机拍照
+							@Override
+							public void doGoToPhone() {
+								this.dismiss();
+								String status = Environment.getExternalStorageState();
+								if (status.equals(Environment.MEDIA_MOUNTED)) {
+									try {
+										localTempImageFileName = "";
+										localTempImageFileName = String.valueOf(System.currentTimeMillis()) + ".png";
+										File filePath = FILE_PIC_SCREENSHOT;
+										if (!filePath.exists()) {
+											filePath.mkdirs();
+										}
+										Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+										File f = new File(filePath, localTempImageFileName);
+										// localTempImgDir和localTempImageFileName是自己定义的名字
+										Uri u = Uri.fromFile(f);
+										intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
+										intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
+										startActivityForResult(intent, FLAG_CHOOSE_CAMERA);
+									} catch (ActivityNotFoundException e) {
+										//
 									}
-									Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-									File f = new File(filePath, localTempImageFileName);
-									// localTempImgDir和localTempImageFileName是自己定义的名字
-									Uri u = Uri.fromFile(f);
-									intent.putExtra(MediaStore.Images.Media.ORIENTATION, 0);
-									intent.putExtra(MediaStore.EXTRA_OUTPUT, u);
-									startActivityForResult(intent, FLAG_CHOOSE_CAMERA);
-								} catch (ActivityNotFoundException e) {
-									//
 								}
 							}
-						}
-					};
-					AlignmentSpan span = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER);
-					AbsoluteSizeSpan span_size = new AbsoluteSizeSpan(25, true);
-					SpannableStringBuilder spannable = new SpannableStringBuilder();
-					String dTitle = "请选择图片";
-					spannable.append(dTitle);
-					spannable.setSpan(span, 0, dTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					spannable.setSpan(span_size, 0, dTitle.length(),
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-					modifyAvatarDialog.setTitle(spannable);
-					modifyAvatarDialog.show();
+						};
+						AlignmentSpan span = new AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER);
+						AbsoluteSizeSpan span_size = new AbsoluteSizeSpan(25, true);
+						SpannableStringBuilder spannable = new SpannableStringBuilder();
+						String dTitle = "请选择图片";
+						spannable.append(dTitle);
+						spannable.setSpan(span, 0, dTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						spannable.setSpan(span_size, 0, dTitle.length(),
+								Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+						modifyAvatarDialog.setTitle(spannable);
+						modifyAvatarDialog.show();
+					}
+	
+					break;
+				default:
+					break;
 				}
-
-				break;
-			default:
-				break;
 			}
-		}
-	};
+		};
+		return listener;
+	}
 
 	private void getUserinfo(final int userId) {
 		// 启动线程获取数据

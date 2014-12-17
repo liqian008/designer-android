@@ -36,6 +36,7 @@ import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumCommentDB;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.db.album.AlbumSlideDB;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
@@ -102,121 +103,127 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	private InputMethodManager inputManager;
 	
-	private Handler handler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			switch(msg.what){
-				case HANDLER_FLAG_ALBUMINFO_RESULT:
-					if(successResult){
-						Map<String, Object> albumDataMap = (Map<String, Object>) apiResult.getData();
-						if(albumDataMap!=null){
-							Album albumInfo = (Album) albumDataMap.get("albumInfo");
-							List<AlbumSlide> slideList = albumInfo.getSlideList();
-							isLike = albumInfo.isLike();
-							isFavorite = albumInfo.isFavorite();
-							if(isLike){//赞操作
-								btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
-							}else{
-								btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
-							}
-							if(isFavorite){
-								btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
-							}else{
-								btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
-							}
-							
-							//先将slide列表存入db
-							AlbumSlideDB.deleteByAlbumId(context, albumId);
-							AlbumSlideDB.save(context, slideList);
-							
-							slideAdapter.setSlideList(slideList);
-							slideAdapter.notifyDataSetChanged();
-						}
-					}else{
-//						UiUtil.showShortToast(context, "获取专辑信息失败，请重试");
-						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
-					}
-					break;
-				case HANDLER_FLAG_COMMENTS_RESULT:
-					//关闭刷新控件
-					pullRefresh.onRefreshComplete();
-					if(successResult){
-						Map<String, Object> commentDataMap = (Map<String, Object>) apiResult.getData();
-						if(commentDataMap!=null){
-							//解析响应数据
-							Long fromTailId = (Long) commentDataMap.get("fromTailId");
-							Long newTailId = (Long) commentDataMap.get("newTailId");
-							List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
-							if(commentList!=null&&commentList.size()>0){
-								if(newTailId!=null&&newTailId>0){//还有可加载的数据
-									commentsTailId = newTailId;
-									pullRefresh.setMode(Mode.BOTH);
+	private Handler handler;
+	private OnClickListener onClickListener;
+	
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch(msg.what){
+					case HANDLER_FLAG_ALBUMINFO_RESULT:
+						if(successResult){
+							Map<String, Object> albumDataMap = (Map<String, Object>) apiResult.getData();
+							if(albumDataMap!=null){
+								Album albumInfo = (Album) albumDataMap.get("albumInfo");
+								List<AlbumSlide> slideList = albumInfo.getSlideList();
+								isLike = albumInfo.isLike();
+								isFavorite = albumInfo.isFavorite();
+								if(isLike){//赞操作
+									btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
 								}else{
-									commentsTailId = 0;
-									pullRefresh.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+									btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unliked), null,null,null);
+								}
+								if(isFavorite){
+									btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+								}else{
+									btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 								}
 								
-								List<Comment> oldCommentList = commentsAdapter.getCommentList();
-								//判断加载位置，以确定是list增量还是覆盖
-								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
-								if(fallloadAppend){//上拉加载更多，需添加至list的结尾
-									oldCommentList.addAll(commentList);
-								}else{//下拉加载，需覆盖原数据
-									//先将评论存入db
-									AlbumCommentDB.deleteByAlbumId(context, albumId);
-									AlbumCommentDB.save(context, commentList);
-									
-									oldCommentList = null;
-									oldCommentList = commentList; 
-								}
-								commentsAdapter.setCommentList(oldCommentList);
-								commentsAdapter.notifyDataSetChanged();
+								//先将slide列表存入db
+								AlbumSlideDB.deleteByAlbumId(context, albumId);
+								AlbumSlideDB.save(context, slideList);
+								
+								slideAdapter.setSlideList(slideList);
+								slideAdapter.notifyDataSetChanged();
 							}
+						}else{
+	//						UiUtil.showShortToast(context, "获取专辑信息失败，请重试");
+							UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 						}
-					}else{
-						UiUtil.showShortToast(context, "获取评论数据失败，请重试");
-					}
-					break;
-				case HANDLER_FLAG_COMMENT_POST_RESULT: //评论成功
-					NotificationBuilder.createNotification(context, "评论成功...");
-					commentInput.setText("");//清空评论框内容
-					//隐藏软键盘
-					inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
-					//重新加载评论列表
-					getAlbumComments(0);
-					break;
-				case HANDLER_FLAG_LIKE_POST: //赞成功
-					AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
-					NotificationBuilder.createNotification(context, "赞操作成功...");
-					likeAmount+=1;//增加赞数量
-					btnLike.setText("喜欢("+String.valueOf(likeAmount)+")");
-					isLike = false;
-					break;
-//				case HANDLER_FLAG_UNLIKE_POST: //取消赞成功
-//					NotificationBuilder.createNotification(context, "取消赞成功...");
-//					break;
-				case HANDLER_FLAG_FAVORITE_POST: //收藏成功
-					AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
-					NotificationBuilder.createNotification(context, "收藏成功...");
-					favoriteAmount+=1;//增加收藏数量
-					btnFavorite.setText("收藏("+String.valueOf(likeAmount)+")");
-					isFavorite = true;
-					break;
-				case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
-					AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
-					NotificationBuilder.createNotification(context, "取消收藏成功...");
-					favoriteAmount = favoriteAmount<1?0:favoriteAmount-1;//扣减收藏数量
-					btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
-					isFavorite = false;
-					break;
-				default:
-					break;
-			}
+						break;
+					case HANDLER_FLAG_COMMENTS_RESULT:
+						//关闭刷新控件
+						pullRefresh.onRefreshComplete();
+						if(successResult){
+							Map<String, Object> commentDataMap = (Map<String, Object>) apiResult.getData();
+							if(commentDataMap!=null){
+								//解析响应数据
+								Long fromTailId = (Long) commentDataMap.get("fromTailId");
+								Long newTailId = (Long) commentDataMap.get("newTailId");
+								List<Comment> commentList = (List<Comment>) commentDataMap.get("commentList");
+								if(commentList!=null&&commentList.size()>0){
+									if(newTailId!=null&&newTailId>0){//还有可加载的数据
+										commentsTailId = newTailId;
+										pullRefresh.setMode(Mode.BOTH);
+									}else{
+										commentsTailId = 0;
+										pullRefresh.setMode(Mode.PULL_FROM_START);//禁用上拉刷新
+									}
+									
+									List<Comment> oldCommentList = commentsAdapter.getCommentList();
+									//判断加载位置，以确定是list增量还是覆盖
+									boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
+									if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+										oldCommentList.addAll(commentList);
+									}else{//下拉加载，需覆盖原数据
+										//先将评论存入db
+										AlbumCommentDB.deleteByAlbumId(context, albumId);
+										AlbumCommentDB.save(context, commentList);
+										
+										oldCommentList = null;
+										oldCommentList = commentList; 
+									}
+									commentsAdapter.setCommentList(oldCommentList);
+									commentsAdapter.notifyDataSetChanged();
+								}
+							}
+						}else{
+							UiUtil.showShortToast(context, "获取评论数据失败，请重试");
+						}
+						break;
+					case HANDLER_FLAG_COMMENT_POST_RESULT: //评论成功
+						NotificationBuilder.createNotification(context, "评论成功...");
+						commentInput.setText("");//清空评论框内容
+						//隐藏软键盘
+						inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
+						//重新加载评论列表
+						getAlbumComments(0);
+						break;
+					case HANDLER_FLAG_LIKE_POST: //赞成功
+						AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
+						NotificationBuilder.createNotification(context, "赞操作成功...");
+						likeAmount+=1;//增加赞数量
+						btnLike.setText("喜欢("+String.valueOf(likeAmount)+")");
+						isLike = false;
+						break;
+	//				case HANDLER_FLAG_UNLIKE_POST: //取消赞成功
+	//					NotificationBuilder.createNotification(context, "取消赞成功...");
+	//					break;
+					case HANDLER_FLAG_FAVORITE_POST: //收藏成功
+						AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
+						NotificationBuilder.createNotification(context, "收藏成功...");
+						favoriteAmount+=1;//增加收藏数量
+						btnFavorite.setText("收藏("+String.valueOf(likeAmount)+")");
+						isFavorite = true;
+						break;
+					case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
+						AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
+						NotificationBuilder.createNotification(context, "取消收藏成功...");
+						favoriteAmount = favoriteAmount<1?0:favoriteAmount-1;//扣减收藏数量
+						btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
+						isFavorite = false;
+						break;
+					default:
+						break;
+				}
+			};
 		};
-	};
+		return handler;
+	}
 	
 	
 	/**
@@ -238,6 +245,10 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_album_info);
+		handler = initHandler();
+		onClickListener = initListener();
+		
 		inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		boolean isGotoComment = getIntent().getBooleanExtra(ConstantsKey.BUNDLE_ALBUM_GOTO_COMMENT, false);
 		if(isGotoComment){//如果是点击评论按钮进入的
@@ -245,7 +256,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 		}
 		
-		setContentView(R.layout.activity_album_info);
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
@@ -282,8 +292,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
 		btnShare = (Button) albumInfoView.findViewById(R.id.btnShare);
 		
-		btnComment.setOnClickListener(onclickListener);
-		btnShare.setOnClickListener(onclickListener);
+		btnComment.setOnClickListener(onClickListener);
+		btnShare.setOnClickListener(onClickListener);
 		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)albumInfoView.findViewById(R.id.albumSlideImages);
@@ -301,7 +311,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		//评论框
 		commentInput = (EditText) findViewById(R.id.commentInput);
 		Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
-		btnCommentPost.setOnClickListener(onclickListener);
+		btnCommentPost.setOnClickListener(onClickListener);
 		
 		Intent intent = getIntent();
 		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
@@ -327,8 +337,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			}else{
 				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 			}
-			btnLike.setOnClickListener(onclickListener);
-			btnFavorite.setOnClickListener(onclickListener);
+			btnLike.setOnClickListener(onClickListener);
+			btnFavorite.setOnClickListener(onClickListener);
 			
 			//读取上个activity传入的authorInfo值
 			if(album!=null&&albumId!=null){
@@ -531,70 +541,73 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		}
 	}
 	
-	
-	private OnClickListener onclickListener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.btnCommentPost:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
-				
-				if(toId<=0) toId=designerId;//确保toId有效
-				String  commentContent = commentInput.getText().toString();
-				if(StringUtils.isBlank(commentContent)){
-					//检查内容不为空
-					UiUtil.showShortToast(context, "评论内容不能为空");
-					return;
+	private OnClickListener initListener(){
+		OnClickListener onclickListener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.btnCommentPost:
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
+					
+					if(toId<=0) toId=designerId;//确保toId有效
+					String  commentContent = commentInput.getText().toString();
+					if(StringUtils.isBlank(commentContent)){
+						//检查内容不为空
+						UiUtil.showShortToast(context, "评论内容不能为空");
+						return;
+					}
+					
+					String guestAvatar = null;
+					if(AppApplication.isGuest()){
+						//启动线程发布评论
+						UiUtil.showShortToast(context, "登录后评论，可让别人更容易找到你");
+					}
+					postComment(designerId, toId, commentContent, guestAvatar);
+					break;
+				case R.id.btnComment:
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑页中点击评论");
+					
+					toId = designerId;
+					commentInput.requestFocus();
+					commentInput.setSelection(commentInput.length());
+					//弹起软键盘
+					inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+					break;
+				case R.id.btnLike:
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_LIKE, "专辑页中点击赞");
+					
+					if(!isLike){
+	//					postLike(albumId, designerId, 1);
+						OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
+						btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
+						btnLike.setOnClickListener(null);
+					}
+					break;
+				case R.id.btnFavorite:
+					if(isFavorite){//取消收藏
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFAVORITE, "专辑页中取消收藏");
+						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
+					}else{//收藏
+						StatService.onEvent(context, ConstantsStatEvent.EVENT_FAVORITE, "专辑页中点击收藏");
+						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+					}
+					OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
+					
+					break;
+				case R.id.btnShare:
+					//构造分享对象
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE, "专辑页中点击分享");
+					
+					SharePanelView sharePanel = new SharePanelView(context, generalSharedInfo);
+					sharePanel.show(findViewById(R.id.commentPanel));
+					break;
+				default:
+					break;
 				}
-				if(AppApplication.isGuest()){
-					//启动线程发布评论
-					UiUtil.showShortToast(context, "登录后评论，可让别人更容易找到你");
-				}
-				postComment(designerId, toId, commentContent);
-				break;
-			case R.id.btnComment:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑页中点击评论");
-				
-				toId = designerId;
-				commentInput.requestFocus();
-				commentInput.setSelection(commentInput.length());
-				//弹起软键盘
-				inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
-				break;
-			case R.id.btnLike:
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_LIKE, "专辑页中点击赞");
-				
-				if(!isLike){
-//					postLike(albumId, designerId, 1);
-					OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
-					btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
-					btnLike.setOnClickListener(null);
-				}
-				break;
-			case R.id.btnFavorite:
-				if(isFavorite){//取消收藏
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFAVORITE, "专辑页中取消收藏");
-					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
-				}else{//收藏
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_FAVORITE, "专辑页中点击收藏");
-					btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
-				}
-				OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
-				
-				break;
-			case R.id.btnShare:
-				//构造分享对象
-				StatService.onEvent(context, ConstantsStatEvent.EVENT_SHARE, "专辑页中点击分享");
-				
-				SharePanelView sharePanel = new SharePanelView(context, generalSharedInfo);
-				sharePanel.show(findViewById(R.id.commentPanel));
-				break;
-			default:
-				break;
 			}
-		}
-	};
-	
+		};
+		return onclickListener;
+	}
 	
 	/**
 	 * 加载评论列表
@@ -629,20 +642,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/**
 	 * 发起评论
 	 */
-	private void postComment(final int designerId, final int toId, final String comment) {
+	private void postComment(final int designerId, final int toId, final String comment, final String avatar) {
 		//启动线程获取数据
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				Message message;
-				PostCommentApi api = new PostCommentApi(albumId, designerId, toId, comment);
+				PostCommentApi api = new PostCommentApi(albumId, designerId, toId, comment, avatar);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				
-				if(apiResult!=null&&apiResult.getResult()==1){
-					message = handler.obtainMessage(HANDLER_FLAG_COMMENT_POST_RESULT);
-					message.obj = apiResult.getData();
-					message.sendToTarget();
-				}
+				message = handler.obtainMessage(HANDLER_FLAG_COMMENT_POST_RESULT);
+				message.obj = apiResult;
+				message.sendToTarget();
 			}
 		});
 		thread.start();

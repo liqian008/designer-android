@@ -25,6 +25,7 @@ import com.bruce.designer.api.user.UserFansApi;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFan;
 import com.bruce.designer.model.result.ApiResult;
@@ -50,18 +51,25 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 	private boolean isHost;
 	
 	private PullToRefreshListView pullRefreshView =null;
-	
+
+	private Handler handler;
+
+	private OnClickListener onClickListener;
 	
 	public static void show(Context context, int queryUserId){
-		Intent intent = new Intent(context, Activity_UserFans.class);
-		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
-		context.startActivity(intent);
+		if(!AppApplication.isGuest(queryUserId)){//游客木有个人主页
+			Intent intent = new Intent(context, Activity_UserFans.class);
+			intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
+			context.startActivity(intent);
+		}
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_fans);
+		handler = initHandler();
+		onClickListener = initListener();
 		
 		Intent intent = getIntent();
 		//获取userid
@@ -73,7 +81,7 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText((isHost?"我":"TA") + "的粉丝");
 		
@@ -186,11 +194,8 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "粉丝页中打开私信");
-						if(AppApplication.isGuest()){
-							UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
-						}else{
-							Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
-						}
+						
+						Activity_MessageChat.show(context, fanUserId, fanNickname, user.getFanUser().getHeadImg());
 					}
 				});
 			}
@@ -238,49 +243,54 @@ public class Activity_UserFans extends BaseActivity implements OnRefreshListener
 		thread.start();
 	}
 	
-	
-	private Handler handler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			ApiResult jsonResult = (ApiResult) msg.obj;
-			
-			switch(msg.what){
-				case HANDLER_FLAG_USERFANS_RESULT:
-					pullRefreshView.onRefreshComplete();
-						if(jsonResult!=null&&jsonResult.getResult()==1){
-						Map<String, Object> userFansDataMap = (Map<String, Object>) jsonResult.getData();
-						if(userFansDataMap!=null){
-							List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
-							Map<Integer, Boolean> fanMap = (Map<Integer, Boolean>)  userFansDataMap.get("fanMap");
-							if(fanList!=null&&fanList.size()>0){
-								fansListAdapter.setFanUserList(fanList);
-								fansListAdapter.setFanUserMap(fanMap);
-								fansListAdapter.notifyDataSetChanged();
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				
+				switch(msg.what){
+					case HANDLER_FLAG_USERFANS_RESULT:
+						pullRefreshView.onRefreshComplete();
+						if(apiResult!=null&&apiResult.getResult()==1){
+							Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
+							if(userFansDataMap!=null){
+								List<UserFan> fanList = (List<UserFan>)  userFansDataMap.get("fanList");
+								Map<Integer, Boolean> fanMap = (Map<Integer, Boolean>)  userFansDataMap.get("fanMap");
+								if(fanList!=null&&fanList.size()>0){
+									fansListAdapter.setFanUserList(fanList);
+									fansListAdapter.setFanUserMap(fanMap);
+									fansListAdapter.notifyDataSetChanged();
+								}
 							}
+						}else{
+							//UiUtil.showShortToast(context, "获取粉丝数据失败，请重试");
+							UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 						}
-					}else{
-						//UiUtil.showShortToast(context, "获取粉丝数据失败，请重试");
-						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
-					}
+						break;
+					default:
+						break;
+				}
+			}
+		};
+		return handler;
+	}
+	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					finish();
 					break;
 				default:
 					break;
+				}
 			}
-		}
-	};
-
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				finish();
-				break;
-			default:
-				break;
-			}
-		}
-	};
+		};
+		return listener;
+	}
 	
 	
 	

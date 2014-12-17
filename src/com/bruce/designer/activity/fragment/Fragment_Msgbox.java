@@ -24,6 +24,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageBoxApi;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.result.ApiResult;
@@ -61,6 +62,9 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	
 	private List<Message> messageBoxList;
 	
+	private Handler handler;
+
+	private OnClickListener onClickListener;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,9 +72,12 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		activity = getActivity();
 		this.inflater = inflater;
 		
-		View mainView = inflater.inflate(R.layout.fragment_msgbox, null);
+		handler = initHandler();
+		onClickListener = initListener();
 		
+		View mainView = inflater.inflate(R.layout.fragment_msgbox, null);
 		initView(mainView);
+		
 		return mainView;
 	}
 
@@ -80,7 +87,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		titlebarIcon.setVisibility(View.GONE);
 		//init view
 		titlebarView = mainView.findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) mainView.findViewById(R.id.titlebar_title);
 		titleView.setText("消息中心");
 		
@@ -247,60 +254,65 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		thread.start();
 	}
 	
-	private Handler handler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(android.os.Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			
-			switch(msg.what){
-				case HANDLER_FLAG_MSGBOX_RESULT:
-					pullRefreshView.onRefreshComplete();
-					if(successResult){
-						Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
-						if(userFansDataMap!=null){
-							List<Message> messageBoxResultList = (List<Message>)  userFansDataMap.get("messageBoxList");
-							if(messageBoxResultList!=null&&messageBoxResultList.size()>0){
-								messageBoxList = messageBoxResultList;
-								//缓存本次刷新的时间
-								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(), System.currentTimeMillis());
-								
-								//判断是否有未读消息
-								boolean hasUnreadMsg = false;
-								for(Message message: messageBoxResultList){
-									if(message.getUnread()!=null&&message.getUnread()>0){
-										hasUnreadMsg = true;//有未读消息
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(activity){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(android.os.Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch(msg.what){
+					case HANDLER_FLAG_MSGBOX_RESULT:
+						pullRefreshView.onRefreshComplete();
+						if(successResult){
+							Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
+							if(userFansDataMap!=null){
+								List<Message> messageBoxResultList = (List<Message>)  userFansDataMap.get("messageBoxList");
+								if(messageBoxResultList!=null&&messageBoxResultList.size()>0){
+									messageBoxList = messageBoxResultList;
+									//缓存本次刷新的时间
+									SharedPreferenceUtil.putSharePre(activity, getRefreshKey(), System.currentTimeMillis());
+									
+									//判断是否有未读消息
+									boolean hasUnreadMsg = false;
+									for(Message message: messageBoxResultList){
+										if(message.getUnread()!=null&&message.getUnread()>0){
+											hasUnreadMsg = true;//有未读消息
+										}
 									}
+									if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
+										messageListener.unreadMsgNotify();
+									}else{
+										messageListener.unreadMsgClear();
+									}
+									messageBoxAdapter.setMessageBoxList(messageBoxResultList);
+									messageBoxAdapter.notifyDataSetChanged();
 								}
-								if(hasUnreadMsg){//如果有未读消息，则需要前端activity进行提示
-									messageListener.unreadMsgNotify();
-								}else{
-									messageListener.unreadMsgClear();
-								}
-								messageBoxAdapter.setMessageBoxList(messageBoxResultList);
-								messageBoxAdapter.notifyDataSetChanged();
+							}else{
+								UiUtil.showShortToast(activity, "获取消息数据失败，请重试");
 							}
-						}else{
-							UiUtil.showShortToast(activity, "获取消息数据失败，请重试");
 						}
-					}
-					break;
+						break;
+					default:
+						break;
+				}
+			}
+		};
+		return handler;
+	}
+	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
 				default:
 					break;
+				}
 			}
-		}
-	};
-
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			default:
-				break;
-			}
-		}
-	};
+		};
+		return listener;
+	}
 	
 
 	@Override

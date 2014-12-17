@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -30,6 +31,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -72,14 +74,22 @@ public class Fragment_Main extends BaseFragment{
 	private LayoutInflater inflater;
 	private ImageButton btnSettings;
 	
+	private Handler handler;
+	private OnClickListener onClickListener;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		activity = getActivity();
 		this.inflater = inflater;
 		
+		handler = initHandler();//初始化handler
+		onClickListener = initListener();
+		
 		mainView = inflater.inflate(R.layout.fragment_main, null);
 		initView(mainView);
+		
+		
 		return mainView;
 	}
 	
@@ -108,10 +118,10 @@ public class Fragment_Main extends BaseFragment{
 		
 		//刷新按钮及点击事件
 		btnRefresh = (ImageButton) view.findViewById(R.id.btnRefresh);
-		btnRefresh.setOnClickListener(listener);
+		btnRefresh.setOnClickListener(onClickListener);
 		//setting按钮及点击事件
 		btnSettings = (ImageButton) view.findViewById(R.id.btnSettings);
-		btnSettings.setOnClickListener(listener);
+		btnSettings.setOnClickListener(onClickListener);
 		
 		//构造viewPager
 		viewPager = (ViewPager) view.findViewById(R.id.viewPager);
@@ -124,7 +134,7 @@ public class Fragment_Main extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, tabDataHandler, mainView));
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, handler, mainView));
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -255,7 +265,7 @@ public class Fragment_Main extends BaseFragment{
 //					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
 //				}
 				
-				message = tabDataHandler.obtainMessage(tabIndex);
+				message = handler.obtainMessage(tabIndex);
 				message.obj = apiResult;
 				message.sendToTarget();
 			}
@@ -263,9 +273,10 @@ public class Fragment_Main extends BaseFragment{
 		thread.start();
 	}
 	
-	private Handler tabDataHandler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
+	private Handler initHandler(){
+		Handler tabDataHandler = new DesignerHandler(activity){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
 			int what = msg.what;
 			ApiResult apiResult = (ApiResult) msg.obj;
 			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
@@ -406,35 +417,40 @@ public class Fragment_Main extends BaseFragment{
 			}
 		};
 	};
+	return tabDataHandler;
+	}
 	
 	/**
 	 * 按钮监听listener
 	 */
-	private View.OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()){
-			case R.id.btnRefresh://刷新按钮
-				switch(currentTab){
-					case 0:
-					case 1:
-					case 2:
-						StatService.onEvent(activity, ConstantsStatEvent.EVENT_MAIN_TAB_REFRESH, "主Fragment中刷新Tab"+currentTab);
-						
-						pullRefreshViews[currentTab].setRefreshing(false);
-						break;
+	private View.OnClickListener initListener(){
+		View.OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()){
+				case R.id.btnRefresh://刷新按钮
+					switch(currentTab){
+						case 0:
+						case 1:
+						case 2:
+							StatService.onEvent(activity, ConstantsStatEvent.EVENT_MAIN_TAB_REFRESH, "主Fragment中刷新Tab"+currentTab);
+							
+							pullRefreshViews[currentTab].setRefreshing(false);
+							break;
+					}
+					break;
+				case R.id.btnSettings:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "主Fragment中查看设置");
+					
+					Activity_Settings.show(activity);
+					break;
+				default:
+					break;
 				}
-				break;
-			case R.id.btnSettings:
-				StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "主Fragment中查看设置");
-				
-				Activity_Settings.show(activity);
-				break;
-			default:
-				break;
 			}
-		}
-	};
+		};
+		return listener;
+	}
 	
 	/**
 	 * 根据tabIndex生成记录其刷新的sp-key

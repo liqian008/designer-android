@@ -278,6 +278,39 @@
                 android:textSize="12.0sp"
                 android:visibility="gone" 
                />
+               
+               <Button
+                android:id="@+id/btnNewAlbum"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="发布作品"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp"
+                android:visibility="gone" 
+               />
+               
+               <Button
+                android:id="@+id/btnApplyDesigner"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="申请设计矢"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp"
+                android:visibility="gone" 
+               />
+               
+               <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/button_green_bg"
+                android:text="登 录"
+                android:textColor="#ffffffff"
+                android:textSize="12.0sp"
+                android:visibility="gone" 
+               />
             </RelativeLayout>
             
             

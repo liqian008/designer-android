@@ -27,6 +27,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
@@ -56,18 +57,25 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 	private boolean isHost;
 	
 	private PullToRefreshListView pullRefreshView =null;
+	private Handler handler;
+	private OnClickListener onClickListener;
 	
 	
 	public static void show(Context context, int queryUserId){
-		Intent intent = new Intent(context, Activity_UserFollows.class);
-		intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
-		context.startActivity(intent);
+		if(!AppApplication.isGuest(queryUserId)){//游客木有个人主页
+			Intent intent = new Intent(context, Activity_UserFollows.class);
+			intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
+			context.startActivity(intent);
+		}
 	}
 		
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_user_follows);
+		handler = initHandler();
+		onClickListener = initListener();
+		
 		
 		Intent intent = getIntent();
 		//获取userid
@@ -76,7 +84,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(listener);
+		titlebarView.setOnClickListener(onClickListener);
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText((isHost?"我":"TA") + "的关注");
 		
@@ -299,57 +307,62 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 		thread.start();
 	}
 	
-	
-	private Handler handler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			switch(msg.what){
-				case HANDLER_FLAG_USERFOLLOWS_RESULT:
-					pullRefreshView.onRefreshComplete();
-					if(successResult){
-						Map<String, Object> userFollowsDataMap = (Map<String, Object>) apiResult.getData();
-						if(userFollowsDataMap!=null){
-							List<UserFollow> followList = (List<UserFollow>)  userFollowsDataMap.get("followList");
-							Map<Integer, Boolean> followMap = (Map<Integer, Boolean>)  userFollowsDataMap.get("followMap");
-							if(followList!=null&&followList.size()>0){
-								followsListAdapter.setFollowUserList(followList);
-								followsListAdapter.setFollowUserMap(followMap);
-								followsListAdapter.notifyDataSetChanged();
+	private Handler initHandler(){
+		Handler handler = new DesignerHandler(context){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				switch(msg.what){
+					case HANDLER_FLAG_USERFOLLOWS_RESULT:
+						pullRefreshView.onRefreshComplete();
+						if(successResult){
+							Map<String, Object> userFollowsDataMap = (Map<String, Object>) apiResult.getData();
+							if(userFollowsDataMap!=null){
+								List<UserFollow> followList = (List<UserFollow>)  userFollowsDataMap.get("followList");
+								Map<Integer, Boolean> followMap = (Map<Integer, Boolean>)  userFollowsDataMap.get("followMap");
+								if(followList!=null&&followList.size()>0){
+									followsListAdapter.setFollowUserList(followList);
+									followsListAdapter.setFollowUserMap(followMap);
+									followsListAdapter.notifyDataSetChanged();
+								}
 							}
+						}else{
+							//UiUtil.showShortToast(context, "获取关注数据失败，请重试");
+							UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 						}
-					}else{
-						//UiUtil.showShortToast(context, "获取关注数据失败，请重试");
-						UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
-					}
-					break;
-				case HANDLER_FLAG_FOLLOW_RESULT:
-					//广播
-					NotificationBuilder.createNotification(context, successResult?"您已成功关注":"关注失败");
-					break;
-				case HANDLER_FLAG_UNFOLLOW_RESULT:
-					//广播
-					NotificationBuilder.createNotification(context, successResult?"取消关注成功":"取消关注失败");
+						break;
+					case HANDLER_FLAG_FOLLOW_RESULT:
+						//广播
+						NotificationBuilder.createNotification(context, successResult?"您已成功关注":"关注失败");
+						break;
+					case HANDLER_FLAG_UNFOLLOW_RESULT:
+						//广播
+						NotificationBuilder.createNotification(context, successResult?"取消关注成功":"取消关注失败");
+						break;
+					default:
+						break;
+				}
+			}
+		};
+		return handler;
+	}
+	
+	private OnClickListener initListener(){
+		OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()) {
+				case R.id.titlebar_return:
+					finish();
 					break;
 				default:
 					break;
+				}
 			}
-		}
-	};
-	
-	private OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()) {
-			case R.id.titlebar_return:
-				finish();
-				break;
-			default:
-				break;
-			}
-		}
-	};
+		};
+		return listener;
+	}
 	
 	
 	/**

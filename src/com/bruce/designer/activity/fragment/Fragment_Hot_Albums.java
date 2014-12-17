@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -28,6 +29,7 @@ import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.db.album.AlbumDB;
+import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.IOnAlbumListener;
 import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -68,21 +70,28 @@ public class Fragment_Hot_Albums extends BaseFragment{
 	
 	private ImageButton btnRefresh;
 	
+	private Handler handler;
+	private OnClickListener onClickListener; 
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		activity = getActivity();
 		this.inflater = inflater;
 		
+		handler = initHandler();
+		onClickListener = initListener();
+		
 		View mainView = inflater.inflate(R.layout.fragment_hot_albums, null);
 		initView(mainView);
+		
 		return mainView;
 	}
 	
 	private void initView(View mainView) {
 		//刷新按钮
 		btnRefresh = (ImageButton)mainView.findViewById(R.id.btnRefresh);
-		btnRefresh.setOnClickListener(listener);
+		btnRefresh.setOnClickListener(onClickListener);
 		btnRefresh.setVisibility(View.VISIBLE);
 		
 		
@@ -119,7 +128,7 @@ public class Fragment_Hot_Albums extends BaseFragment{
 			pullRefreshViews[i].setMode(Mode.PULL_FROM_START);
 			pullRefreshViews[i].setOnRefreshListener(new TabedRefreshListener(i));
 			listViews[i] = pullRefreshViews[i].getRefreshableView();
-			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, tabDataHandler, mainView));
+			listViewAdapters[i] = new DesignerAlbumsAdapter(activity, null, new OnAlbumListener(activity, handler, mainView));
 			listViews[i].setAdapter(listViewAdapters[i]);
 			
 			//将views加入viewPager
@@ -237,14 +246,14 @@ public class Fragment_Hot_Albums extends BaseFragment{
 				
 				ApiResult apiResult = ApiManager.invoke(activity, api);
 //				if(jsonResult!=null&&jsonResult.getResult()==1){
-//					message = tabDataHandler.obtainMessage(tabIndex);
+//					message = handler.obtainMessage(tabIndex);
 //					message.obj = jsonResult.getData();
 //					message.sendToTarget(); 
 //				}else{//发送失败消息
 //					int errorFlag = HANDLER_FLAG_ERROR;
-//					tabDataHandler.obtainMessage(errorFlag).sendToTarget();
+//					handler.obtainMessage(errorFlag).sendToTarget();
 //				}
-				message = tabDataHandler.obtainMessage(tabIndex);
+				message = handler.obtainMessage(tabIndex);
 				message.obj = apiResult;
 				message.sendToTarget();
 			}
@@ -253,131 +262,136 @@ public class Fragment_Hot_Albums extends BaseFragment{
 		thread.start();
 	}
 	
-	private Handler tabDataHandler = new Handler(){
-		@SuppressWarnings("unchecked")
-		public void handleMessage(Message msg) {
-			int what = msg.what;
-			ApiResult apiResult = (ApiResult) msg.obj;
-			boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
-			
-			switch(what){
-				case HANDLER_FLAG_TAB0_RESULT:
-				case HANDLER_FLAG_TAB1_RESULT:
-				case HANDLER_FLAG_TAB2_RESULT:
-					pullRefreshViews[what].onRefreshComplete();
-					if(successResult){
-						int tabIndex = what;
-						Map<String, Object> tabedDataMap = (Map<String, Object>) apiResult.getData();
-						if(tabedDataMap!=null){
-							List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
+	private Handler initHandler(){
+		Handler tabDataHandler = new DesignerHandler(activity){
+			@SuppressWarnings("unchecked")
+			public void processHandlerMessage(Message msg) {
+				int what = msg.what;
+				ApiResult apiResult = (ApiResult) msg.obj;
+				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
+				
+				switch(what){
+					case HANDLER_FLAG_TAB0_RESULT:
+					case HANDLER_FLAG_TAB1_RESULT:
+					case HANDLER_FLAG_TAB2_RESULT:
+						pullRefreshViews[what].onRefreshComplete();
+						if(successResult){
+							int tabIndex = what;
+							Map<String, Object> tabedDataMap = (Map<String, Object>) apiResult.getData();
+							if(tabedDataMap!=null){
+								List<Album> albumList = (List<Album>) tabedDataMap.get("albumList");
+								if(albumList!=null&&albumList.size()>0){
+									
+									AlbumDB.deleteHotByTab(activity, tabIndex);
+									AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
+									
+									listViewAdapters[tabIndex].setAlbumList(albumList);
+									listViewAdapters[tabIndex].notifyDataSetChanged();
+									//缓存本次刷新的时间
+									SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
+								}
+							}
+						}else{
+							UiUtil.showShortToast(activity, "获取数据失败，请重试");
+						}
+						break;
+					case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
+						if(successResult){
+							int likedAlbumId = (Integer) apiResult.getData();
+							AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+							//更新ui展示
+							List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
+							if(albumList4Like!=null&&albumList4Like.size()>0){
+								for(Album album: albumList4Like){
+									if(album.getId()!=null&&album.getId()==likedAlbumId){
+										album.setLike(true);
+										long likeCount = album.getLikeCount();
+										album.setLikeCount(likeCount+1);
+										break;
+									}
+								}
+								listViewAdapters[currentTab].notifyDataSetChanged();
+							}
+							}
+						//发送广播
+						NotificationBuilder.createNotification(activity, successResult?"赞操作成功...":"赞操作失败...");
+						break;
+					case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
+						if(successResult){
+							int favoritedAlbumId = (Integer) apiResult.getData();
+							AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+							//更新ui展示
+							List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
+							if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+								for(Album album: albumList4Favorite){
+									if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+										long favoriteCount = album.getFavoriteCount();
+										album.setFavoriteCount(favoriteCount+1);
+										album.setFavorite(true);
+										break;
+									}
+								}
+								listViewAdapters[currentTab].notifyDataSetChanged();
+							}
+						}
+						//发送广播
+						NotificationBuilder.createNotification(activity, successResult?"收藏成功...":"收藏失败...");
+						break;
+					case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
+						if(successResult){
+							int unfavoritedAlbumId = (Integer) apiResult.getData();
+							AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+							//更新ui展示
+							List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
 							if(albumList!=null&&albumList.size()>0){
-								
-								AlbumDB.deleteHotByTab(activity, tabIndex);
-								AlbumDB.saveHotAlbumsByTab(activity, albumList, tabIndex);
-								
-								listViewAdapters[tabIndex].setAlbumList(albumList);
-								listViewAdapters[tabIndex].notifyDataSetChanged();
-								//缓存本次刷新的时间
-								SharedPreferenceUtil.putSharePre(activity, getRefreshKey(tabIndex), System.currentTimeMillis());
-							}
-						}
-					}else{
-						UiUtil.showShortToast(activity, "获取数据失败，请重试");
-					}
-					break;
-				case IOnAlbumListener.HANDLER_FLAG_LIKE_POST_RESULT: //赞成功
-					if(successResult){
-						int likedAlbumId = (Integer) apiResult.getData();
-						AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
-						//更新ui展示
-						List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
-						if(albumList4Like!=null&&albumList4Like.size()>0){
-							for(Album album: albumList4Like){
-								if(album.getId()!=null&&album.getId()==likedAlbumId){
-									album.setLike(true);
-									long likeCount = album.getLikeCount();
-									album.setLikeCount(likeCount+1);
-									break;
+								for(Album album: albumList){
+									if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+										long favoriteCount = album.getFavoriteCount();
+										album.setFavoriteCount(favoriteCount-1);
+										album.setFavorite(false);
+										break;
+									}
 								}
+								listViewAdapters[currentTab].notifyDataSetChanged();
 							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
 						}
-						}
-					//发送广播
-					NotificationBuilder.createNotification(activity, successResult?"赞操作成功...":"赞操作失败...");
-					break;
-				case IOnAlbumListener.HANDLER_FLAG_FAVORITE_POST_RESULT: //收藏成功
-					if(successResult){
-						int favoritedAlbumId = (Integer) apiResult.getData();
-						AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
-						//更新ui展示
-						List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
-						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
-							for(Album album: albumList4Favorite){
-								if(album.getId()!=null&&album.getId()==favoritedAlbumId){
-									long favoriteCount = album.getFavoriteCount();
-									album.setFavoriteCount(favoriteCount+1);
-									album.setFavorite(true);
-									break;
-								}
-							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
-						}
-					}
-					//发送广播
-					NotificationBuilder.createNotification(activity, successResult?"收藏成功...":"收藏失败...");
-					break;
-				case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
-					if(successResult){
-						int unfavoritedAlbumId = (Integer) apiResult.getData();
-						AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
-						//更新ui展示
-						List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
-						if(albumList!=null&&albumList.size()>0){
-							for(Album album: albumList){
-								if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
-									long favoriteCount = album.getFavoriteCount();
-									album.setFavoriteCount(favoriteCount-1);
-									album.setFavorite(false);
-									break;
-								}
-							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
-						}
-					}
-					//发送广播
-					NotificationBuilder.createNotification(activity, successResult?"取消收藏成功...":"取消收藏失败...");
-					break;
-				default:
-					break;
-			}
+						//发送广播
+						NotificationBuilder.createNotification(activity, successResult?"取消收藏成功...":"取消收藏失败...");
+						break;
+					default:
+						break;
+				}
+			};
 		};
-	};
+		return tabDataHandler;
+	}
 	
 	/**
 	 * 按钮监听listener
 	 */
-	private View.OnClickListener listener = new OnSingleClickListener() {
-		@Override
-		public void onSingleClick(View view) {
-			switch (view.getId()){
-			case R.id.btnRefresh://刷新按钮
-				switch(currentTab){
-					case 0:
-					case 1:
-					case 2:
-						StatService.onEvent(activity, ConstantsStatEvent.EVENT_HOT_ALBUMS_TAB_REFRESH, "热门作品Fragment中刷新Tab"+currentTab);
-						
-						pullRefreshViews[currentTab].setRefreshing(false);
-						break;
+	private View.OnClickListener initListener(){
+		View.OnClickListener listener = new OnSingleClickListener() {
+			@Override
+			public void onSingleClick(View view) {
+				switch (view.getId()){
+				case R.id.btnRefresh://刷新按钮
+					switch(currentTab){
+						case 0:
+						case 1:
+						case 2:
+							StatService.onEvent(activity, ConstantsStatEvent.EVENT_HOT_ALBUMS_TAB_REFRESH, "热门作品Fragment中刷新Tab"+currentTab);
+							
+							pullRefreshViews[currentTab].setRefreshing(false);
+							break;
+					}
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
 			}
-		}
-	};
-	
+		};
+		return listener;
+	}
 	/**
 	 * 根据tabIndex生成记录其刷新的sp-key
 	 * @param tabIndex
