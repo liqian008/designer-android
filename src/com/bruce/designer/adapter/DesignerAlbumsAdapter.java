@@ -32,10 +32,10 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 		private Context context;
 		private IOnAlbumListener onAlbumListener;
 		
-		public DesignerAlbumsAdapter(Context context, List<Album> albumList) {
-			this.context = context;
-			this.albumList = albumList;
-		}
+//		public DesignerAlbumsAdapter(Context context, List<Album> albumList) {
+//			this.context = context;
+//			this.albumList = albumList;
+//		}
 		
 		
 		public DesignerAlbumsAdapter(Context context, List<Album> albumList, IOnAlbumListener onShareListener) {
@@ -134,7 +134,6 @@ public class DesignerAlbumsAdapter extends BaseAdapter {
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑列表中点击评论");
-						
 						
 						onAlbumListener.onComment(album);
 					}

@@ -22,7 +22,10 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.FavoriteAlbumsListApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.handler.DesignerHandler;
+import com.bruce.designer.listener.IOnAlbumListener;
+import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
@@ -41,7 +44,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	
 	private static final int HANDLER_FLAG_SLIDE_RESULT = 1;
 	
-	private static final int HANDLER_FLAG_UNFAVORITE_POST = 11;
+//	private static final int HANDLER_FLAG_UNFAVORITE_POST = 11;
 	
 	private View titlebarView;
 
@@ -103,7 +106,6 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 									}else{//下拉加载，需覆盖原数据
 										//TODO saveToDB
 										
-										
 										oldAlbumList = null;
 										oldAlbumList = albumList;
 									}
@@ -116,8 +118,28 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 							UiUtil.showShortToast(context, Config.RESPONSE_ERROR);
 						}
 						break;
-					case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
-						NotificationBuilder.createNotification(context, "取消收藏成功...");
+					case IOnAlbumListener.HANDLER_FLAG_UNFAVORITE_POST_RESULT: //取消收藏成功
+//						NotificationBuilder.createNotification(context, "取消收藏成功...");
+//						break;
+						if(successResult){
+							int unfavoritedAlbumId = (Integer) apiResult.getData(); 
+							AlbumDB.updateFavoriteStatus(context, unfavoritedAlbumId, 0, -1);//更新db状态
+							//更新ui展示
+							List<Album> albumList = albumListAdapter.getAlbumList();
+							if(albumList!=null&&albumList.size()>0){
+								for(int i=albumList.size()-1;i>=0;i--){
+									Album album = albumList.get(i);
+									if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+										albumList.remove(i);
+										continue;
+									}
+								}
+								albumListAdapter.notifyDataSetChanged();
+							}
+						}
+						//发送广播
+//						NotificationBuilder.createNotification(context, successResult?"取消收藏成功...":"取消收藏失败...");
+						UiUtil.showShortToast(context, successResult?"取消收藏成功":"取消收藏失败");
 						break;
 					default:
 						break;
@@ -131,7 +153,9 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_my_favorites);
+		
+		View mainView = inflater.inflate(R.layout.activity_my_favorites, null);
+		setContentView(mainView);
 		handler = initHandler();
 		onClickListener = initListener();
 		
@@ -147,7 +171,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 		pullRefreshView.setMode(Mode.PULL_FROM_START);
 		pullRefreshView.setOnRefreshListener(this);
 		ListView albumListView = pullRefreshView.getRefreshableView();
-		albumListAdapter = new DesignerAlbumsAdapter(context, null);
+		albumListAdapter = new DesignerAlbumsAdapter(context, null, new OnAlbumListener(context, handler, mainView));
 		albumListView.setAdapter(albumListAdapter);
 		
 		//获取我的收藏数据
