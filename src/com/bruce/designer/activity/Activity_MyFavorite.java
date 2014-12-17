@@ -20,7 +20,6 @@ import com.bruce.designer.adapter.AlbumSlidesAdapter;
 import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.FavoriteAlbumsListApi;
-import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.handler.DesignerHandler;
@@ -29,6 +28,7 @@ import com.bruce.designer.listener.OnAlbumListener;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.UiUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.Mode;
@@ -42,7 +42,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
  */
 public class Activity_MyFavorite extends BaseActivity implements OnRefreshListener2<ListView>{
 	
-	private static final int HANDLER_FLAG_SLIDE_RESULT = 1;
+	private static final int HANDLER_FLAG_FAVORITES_RESULT = 1;
 	
 //	private static final int HANDLER_FLAG_UNFAVORITE_POST = 11;
 	
@@ -67,7 +67,8 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 			Intent intent = new Intent(context, Activity_MyFavorite.class);
 			context.startActivity(intent);
 		}else{
-			UiUtil.showShortToast(context, "游客身份无法查看收藏，请先登录");
+			//UiUtil.showShortToast(context, "游客身份无法查看收藏，请先登录");
+			DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法查看收藏，请先登录");
 		}
 	}
 	
@@ -78,7 +79,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 				ApiResult apiResult = (ApiResult) msg.obj;
 				boolean successResult = (apiResult!=null&&apiResult.getResult()==1);
 				switch(msg.what){
-					case HANDLER_FLAG_SLIDE_RESULT:
+					case HANDLER_FLAG_FAVORITES_RESULT:
 						pullRefreshView.onRefreshComplete();
 						if(successResult){
 							Map<String, Object> albumsDataMap = (Map<String, Object>) apiResult.getData();
@@ -205,7 +206,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 				
 				FavoriteAlbumsListApi api = new FavoriteAlbumsListApi(favoriteTailId);
 				ApiResult apiResult = ApiManager.invoke(context, api);
-				message = handler.obtainMessage(HANDLER_FLAG_SLIDE_RESULT);
+				message = handler.obtainMessage(HANDLER_FLAG_FAVORITES_RESULT);
 				message.obj = apiResult;
 				message.sendToTarget();
 				

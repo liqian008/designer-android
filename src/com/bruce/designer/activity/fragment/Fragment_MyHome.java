@@ -45,6 +45,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.ImageUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.TimeUtil;
@@ -254,7 +255,6 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		View mainView = inflater.inflate(R.layout.activity_user_home, null);
 		initView(mainView);
 		
-		
 		return mainView;
 	}
 
@@ -317,7 +317,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		
 		btnLogin = (Button)headerView.findViewById(R.id.btnLogin);
 		btnApplyDesigner = (Button)headerView.findViewById(R.id.btnApplyDesigner);
-		btnNewAlbum = (Button)headerView.findViewById(R.id.btnNewAlbum);
+		btnNewAlbum = (Button)headerView.findViewById(R.id.btnCreateAlbum);
 		
 		if(AppApplication.isGuest()){
 			btnLogin.setOnClickListener(onClickListener);
@@ -426,12 +426,20 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				case R.id.followsContainer:
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FOLLOWS, "我的Fragment中查看关注页");
 					
-					Activity_UserFollows.show(activity, HOST_ID);
+					if(AppApplication.isGuest()){
+						DesignerUtil.guideGuestLogin(activity, "提示", "游客身份无法查看关注，请先登录");
+					}else{
+						Activity_UserFollows.show(activity, HOST_ID);
+					}
 					break;
 				case R.id.fansContainer:
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FANS, "我的Fragment中查看粉丝页");
 					
-					Activity_UserFans.show(activity, HOST_ID);
+					if(AppApplication.isGuest()){
+						DesignerUtil.guideGuestLogin(activity, "提示", "游客身份无法查看粉丝，请先登录");
+					}else{
+						Activity_UserFans.show(activity, HOST_ID);
+					}
 					break;
 				case R.id.btnMyFavorite:
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中查看收藏");
@@ -443,13 +451,12 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					//跳转到登录界面
 					AppManager.getInstance().finishAllActivity();
 					Intent loginIntent = new Intent(activity, Activity_Login.class);
-					loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-					activity.startActivity(loginIntent);;
+					activity.startActivity(loginIntent);
 					break;
-				case R.id.btnNewAlbum:
-					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中发布作品");
+				case R.id.btnCreateAlbum:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_CREATE_ALBUM, "我的Fragment中发布作品");
 					
-					UiUtil.showAlertDialog(activity, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行发布", "我知道了", new DialogInterface.OnClickListener() {
+					UiUtil.showAlertDialog(activity, true, null, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行发布", "我知道了", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int arg1) {
 							 dialog.dismiss(); //销毁窗口
@@ -457,9 +464,9 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					}, null,null).show();
 					break;
 				case R.id.btnApplyDesigner:
-					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中申请");
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_APPLY_DESIGNER, "我的Fragment中申请");
 					
-					UiUtil.showAlertDialog(activity, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行申请", "我知道了", new DialogInterface.OnClickListener() {
+					UiUtil.showAlertDialog(activity, true, null, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行申请", "我知道了", new DialogInterface.OnClickListener() {
 						@Override
 						public void onClick(DialogInterface dialog, int arg1) {
 							 dialog.dismiss(); //销毁窗口
@@ -473,11 +480,13 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				case R.id.btnUserInfo:
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_PROFILE, "我的Fragment中点击个人资料");
 					
-					
-					//Activity_UserInfo.show(activity, HOST_ID);
-					Intent intent = new Intent(activity, Activity_UserInfo.class);
-					intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
-					startActivityForResult(intent, REQUEST_CODE_USERINFO);
+					if(AppApplication.isGuest()){
+						Activity_UserInfo.show(activity, HOST_ID);
+					}else{
+						Intent intent = new Intent(activity, Activity_UserInfo.class);
+						intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, HOST_ID);
+						startActivityForResult(intent, REQUEST_CODE_USERINFO);
+					}
 					break;
 				default:
 					break;

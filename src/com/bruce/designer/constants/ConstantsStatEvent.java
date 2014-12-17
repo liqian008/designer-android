@@ -27,7 +27,12 @@ public interface ConstantsStatEvent {
 	// 热门刷新事件
 	public static final String EVENT_HOT_ALBUMS_TAB_REFRESH = "event_hot_albums_tab_refresh";
 	
-
+	
+	// 申请设计师
+	public static final String EVENT_APPLY_DESIGNER = "event_apply_designer";
+	// 发布作品
+	public static final String EVENT_CREATE_ALBUM = "event_create_album";
+		
 	// 查看个人主页点击事件
 	public static final String EVENT_VIEW_HOME = "event_view_home";
 	// 查看个人资料点击事件
@@ -49,7 +54,6 @@ public interface ConstantsStatEvent {
 	// 查看消息列表事件
 	public static final String EVENT_VIEW_MSGLIST = "event_view_msglist";
 
-	
 	
 	// 评论点击事件
 	public static final String EVENT_COMMENT = "event_comment";

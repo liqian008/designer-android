@@ -13,6 +13,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
+import com.bruce.designer.util.StringUtils;
 import com.google.gson.reflect.TypeToken;
 
 public class AlbumListApi extends AbstractApi{
@@ -42,14 +43,15 @@ public class AlbumListApi extends AbstractApi{
 				jsonData = new JSONObject(dataStr);
 				int fromTailId = jsonData.optInt("fromTailId", 0);
 				int newTailId = jsonData.optInt("newTailId", 0);
-				String albumListStr = jsonData.getString("albumList");
-				if(albumListStr!=null){
-					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
-					dataMap.put("fromTailId", fromTailId);
-					dataMap.put("newTailId", newTailId);
-					dataMap.put("albumList", albumList);
-					return ResponseBuilderUtil.buildSuccessResult(dataMap);
+				String albumListStr = jsonData.optString("albumList", "");
+				List<Album> albumList = null;
+				if(!StringUtils.isBlank(albumListStr)){
+					albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
 				}
+				dataMap.put("fromTailId", fromTailId);
+				dataMap.put("newTailId", newTailId);
+				dataMap.put("albumList", albumList);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

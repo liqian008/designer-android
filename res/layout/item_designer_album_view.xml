@@ -32,7 +32,8 @@
             android:text=""
             android:textColor="#ff252525"
             android:textSize="16.0sp"
-            android:textStyle="normal" />
+            android:textStyle="normal" 
+            />
 
         <TextView
             android:id="@+id/txtTime"
@@ -45,7 +46,9 @@
             android:gravity="right|center"
             android:text=""
             android:textColor="#ff999999"
-            android:textSize="13.0sp" />
+            android:textSize="13.0sp" 
+            android:singleLine="true"
+            />
 
         <RelativeLayout
             android:id="@+id/btnContainer"
@@ -105,11 +108,11 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:lineSpacingMultiplier="1.1"
-                    android:singleLine="true"
                     android:text=""
                     android:layout_toLeftOf="@+id/txtPrice"
                     android:layout_centerVertical="true"
                     android:textColor="#ffe66c21"
+                    android:singleLine="true"
                     android:textSize="16.0sp" />
 
                 <TextView

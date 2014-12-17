@@ -254,6 +254,7 @@
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp" 
                 android:visibility="gone" 
+                android:singleLine="true"
                 />
                 
                 <Button
@@ -265,10 +266,11 @@
                 android:textColor="#ff999999"
                 android:textSize="12.0sp"
                 android:visibility="gone" 
+                android:singleLine="true"
                />
                
                <Button
-                android:id="@+id/btnNewAlbum"
+                android:id="@+id/btnCreateAlbum"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_green_bg"
@@ -276,6 +278,7 @@
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp"
                 android:visibility="gone" 
+                android:singleLine="true"
                />
                
                <Button
@@ -283,11 +286,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/button_green_bg"
-                android:text="申请设计矢"
+                android:text="申请设计师"
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp"
                 android:visibility="gone" 
-               />
+               	android:singleLine="true"
+               	/>
                
                <Button
                 android:id="@+id/btnLogin"
@@ -297,6 +301,7 @@
                 android:text="登 录"
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp"
+                android:singleLine="true"
                 android:visibility="gone" 
                />
             </RelativeLayout>
@@ -327,6 +332,7 @@
                 android:text="我的收藏"
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp"
+                android:singleLine="true"
                 android:visibility="gone" 
                />
             	 
@@ -338,6 +344,7 @@
 	                android:text="私 信"
 	                android:textColor="#ffffffff"
 	                android:textSize="12.0sp"
+	                android:singleLine="true"
 				/>
             
             </RelativeLayout>

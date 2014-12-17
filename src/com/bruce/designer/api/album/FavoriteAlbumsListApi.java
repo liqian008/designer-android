@@ -15,6 +15,7 @@ import com.bruce.designer.model.AlbumFavorite;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
+import com.bruce.designer.util.StringUtils;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -45,13 +46,14 @@ public class FavoriteAlbumsListApi extends AbstractApi{
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			try {
 				jsonData = new JSONObject(dataStr);
-				int fromTailId = jsonData.getInt("fromTailId");
-				int newTailId = jsonData.getInt("newTailId");
-				String favoriteListStr = jsonData.getString("favoriteList");
-				if(favoriteListStr!=null){
+				int fromTailId = jsonData.optInt("fromTailId", 0);
+				int newTailId = jsonData.optInt("newTailId", 0);
+				String favoriteListStr = jsonData.optString("favoriteList", "");
+				List<Album> albumList = null;
+				if(!StringUtils.isBlank(favoriteListStr)){
 					List<AlbumFavorite> favoriteList = JsonUtil.gson.fromJson(favoriteListStr, new TypeToken<List<AlbumFavorite>>(){}.getType());
 					//需要在此将转为albumList，送给ListView adapter
-					List<Album> albumList = new ArrayList<Album>();
+					albumList = new ArrayList<Album>();
 					if(favoriteList!=null&&favoriteList.size()>0){
 						for(AlbumFavorite favorite: favoriteList){
 							Album album = favorite.getAlbum();
@@ -60,12 +62,11 @@ public class FavoriteAlbumsListApi extends AbstractApi{
 							}
 						}
 					}
-					
-					dataMap.put("albumList", albumList);
-					dataMap.put("fromTailId", fromTailId);
-					dataMap.put("newTailId", newTailId);
-					return ResponseBuilderUtil.buildSuccessResult(dataMap);
 				}
+				dataMap.put("albumList", albumList);
+				dataMap.put("fromTailId", fromTailId);
+				dataMap.put("newTailId", newTailId);
+				return ResponseBuilderUtil.buildSuccessResult(dataMap);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}

@@ -10,11 +10,10 @@ import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.PostFavoriteApi;
 import com.bruce.designer.api.album.PostLikeApi;
-import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.GenericSharedInfo;
-import com.bruce.designer.util.UiUtil;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.view.SharePanelView;
 
 public class OnAlbumListener implements IOnAlbumListener{
@@ -47,7 +46,8 @@ public class OnAlbumListener implements IOnAlbumListener{
 		if (!AppApplication.isGuest()) {
 			postLike(context, handler, albumId, designerId, mode);
 		} else {
-			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
+//			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
+			DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法赞");
 		}
 	}
 
@@ -56,7 +56,8 @@ public class OnAlbumListener implements IOnAlbumListener{
 		if (!AppApplication.isGuest()) {
 			postFavorite(context, handler, albumId, designerId, mode);
 		} else {
-			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
+//			UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);// 游客无法操作
+			DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法"+(mode==1?"":"取消")+"收藏");
 		}
 	}
 	

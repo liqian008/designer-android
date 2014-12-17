@@ -197,7 +197,7 @@ public class Activity_Login extends BaseActivity{
             	refreshToken = mAccessToken.getRefreshToken();
             	expiresTime = mAccessToken.getExpiresTime();
             	
-            	progressDialog.setMessage("微博验证通过，正在获取用户头像信息");
+            	progressDialog.setMessage("微博验证通过，正在获取个人信息");
             	thirdpartyType = "1";//新浪微博账户类型
             	LogUtil.d("=============="+mAccessToken.getUid()+"========"+ mAccessToken.getToken());
                 //向服务器提交，验证token

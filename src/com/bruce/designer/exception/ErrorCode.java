@@ -29,6 +29,8 @@ public class ErrorCode {
     public final static int E_SYS_INVALID_TICKET = 7;// invalid tikect
 
     public final static int E_SYS_INVALID_SIG = 8;// invalid sig
+    
+    public final static int E_SYS_ANTISPAM = 9;// 敏感词
 	
 
 	/* 权限相关分配100-200的错误码 */

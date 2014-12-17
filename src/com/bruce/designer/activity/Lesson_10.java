@@ -21,6 +21,7 @@ import com.bruce.designer.R;
  * @author Administrator
  * 
  */
+@Deprecated
 public class Lesson_10 extends Activity {
 
 	// BaseNotification

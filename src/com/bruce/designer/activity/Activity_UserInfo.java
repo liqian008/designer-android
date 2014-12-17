@@ -87,7 +87,7 @@ public class Activity_UserInfo extends BaseActivity {
 	private OnClickListener onClickListener;
 
 	public static void show(Context context, int queryUserId) {
-		if(!AppApplication.isGuest(queryUserId)){//游客木有个人主页
+		if(!AppApplication.isGuest(queryUserId)){//游客木有个人资料
 			Intent intent = new Intent(context, Activity_UserInfo.class);
 			intent.putExtra(ConstantsKey.BUNDLE_USER_INFO_ID, queryUserId);
 			context.startActivity(intent);

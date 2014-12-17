@@ -132,7 +132,10 @@ public class ApiManager {
 		
 		final StringBuilder sb = new StringBuilder("");
 		for (Map.Entry<String, String> entry : fullParamMap.entrySet()) {
-			sb.append(entry.getKey()).append('=').append(entry.getValue());
+			String key = entry.getKey();
+			String value = entry.getValue();
+			if(value==null) value="";
+			sb.append(key).append('=').append(value);
 		}
 
 		String value = limitedString(sb.toString(), MD5_STRING_LIMIT) + secretKey;

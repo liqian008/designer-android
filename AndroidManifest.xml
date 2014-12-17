@@ -154,10 +154,6 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.bruce.designer.activity.Activity_Test"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name="com.bruce.designer.activity.Activity_ImageBrowser"
             android:screenOrientation="portrait" >
         </activity>

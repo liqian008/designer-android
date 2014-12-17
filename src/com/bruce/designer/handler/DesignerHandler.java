@@ -8,6 +8,7 @@ import com.bruce.designer.broadcast.BroadcastSender;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.exception.ErrorCode;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.UiUtil;
 
 public abstract class DesignerHandler extends Handler {
@@ -30,12 +31,16 @@ public abstract class DesignerHandler extends Handler {
 					BroadcastSender.back2Login(context);
 					return;
 				}
-				if(errorCode==ErrorCode.CLIENT_NETWORK_UNAVAILABLE){//对于通用错误的特殊处理
+				if(errorCode==ErrorCode.CLIENT_NETWORK_UNAVAILABLE){//对于无网情况的特殊处理
 					UiUtil.showShortToast(context, Config.NETWORK_UNAVAILABLE_TEXT);
 					return;
 				}
-				if(errorCode==ErrorCode.CLIENT_GUEST_ACCESS_DENIED){//对于通用错误的特殊处理
-					UiUtil.showShortToast(context, Config.GUEST_ACCESS_DENIED_TEXT);
+				if(errorCode==ErrorCode.CLIENT_GUEST_ACCESS_DENIED){//对于游客访问权限的特殊处理
+					DesignerUtil.guideGuestLogin(context, "提示", "游客无法进行该操作，请先登录");
+					return;
+				}
+				if(errorCode==ErrorCode.E_SYS_ANTISPAM){//敏感词
+					UiUtil.showShortToast(context, apiResult.getMessage());
 					return;
 				}
 			}

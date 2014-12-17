@@ -3,7 +3,6 @@ package com.bruce.designer.api.album;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +12,7 @@ import com.bruce.designer.model.Album;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
+import com.bruce.designer.util.StringUtils;
 import com.google.gson.reflect.TypeToken;
 
 public class AlbumRecommendApi extends AbstractApi{
@@ -37,8 +37,8 @@ public class AlbumRecommendApi extends AbstractApi{
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			try {
 				jsonData = new JSONObject(dataStr);
-				String albumListStr = jsonData.getString("albumList");
-				if(albumListStr!=null){
+				String albumListStr = jsonData.optString("albumList", "");
+				if(!StringUtils.isBlank(albumListStr)){
 					List<Album> albumList = JsonUtil.gson.fromJson(albumListStr, new TypeToken<List<Album>>(){}.getType());
 					dataMap.put("albumList", albumList);
 					return ResponseBuilderUtil.buildSuccessResult(dataMap);

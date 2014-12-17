@@ -36,6 +36,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Message;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.DipUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
@@ -96,7 +97,8 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 				context.startActivity(intent);
 			}
 		}else{
-			UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+//			UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
+			DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法发送私信，请先登录");
 		}
 	}
 	

@@ -13,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.baidu.mobstat.StatService;
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.user.PostPushSettingsApi;
@@ -21,6 +22,7 @@ import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.view.SwitcherView;
@@ -56,8 +58,12 @@ public class Activity_Settings_Push extends BaseActivity {
 	private OnClickListener onClickListener;
 	
 	public static void show(Context context) {
-		Intent intent = new Intent(context, Activity_Settings_Push.class);
-		context.startActivity(intent);
+		if(!AppApplication.isGuest()){//游客身份不能操作
+			Intent intent = new Intent(context, Activity_Settings_Push.class);
+			context.startActivity(intent);
+		}else{
+			DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法进行推送设置，请先登录");
+		}
 	}
 	
 	public Handler initHandler(){

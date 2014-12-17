@@ -31,6 +31,7 @@ import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.UserFollow;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -216,7 +217,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击关注");
 						if(AppApplication.isGuest()){
-							UiUtil.showShortToast(context, "游客身份无法关注，请先登录");
+							DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法关注，请先登录");
 						}else{
 							followViewHolder.btnUnfollow.setVisibility(View.VISIBLE);
 							followViewHolder.btnFollow.setVisibility(View.GONE);
@@ -243,7 +244,7 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_FOLLOW, "关注页中点击取消关注");
 						
 						if(AppApplication.isGuest()){
-							UiUtil.showShortToast(context, "游客身份无法取消关注，请先登录");
+							DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法取消关注，请先登录");
 						}else{
 							followViewHolder.btnFollow.setVisibility(View.VISIBLE);
 							followViewHolder.btnUnfollow.setVisibility(View.GONE);
@@ -269,11 +270,8 @@ public class Activity_UserFollows extends BaseActivity implements OnRefreshListe
 					@Override
 					public void onSingleClick(View v) {
 						StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "关注页中打开私信");
-						if(AppApplication.isGuest()){
-							UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
-						}else{
-							Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
-						}
+						
+						Activity_MessageChat.show(context, followUserId, followNickname, user.getFollowUser().getHeadImg());
 					}	
 				});
 			}

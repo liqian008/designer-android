@@ -45,6 +45,7 @@ import com.bruce.designer.model.AlbumSlide;
 import com.bruce.designer.model.Comment;
 import com.bruce.designer.model.result.ApiResult;
 import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.TimeUtil;
 import com.bruce.designer.util.UiUtil;
@@ -99,7 +100,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/*评论tailId*/
 	private long commentsTailId = 0;
 	
-	private long likeAmount, favoriteAmount;//赞，收藏的数量
+	private long likeAmount, favoriteAmount, commentAmount;//赞，收藏的数量
 	
 	private InputMethodManager inputManager;
 	
@@ -190,11 +191,16 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 						commentInput.setText("");//清空评论框内容
 						//隐藏软键盘
 						inputManager.hideSoftInputFromWindow(commentInput.getWindowToken(), 0);
+						commentAmount+=1;
+						btnComment.setText("评论("+String.valueOf(commentAmount)+")");
+						
 						//重新加载评论列表
 						getAlbumComments(0);
 						break;
 					case HANDLER_FLAG_LIKE_POST: //赞成功
 						AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
+						
+						btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
 						NotificationBuilder.createNotification(context, "赞操作成功...");
 						likeAmount+=1;//增加赞数量
 						btnLike.setText("喜欢("+String.valueOf(likeAmount)+")");
@@ -205,6 +211,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	//					break;
 					case HANDLER_FLAG_FAVORITE_POST: //收藏成功
 						AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
+						
+						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
 						NotificationBuilder.createNotification(context, "收藏成功...");
 						favoriteAmount+=1;//增加收藏数量
 						btnFavorite.setText("收藏("+String.valueOf(likeAmount)+")");
@@ -212,6 +220,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 						break;
 					case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
 						AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
+						
+						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 						NotificationBuilder.createNotification(context, "取消收藏成功...");
 						favoriteAmount = favoriteAmount<1?0:favoriteAmount-1;//扣减收藏数量
 						btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
@@ -259,12 +269,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
-		titlebarView.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		titlebarView.setOnClickListener(onClickListener);
+		
 		titleView = (TextView) findViewById(R.id.titlebar_title);
 		titleView.setText("作品辑");
 		
@@ -324,6 +330,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			
 			likeAmount = album.getLikeCount();
 			favoriteAmount = album.getFavoriteCount();
+			commentAmount = album.getCommentCount();
 			
 			isLike = album.isLike();
 			isFavorite = album.isFavorite();
@@ -391,9 +398,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				//浏览，评论等交互数
 				btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");
-				btnLike.setText("喜欢("+String.valueOf(album.getLikeCount())+")");
-				btnComment.setText("评论("+String.valueOf(album.getCommentCount())+")");
-				btnFavorite.setText("收藏("+String.valueOf(album.getFavoriteCount())+")");
+				btnLike.setText("喜欢("+String.valueOf(likeAmount)+")");
+				btnComment.setText("评论("+String.valueOf(commentAmount)+")");
+				btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
 				
 				//获取db中的图片列表
 				List<AlbumSlide> albumSlideList= AlbumSlideDB.queryByAlbumId(context, albumId);
@@ -546,6 +553,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			@Override
 			public void onSingleClick(View view) {
 				switch (view.getId()) {
+				case R.id.titlebar_return:
+					finish();
+					break;
 				case R.id.btnCommentPost:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
 					
@@ -576,23 +586,28 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				case R.id.btnLike:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_LIKE, "专辑页中点击赞");
 					
-					if(!isLike){
-	//					postLike(albumId, designerId, 1);
-						OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
-						btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
-						btnLike.setOnClickListener(null);
+					if(!AppApplication.isGuest()){
+						if(!isLike){
+		//					postLike(albumId, designerId, 1);
+							OnAlbumListener.postLike(context, handler, albumId, designerId, 1);
+							btnLike.setOnClickListener(null);
+						}
+					}else{
+						DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法赞");
 					}
 					break;
 				case R.id.btnFavorite:
-					if(isFavorite){//取消收藏
-						StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFAVORITE, "专辑页中取消收藏");
-						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
-					}else{//收藏
-						StatService.onEvent(context, ConstantsStatEvent.EVENT_FAVORITE, "专辑页中点击收藏");
-						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
+					if(!AppApplication.isGuest()){
+						if(isFavorite){//取消收藏
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFAVORITE, "专辑页中取消收藏");
+							
+						}else{//收藏
+							StatService.onEvent(context, ConstantsStatEvent.EVENT_FAVORITE, "专辑页中点击收藏");
+						}
+						OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
+					}else{
+						DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法"+(isFavorite?"取消":"")+"收藏");
 					}
-					OnAlbumListener.postFavorite(context, handler, albumId, designerId, isFavorite?0:1);
-					
 					break;
 				case R.id.btnShare:
 					//构造分享对象

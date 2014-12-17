@@ -37,6 +37,7 @@ import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.Album;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.util.DesignerUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UniversalImageUtil;
@@ -444,7 +445,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中关注");
 					
 					if(AppApplication.isGuest()){
-						UiUtil.showShortToast(context, "游客身份无法关注，请先登录");
+						DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法关注，请先登录");
 					}else{
 						btnUnfollow.setVisibility(View.VISIBLE);
 						btnFollow.setVisibility(View.GONE);
@@ -463,7 +464,7 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 				case R.id.btnUnfollow:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_UNFOLLOW, "个人主页中取消关注");
 					if(AppApplication.isGuest()){
-						UiUtil.showShortToast(context, "游客身份无法取消关注，请先登录");
+						DesignerUtil.guideGuestLogin(context, "提示", "游客身份无法取消关注，请先登录");
 					}else{
 						btnFollow.setVisibility(View.VISIBLE);
 						btnUnfollow.setVisibility(View.GONE);
@@ -481,11 +482,8 @@ public class Activity_UserHome extends BaseActivity implements OnRefreshListener
 					break;
 				case R.id.btnSendMsg://发私信
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_CHAT, "个人主页中打开私信");
-					if(AppApplication.isGuest()){
-						UiUtil.showShortToast(context, "游客身份无法发送私信，请先登录");
-					}else{
-						Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
-					}
+					
+					Activity_MessageChat.show(context, queryUserId, queryUserNickname, queryUserAvatar);
 					break;
 				case R.id.btnUserInfo://个人资料页
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_VIEW_PROFILE, "个人主页中点击个人资料");

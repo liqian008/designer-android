@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.bruce.designer.R;
 
+@Deprecated
 public class Activity_Login_Bind extends BaseActivity{
 
 	public static void show(Context context){
