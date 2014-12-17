@@ -1,14 +1,12 @@
 package com.bruce.designer.broadcast;
 
-import com.bruce.designer.AppManager;
-import com.bruce.designer.activity.Activity_Login;
-import com.bruce.designer.constants.Config;
-import com.bruce.designer.constants.ConstantsKey;
-import com.bruce.designer.util.UiUtil;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.bruce.designer.AppManager;
+import com.bruce.designer.activity.Activity_Login;
+import com.bruce.designer.constants.ConstantsKey;
 
 public class DesignerReceiver extends BroadcastReceiver {
 

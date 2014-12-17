@@ -266,18 +266,6 @@
                 android:textSize="12.0sp"
                 android:visibility="gone" 
                />
-                
-                
-               <Button
-                android:id="@+id/btnMyFavorite"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/button_green_bg"
-                android:text="我的收藏"
-                android:textColor="#ffffffff"
-                android:textSize="12.0sp"
-                android:visibility="gone" 
-               />
                
                <Button
                 android:id="@+id/btnNewAlbum"
@@ -322,17 +310,37 @@
                 >
             </RelativeLayout>
              -->
-            <Button
-                android:id="@+id/btnSendMsg"
+            
+            <RelativeLayout 
+                android:id="@+id/chatContainer"
                 android:layout_width="fill_parent"
                 android:layout_height="28.0dip"
                 android:layout_marginLeft="10dp"
-                android:layout_weight="1"
+                 android:layout_weight="1"
+                >
+               
+            	<Button
+                android:id="@+id/btnMyFavorite"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:background="@drawable/button_orange_bg"
-                android:text="私 信"
+                android:text="我的收藏"
                 android:textColor="#ffffffff"
                 android:textSize="12.0sp"
-			/>
+                android:visibility="gone" 
+               />
+            	 
+	            <Button
+	                android:id="@+id/btnSendMsg"
+					android:layout_width="match_parent"
+                	android:layout_height="match_parent"
+	                android:background="@drawable/button_orange_bg"
+	                android:text="私 信"
+	                android:textColor="#ffffffff"
+	                android:textSize="12.0sp"
+				/>
+            
+            </RelativeLayout>
 
             <Button
                 android:id="@+id/btnUserInfo"

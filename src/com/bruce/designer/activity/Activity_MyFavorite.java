@@ -78,7 +78,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 					case HANDLER_FLAG_SLIDE_RESULT:
 						pullRefreshView.onRefreshComplete();
 						if(successResult){
-							Map<String, Object> albumsDataMap = (Map<String, Object>) msg.obj;
+							Map<String, Object> albumsDataMap = (Map<String, Object>) apiResult.getData();
 							if(albumsDataMap!=null){
 								List<Album> albumList = (List<Album>) albumsDataMap.get("albumList");
 								Integer fromTailId = (Integer) albumsDataMap.get("fromTailId");

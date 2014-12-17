@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +22,9 @@ import android.widget.TextView;
 
 import com.baidu.mobstat.StatService;
 import com.bruce.designer.AppApplication;
+import com.bruce.designer.AppManager;
 import com.bruce.designer.R;
+import com.bruce.designer.activity.Activity_Login;
 import com.bruce.designer.activity.Activity_MyFavorite;
 import com.bruce.designer.activity.Activity_Settings;
 import com.bruce.designer.activity.Activity_UserFans;
@@ -81,7 +84,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	
 	private TextView albumsNumView, followsNumView, fansNumView;
 	
-	private Button btnAppDesigner, btnNewAlbum,  btnMyFavorite, btnSendMsg, btnUserInfo;
+	private Button btnLogin, btnApplyDesigner, btnNewAlbum, btnMyFavorite, btnSendMsg, btnUserInfo;
 //	private Button btnPubAlbum;//发布新作品
 	
 	private ImageButton btnSettings;
@@ -305,14 +308,30 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
 		followsView.setOnClickListener(onClickListener);
 		
-		
 		btnSendMsg = (Button)headerView.findViewById(R.id.btnSendMsg);
 		btnSendMsg.setVisibility(View.GONE);
-		
 		
 		btnMyFavorite = (Button)headerView.findViewById(R.id.btnMyFavorite);
 		btnMyFavorite.setOnClickListener(onClickListener);
 		btnMyFavorite.setVisibility(View.VISIBLE);
+		
+		btnLogin = (Button)headerView.findViewById(R.id.btnLogin);
+		btnApplyDesigner = (Button)headerView.findViewById(R.id.btnApplyDesigner);
+		btnNewAlbum = (Button)headerView.findViewById(R.id.btnNewAlbum);
+		
+		if(AppApplication.isGuest()){
+			btnLogin.setOnClickListener(onClickListener);
+			btnLogin.setVisibility(View.VISIBLE);
+		}else{
+			User hostUser = AppApplication.getHostUser();
+			if(hostUser!=null&&hostUser.getDesignerStatus()!=null&&hostUser.getDesignerStatus()==2){//设计师通过
+				btnNewAlbum.setVisibility(View.VISIBLE);
+				btnNewAlbum.setOnClickListener(onClickListener);
+			}else{
+				btnApplyDesigner.setVisibility(View.VISIBLE);
+				btnApplyDesigner.setOnClickListener(onClickListener);
+			}
+		}
 		
 		//普通用户展示申请设计师，设计师展示发布新作品
 //		if(!AppApplication.isGuest()){
@@ -320,6 +339,8 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 //			btnNewAlbum.setVisibility(View.VISIBLE);
 //			btnNewAlbum.setOnClickListener(onClickListener);
 //		}
+		
+		
 		
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
 		btnUserInfo.setOnClickListener(onClickListener);
@@ -334,8 +355,6 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 	public void onResume() {
 		super.onResume();
 		if(!AppApplication.isGuest()){//登录用户进入时，才需要重刷数据
-			
-			
 			//判断缓存时间
 			long currentTime = System.currentTimeMillis();
 			String tabRefreshKey = getRefreshKey();
@@ -398,6 +417,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 			public void onSingleClick(View view) {
 	
 				switch (view.getId()) {
+				
 				case R.id.btnSettings:
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_SETTINGS, "我的Fragment中查看设置");
 					
@@ -417,6 +437,35 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中查看收藏");
 					
 					Activity_MyFavorite.show(activity);
+					break;
+				case R.id.btnLogin:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_LOGIN, "我的Fragment中点击登录");
+					//跳转到登录界面
+					AppManager.getInstance().finishAllActivity();
+					Intent loginIntent = new Intent(activity, Activity_Login.class);
+					loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					activity.startActivity(loginIntent);;
+					break;
+				case R.id.btnNewAlbum:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中发布作品");
+					
+					UiUtil.showAlertDialog(activity, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行发布", "我知道了", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int arg1) {
+							 dialog.dismiss(); //销毁窗口
+						}
+					}, null,null).show();
+					break;
+				case R.id.btnApplyDesigner:
+					StatService.onEvent(activity, ConstantsStatEvent.EVENT_VIEW_FAVORITES, "我的Fragment中申请");
+					
+					UiUtil.showAlertDialog(activity, "提示", "客户端操作受限，请前往网站【www.jinwanr.com】进行申请", "我知道了", new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int arg1) {
+							 dialog.dismiss(); //销毁窗口
+						}
+					}, null,null).show();
+					
 					break;
 	//			case R.id.btnPubAlbum:
 	//				UiUtil.showLongToast(activity, "抱歉，客户端暂不支持发布专辑\r\n请前往【金玩儿网】网站发布您的专辑作品");

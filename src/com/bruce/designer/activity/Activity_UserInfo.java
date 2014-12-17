@@ -200,7 +200,7 @@ public class Activity_UserInfo extends BaseActivity {
 			Message message = handler.obtainMessage(HANDLER_FLAG_USERINFO_RESULT);
 			Map<String, Object> dataMap = new HashMap<String, Object>();
 			dataMap.put("userinfo", userinfo);
-			message.obj = new ApiResult(1, userinfo, 0,null);
+			message.obj = new ApiResult(1, dataMap, 0, null);
 			message.sendToTarget();
 		} else {
 			// 启动获取个人资料详情
