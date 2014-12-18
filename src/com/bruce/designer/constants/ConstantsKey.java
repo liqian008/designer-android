@@ -22,8 +22,12 @@ public interface ConstantsKey {
 	public static final String BUNDLE_USER_INFO_HASFOLLOWED = "bundle_user_info_hasfollowed";
 	
 	/* 广播的action*/
-	public static final String BROADCAST_ACTION = "com.bruce.designer.action";
+//	public static final String BROADCAST_ACTION = "com.bruce.designer.action";
+	/* 广播的key*/
 	public static final String BUNDLE_BROADCAST_KEY = "bundle_broadcast_key";
+	/* album被操作的key*/
+	public static final String BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID = "bundle_broadcast_key_operated_albumid";
+	
 	
 	/* 微信登录广播的action */
 	public static final String BROADCAST_ACTION_WEIXIN_LOGIN = "com.bruce.designer.action.weixin.login";
@@ -35,6 +39,8 @@ public interface ConstantsKey {
 	public static final int BROADCAST_GUEST_DENIED = 11;
 	public static final int BROADCAST_BACK_TO_LOGIN = 12;
 	
+	public static final int BROADCAST_ALBUM_OPERATED = 100;
+	
 	public static final String LAST_REFRESH_TIME_MAIN_PREFIX = "last_refresh_main_prefix_";
 	public static final String LAST_REFRESH_TIME_HOTALBUM_PREFIX = "last_refresh_hotalbum_prefix_";
 	public static final String LAST_REFRESH_TIME_HOTDESIGNER_PREFIX = "last_refresh_hotdesigner_prefix_";
@@ -42,6 +48,25 @@ public interface ConstantsKey {
 	public static final String LAST_REFRESH_TIME_MSGBOX_PREFIX = "last_refresh_msgbox_prefix";
 	public static final String LAST_REFRESH_TIME_MYHOME_PREFIX = "last_refresh_myhome_prefix";
 	
+	/*广播action的enum*/
+	public static enum BroadcastActionEnum{
+		SYSTEM("com.bruce.designer.action.system"),
+		ALBUM_OPERATED("com.bruce.designer.action.albumOperated");
+		
+		private String action;
+		BroadcastActionEnum(String action){
+			this.action = action;
+		}
+		public String getAction() {
+			return action;
+		}
+		
+		@Override
+		public String toString() {
+			return action;
+		}
+		
+	}
 }
 
 

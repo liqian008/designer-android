@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ListView;
@@ -21,6 +22,7 @@ import com.bruce.designer.adapter.DesignerAlbumsAdapter;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.FavoriteAlbumsListApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.IOnAlbumListener;
@@ -125,6 +127,7 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 						if(successResult){
 							int unfavoritedAlbumId = (Integer) apiResult.getData(); 
 							AlbumDB.updateFavoriteStatus(context, unfavoritedAlbumId, 0, -1);//更新db状态
+							broadcastAlbumOperated(unfavoritedAlbumId);//更新db后发送广播
 							//更新ui展示
 							List<Album> albumList = albumListAdapter.getAlbumList();
 							if(albumList!=null&&albumList.size()>0){
@@ -239,4 +242,11 @@ public class Activity_MyFavorite extends BaseActivity implements OnRefreshListen
 		return listener;
 	}
 	
+	private void broadcastAlbumOperated(int albumId) {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.ALBUM_OPERATED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_ALBUM_OPERATED);
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID, albumId);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
 }

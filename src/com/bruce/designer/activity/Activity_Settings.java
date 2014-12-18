@@ -202,8 +202,8 @@ public class Activity_Settings extends BaseActivity {
 //				PushManager.stopWork(context);//只退出，不结束push
 				//清除本机的登录信息
 				AppApplication.clearAccount();
-				//清除DB缓存的数据
-				AlbumDB.delete(context, AlbumDB.TB_ALBUM_FOLLOW);//清除我的关注数据
+				//清除所有DB数据
+				AlbumDB.clearAll(context);
 				
 				AppManager.getInstance().finishAllActivity();
 				UiUtil.showShortToast(context, "注销成功");
