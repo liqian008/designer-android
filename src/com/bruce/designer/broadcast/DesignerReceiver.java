@@ -12,7 +12,7 @@ public class DesignerReceiver extends BroadcastReceiver {
 
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		if (action.equals(ConstantsKey.BROADCAST_ACTION)) {
+		if (action.equals(ConstantsKey.BroadcastActionEnum.SYSTEM.getAction())) {//系统级的事件
 			
 			int key = intent.getIntExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, 0);
 			switch (key) {

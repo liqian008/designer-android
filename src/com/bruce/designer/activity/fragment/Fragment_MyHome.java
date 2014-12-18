@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -176,6 +177,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					if(successResult){
 						int likedAlbumId = (Integer) apiResult.getData();
 						AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+						broadcastAlbumOperated(likedAlbumId);//更新db后发送广播
 						//更新ui展示
 						List<Album> albumList4Like = albumListAdapter.getAlbumList();
 						if(albumList4Like!=null&&albumList4Like.size()>0){
@@ -197,6 +199,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					if(successResult){
 						int favoritedAlbumId = (Integer) apiResult.getData();
 						AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+						broadcastAlbumOperated(favoritedAlbumId);//更新db后发送广播
 						//更新ui展示
 						List<Album> albumList4Favorite = albumListAdapter.getAlbumList();
 						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
@@ -218,6 +221,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					if(successResult){
 						int unfavoritedAlbumId = (Integer) apiResult.getData(); 
 						AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+						broadcastAlbumOperated(unfavoritedAlbumId);//更新db后发送广播
 						//更新ui展示
 						List<Album> albumList = albumListAdapter.getAlbumList();
 						if(albumList!=null&&albumList.size()>0){
@@ -302,7 +306,7 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		
 		fansView = (View) headerView.findViewById(R.id.fansContainer);
 		fansNumView = (TextView) headerView.findViewById(R.id.txtFansNum);
-		fansView.setOnClickListener(onClickListener);
+		fansView.setOnClickListener(onClickListener);//默认情况下不能查看粉丝列表（只有设计师才能查看）
 		
 		followsView = (View) headerView.findViewById(R.id.followsContainer);
 		followsNumView = (TextView) headerView.findViewById(R.id.txtFollowsNum);
@@ -325,11 +329,15 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 		}else{
 			User hostUser = AppApplication.getHostUser();
 			if(hostUser!=null&&hostUser.getDesignerStatus()!=null&&hostUser.getDesignerStatus()==2){//设计师通过
+				//显示发布按钮
 				btnNewAlbum.setVisibility(View.VISIBLE);
 				btnNewAlbum.setOnClickListener(onClickListener);
+				fansView.setOnClickListener(onClickListener);//设计师才能点击查看粉丝列表
 			}else{
+				//显示申请按钮
 				btnApplyDesigner.setVisibility(View.VISIBLE);
 				btnApplyDesigner.setOnClickListener(onClickListener);
+				
 			}
 		}
 		
@@ -339,8 +347,6 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 //			btnNewAlbum.setVisibility(View.VISIBLE);
 //			btnNewAlbum.setOnClickListener(onClickListener);
 //		}
-		
-		
 		
 		btnUserInfo = (Button)headerView.findViewById(R.id.btnUserInfo);
 		btnUserInfo.setOnClickListener(onClickListener);
@@ -438,7 +444,19 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 					if(AppApplication.isGuest()){
 						DesignerUtil.guideGuestLogin(activity, "提示", "游客身份无法查看粉丝，请先登录");
 					}else{
-						Activity_UserFans.show(activity, HOST_ID);
+						User hostUser = AppApplication.getHostUser();
+						if(hostUser!=null&&hostUser.getDesignerStatus()!=null&&hostUser.getDesignerStatus()==2){//设计师身份
+							//可以查看粉丝列表的功能
+							Activity_UserFans.show(activity, HOST_ID);
+						}else{
+							DialogInterface.OnClickListener onclickListener = new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.dismiss();
+								}
+							};
+							UiUtil.showAlertDialog(activity, true, null, "提示", "非设计师无法查看粉丝", "我知道了", onclickListener, null,null).show();
+						}
 					}
 					break;
 				case R.id.btnMyFavorite:
@@ -529,6 +547,14 @@ public class Fragment_MyHome extends BaseFragment implements OnRefreshListener2<
 				}
 			}
 		}
+	}
+	
+	private void broadcastAlbumOperated(int albumId) {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.ALBUM_OPERATED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_ALBUM_OPERATED);
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID, albumId);
+		LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
 	}
 	
 	/**

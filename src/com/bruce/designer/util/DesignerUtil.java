@@ -32,5 +32,6 @@ public class DesignerUtil {
 		};
 		UiUtil.showAlertDialog(context, true, null, title, message, "立刻登录", onclickListener, "我知道了", onclickListener).show();
 	}
+	
 
 }

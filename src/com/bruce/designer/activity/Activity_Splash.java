@@ -142,7 +142,7 @@ public class Activity_Splash extends BaseActivity {
 //				 }else{
 					 //TODO 检查客户端版本
 				 try {
-					Thread.sleep(600);//先展示1S
+					Thread.sleep(500);//先展示1S
 					ApiResult apiResult = ApiManager.invoke(context, new SystemCheckApi());
 					Message message = handler.obtainMessage(HANDLER_FLAG_CHECK_UPDATE_RESULT);
 					message.obj = apiResult;

@@ -37,7 +37,7 @@ public class Activity_Settings extends BaseActivity {
 	/*账户绑定的container*/
 	private View accountBindContainer;
 	
-	private View pushSettingsView, aboutUsView, clearCacheView, wxmpView, websiteView;
+	private View pushSettingsView, clearCacheView, wxmpView, websiteView, inviteFriendsView;
 	private TextView pushStatusView;
 
 	private Button btnLogout, btnLogin;
@@ -69,8 +69,8 @@ public class Activity_Settings extends BaseActivity {
 		pushSettingsView = findViewById(R.id.pushSetting);
 		pushSettingsView.setOnClickListener(listener);
 		
-		aboutUsView = findViewById(R.id.aboutUs);
-		aboutUsView.setOnClickListener(listener);
+		inviteFriendsView = findViewById(R.id.inviteFriends);
+		inviteFriendsView.setOnClickListener(listener);
 
 		clearCacheView = findViewById(R.id.clearCache);
 		clearCacheView.setOnClickListener(listener);
@@ -150,10 +150,10 @@ public class Activity_Settings extends BaseActivity {
 					Activity_Settings_Push.show(context);
 				}
 				break;
-			case R.id.aboutUs:
+			case R.id.inviteFriends:
 			case R.id.wxmpView:
-				if(view.getId()==R.id.aboutUs){
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "关于我们");
+				if(view.getId()==R.id.inviteFriends){
+					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "邀请好友");
 				}else if(view.getId()==R.id.wxmpView){
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "微信公众帐号");
 				}
@@ -202,8 +202,8 @@ public class Activity_Settings extends BaseActivity {
 //				PushManager.stopWork(context);//只退出，不结束push
 				//清除本机的登录信息
 				AppApplication.clearAccount();
-				//清除DB缓存的数据
-				AlbumDB.delete(context, AlbumDB.TB_ALBUM_FOLLOW);//清除我的关注数据
+				//清除所有DB数据
+				AlbumDB.clearAll(context);
 				
 				AppManager.getInstance().finishAllActivity();
 				UiUtil.showShortToast(context, "注销成功");

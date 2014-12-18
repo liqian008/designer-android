@@ -5,9 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.view.LayoutInflater;
@@ -27,6 +31,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.album.AlbumListApi;
 import com.bruce.designer.api.album.AlbumRecommendApi;
 import com.bruce.designer.api.album.FollowAlbumListApi;
+import com.bruce.designer.broadcast.DesignerReceiver;
 import com.bruce.designer.broadcast.NotificationBuilder;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
@@ -76,6 +81,7 @@ public class Fragment_Main extends BaseFragment{
 	
 	private Handler handler;
 	private OnClickListener onClickListener;
+	DesignerReceiver receiver;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,8 +95,56 @@ public class Fragment_Main extends BaseFragment{
 		mainView = inflater.inflate(R.layout.fragment_main, null);
 		initView(mainView);
 		
+		//注册receiver，接收广播后要刷新数据
+		receiver = new DesignerReceiver(){
+			public void onReceive(Context context, Intent intent) {
+				int key = intent.getIntExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, 0);
+				if(key==ConstantsKey.BROADCAST_ALBUM_OPERATED){
+					//获取操作的albumId
+					int changeAlbumId = intent.getIntExtra(ConstantsKey.BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID, 0);
+					if(changeAlbumId>0&&listViewAdapters!=null&&listViewAdapters.length>0){//有效的数据
+						//刷新数据
+						for(int tabIndex=0; tabIndex<TAB_NUM; tabIndex++){
+							DesignerAlbumsAdapter albumAdapter = listViewAdapters[tabIndex];
+							if(albumAdapter!=null){
+								List<Album> albumList = albumAdapter.getAlbumList();
+								if(albumList!=null&&albumList.size()>0){
+									for(Album album: albumList){
+										if(album!=null&&album.getId()==changeAlbumId){//一路if，一路for，总算定位到该album了
+											Album dbAlbum = AlbumDB.queryAlbumInfoByTab(context, tabIndex, changeAlbumId, false);
+											if(dbAlbum!=null){
+												//重置变更后后的数据
+												album.setCommentCount(dbAlbum.getCommentCount());
+												album.setFavoriteCount(dbAlbum.getFavoriteCount());
+												album.setLikeCount(dbAlbum.getLikeCount());
+												album.setLike(dbAlbum.isLike());
+												album.setFavorite(dbAlbum.isFavorite());
+												albumAdapter.notifyDataSetChanged();
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		};
+		LocalBroadcastManager.getInstance(activity).registerReceiver(receiver, new IntentFilter(ConstantsKey.BroadcastActionEnum.ALBUM_OPERATED.getAction()));
 		
 		return mainView;
+	}
+	
+	
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		//取消注册
+		if(receiver!=null){
+			LocalBroadcastManager.getInstance(activity).unregisterReceiver(receiver);
+		}
+		
 	}
 	
 	private void initView(View view) {
@@ -333,6 +387,7 @@ public class Fragment_Main extends BaseFragment{
 								//判断加载位置，以确定是list增量还是覆盖
 								boolean fallloadAppend = fromTailId!=null&&fromTailId>0;
 								if(fallloadAppend){//上拉加载更多，需添加至list的结尾
+									AlbumDB.saveAlbumsByTab(activity, albumList, tabIndex);
 									oldAlbumList.addAll(albumList);
 								}else{//下拉加载，需覆盖原数据
 									AlbumDB.deleteByTab(activity, tabIndex);
@@ -352,19 +407,20 @@ public class Fragment_Main extends BaseFragment{
 					if(successResult){
 						int likedAlbumId = (Integer) apiResult.getData();
 						AlbumDB.updateLikeStatus(activity, likedAlbumId, 1, 1);//更新db状态
+						broadcastAlbumOperated(likedAlbumId);//更新db后发送广播
 						//更新ui展示
-						List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
-						if(albumList4Like!=null&&albumList4Like.size()>0){
-							for(Album album: albumList4Like){
-								if(album.getId()!=null&&album.getId()==likedAlbumId){
-									album.setLike(true);
-									long likeCount = album.getLikeCount();
-									album.setLikeCount(likeCount+1);
-									break;
-								}
-							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
-						}
+//						List<Album> albumList4Like = listViewAdapters[currentTab].getAlbumList();
+//						if(albumList4Like!=null&&albumList4Like.size()>0){
+//							for(Album album: albumList4Like){
+//								if(album.getId()!=null&&album.getId()==likedAlbumId){
+//									album.setLike(true);
+//									long likeCount = album.getLikeCount();
+//									album.setLikeCount(likeCount+1);
+//									break;
+//								}
+//							}
+//							listViewAdapters[currentTab].notifyDataSetChanged();//刷新本页面
+//						}
 					}
 					//发送广播
 					NotificationBuilder.createNotification(activity, successResult?"赞操作成功...":"赞操作失败...");
@@ -373,19 +429,20 @@ public class Fragment_Main extends BaseFragment{
 					if(successResult){
 						int favoritedAlbumId = (Integer) apiResult.getData();
 						AlbumDB.updateFavoriteStatus(activity, favoritedAlbumId, 1, 1);//更新db状态
+						broadcastAlbumOperated(favoritedAlbumId);//更新db后发送广播
 						//更新ui展示
-						List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
-						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
-							for(Album album: albumList4Favorite){
-								if(album.getId()!=null&&album.getId()==favoritedAlbumId){
-									long favoriteCount = album.getFavoriteCount();
-									album.setFavoriteCount(favoriteCount+1);
-									album.setFavorite(true);
-									break;
-								}
-							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
-						}
+//						List<Album> albumList4Favorite = listViewAdapters[currentTab].getAlbumList();
+//						if(albumList4Favorite!=null&&albumList4Favorite.size()>0){
+//							for(Album album: albumList4Favorite){
+//								if(album.getId()!=null&&album.getId()==favoritedAlbumId){
+//									long favoriteCount = album.getFavoriteCount();
+//									album.setFavoriteCount(favoriteCount+1);
+//									album.setFavorite(true);
+//									break;
+//								}
+//							}
+//							listViewAdapters[currentTab].notifyDataSetChanged();
+//						}
 					}
 					//发送广播
 					NotificationBuilder.createNotification(activity, successResult?"收藏成功...":"收藏失败...");
@@ -395,19 +452,20 @@ public class Fragment_Main extends BaseFragment{
 					if(successResult){
 						int unfavoritedAlbumId = (Integer) apiResult.getData(); 
 						AlbumDB.updateFavoriteStatus(activity, unfavoritedAlbumId, 0, -1);//更新db状态
+						broadcastAlbumOperated(unfavoritedAlbumId);//更新db后发送广播
 						//更新ui展示
-						List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
-						if(albumList!=null&&albumList.size()>0){
-							for(Album album: albumList){
-								if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
-									long favoriteCount = album.getFavoriteCount();
-									album.setFavoriteCount(favoriteCount-1);
-									album.setFavorite(false);
-									break;
-								}
-							}
-							listViewAdapters[currentTab].notifyDataSetChanged();
-						}
+//						List<Album> albumList = listViewAdapters[currentTab].getAlbumList();
+//						if(albumList!=null&&albumList.size()>0){
+//							for(Album album: albumList){
+//								if(album.getId()!=null&&album.getId()==unfavoritedAlbumId){
+//									long favoriteCount = album.getFavoriteCount();
+//									album.setFavoriteCount(favoriteCount-1);
+//									album.setFavorite(false);
+//									break;
+//								}
+//							}
+//							listViewAdapters[currentTab].notifyDataSetChanged();
+//						}
 					}
 					//发送广播
 					NotificationBuilder.createNotification(activity, successResult?"取消收藏成功...":"取消收藏失败...");
@@ -452,6 +510,15 @@ public class Fragment_Main extends BaseFragment{
 		return listener;
 	}
 	
+	private void broadcastAlbumOperated(int albumId) {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.ALBUM_OPERATED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_ALBUM_OPERATED);
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID, albumId);
+		LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
+	}
+
+
 	/**
 	 * 根据tabIndex生成记录其刷新的sp-key
 	 * @param tabIndex

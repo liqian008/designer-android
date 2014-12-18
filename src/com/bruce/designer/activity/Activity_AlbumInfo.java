@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -97,6 +98,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	/*回复评论时的接收人，可能不是designerId*/
 	private int toId = 0;
+	/*回复评论时前缀文字*/
+	private String commentPrefix = null;
+	
 	/*评论tailId*/
 	private long commentsTailId = 0;
 	
@@ -187,6 +191,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 						}
 						break;
 					case HANDLER_FLAG_COMMENT_POST_RESULT: //评论成功
+						AlbumDB.updateCommentAmount(context, albumId, 1);//更新db状态
+						broadcastAlbumOperated(albumId);//更新db后发送广播
+						
 						NotificationBuilder.createNotification(context, "评论成功...");
 						commentInput.setText("");//清空评论框内容
 						//隐藏软键盘
@@ -199,6 +206,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 						break;
 					case HANDLER_FLAG_LIKE_POST: //赞成功
 						AlbumDB.updateLikeStatus(context, albumId, 1,1);//更新db状态
+						broadcastAlbumOperated(albumId);//更新db后发送广播
 						
 						btnLike.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_liked), null,null,null);
 						NotificationBuilder.createNotification(context, "赞操作成功...");
@@ -211,15 +219,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	//					break;
 					case HANDLER_FLAG_FAVORITE_POST: //收藏成功
 						AlbumDB.updateFavoriteStatus(context, albumId, 1, 1);//更新db状态
+						broadcastAlbumOperated(albumId);//更新db后发送广播
 						
 						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_favorited), null,null,null);
 						NotificationBuilder.createNotification(context, "收藏成功...");
 						favoriteAmount+=1;//增加收藏数量
-						btnFavorite.setText("收藏("+String.valueOf(likeAmount)+")");
+						btnFavorite.setText("收藏("+String.valueOf(favoriteAmount)+")");
 						isFavorite = true;
 						break;
 					case HANDLER_FLAG_UNFAVORITE_POST: //取消收藏成功
 						AlbumDB.updateFavoriteStatus(context, albumId, 0, -1);//更新db状态
+						broadcastAlbumOperated(albumId);//更新db后发送广播
 						
 						btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 						NotificationBuilder.createNotification(context, "取消收藏成功...");
@@ -525,7 +535,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				public void onSingleClick(View v) {
 					toId = comment.getFromId();
 //					UiUtil.showShortToast(context, "toId: "+ toId);
-					commentInput.setText("回复"+comment.getNickname()+": ");
+					commentPrefix = "回复"+comment.getNickname()+": ";//点击时构造一个评论的前缀文字（如提交时的前缀名与此时构造的与不一致，则不能将toId设为该用户）
+					commentInput.setText(commentPrefix);
 					commentInput.requestFocus();
 					commentInput.setSelection(commentInput.length());
 					//弹起软键盘
@@ -559,8 +570,21 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				case R.id.btnCommentPost:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
 					
-					if(toId<=0) toId=designerId;//确保toId有效
 					String  commentContent = commentInput.getText().toString();
+					//当有toId时，需要判断用户输入的内容
+					if(toId>0){
+						if(StringUtils.isBlank(commentContent) || commentContent.equals(commentPrefix)){
+							//用户输入为空，不能操作
+							break;
+						}else if(commentContent.startsWith(commentPrefix)){//用户有输入内容，可以评论
+							commentContent = commentContent.replace(commentPrefix, "");
+							//continue
+						}else{//其他情况，说明用户可能修改过前缀，此时toId应不可用
+							toId=designerId;
+						}
+					}else {
+						toId=designerId;//确保toId有效
+					}
 					if(StringUtils.isBlank(commentContent)){
 						//检查内容不为空
 						UiUtil.showShortToast(context, "评论内容不能为空");
@@ -697,6 +721,14 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		public TextView commentUsernameView;
 		public TextView commentContentView;
 		public TextView commentTimeView;
+	}
+	
+	private void broadcastAlbumOperated(int albumId) {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.ALBUM_OPERATED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_ALBUM_OPERATED);
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY_OPERATED_ALBUMID, albumId);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 
 }
