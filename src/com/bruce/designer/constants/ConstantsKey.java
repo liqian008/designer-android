@@ -40,6 +40,7 @@ public interface ConstantsKey {
 	public static final int BROADCAST_BACK_TO_LOGIN = 12;
 	
 	public static final int BROADCAST_ALBUM_OPERATED = 100;
+	public static final int BROADCAST_MESSAGE_READ_CHANGED = 110;
 	
 	public static final String LAST_REFRESH_TIME_MAIN_PREFIX = "last_refresh_main_prefix_";
 	public static final String LAST_REFRESH_TIME_HOTALBUM_PREFIX = "last_refresh_hotalbum_prefix_";
@@ -51,7 +52,8 @@ public interface ConstantsKey {
 	/*广播action的enum*/
 	public static enum BroadcastActionEnum{
 		SYSTEM("com.bruce.designer.action.system"),
-		ALBUM_OPERATED("com.bruce.designer.action.albumOperated");
+		ALBUM_OPERATED("com.bruce.designer.action.albumOperated"),
+		MESSAGE_STATUS_CHANGED("com.bruce.designer.action.messageStatusChanged");
 		
 		private String action;
 		BroadcastActionEnum(String action){

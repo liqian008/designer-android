@@ -79,7 +79,9 @@
                 android:gravity="bottom"
                 android:text=""
                 android:layout_toLeftOf="@+id/msgPubTime"
-                android:textSize="17.0sp" />
+                android:textSize="17.0sp" 
+                android:singleLine="true"
+                />
             
             <TextView
                 android:id="@+id/msgPubTime"

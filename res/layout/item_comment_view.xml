@@ -27,7 +27,9 @@
             android:layout_toRightOf="@+id/commentAvatarBox"
             android:text=""
             android:textColor="#ff245f93"
-            android:textSize="16.0sp" />
+            android:textSize="16.0sp" 
+            android:singleLine="true"
+            />
 
         <TextView
             android:id="@+id/commentContent"
@@ -37,7 +39,8 @@
             android:layout_below="@+id/commentUserame"
             android:text=""
             android:textColor="#ff252525"
-            android:textSize="14.0sp" />
+            android:textSize="14.0sp" 
+            />
 
         <TextView
             android:id="@+id/commentTime"

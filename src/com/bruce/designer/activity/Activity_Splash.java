@@ -33,6 +33,7 @@ import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
@@ -92,6 +93,11 @@ public class Activity_Splash extends BaseActivity {
 							if(versionCheckResult!=null){
 								updateStatus = versionCheckResult.getUpdateStatus();
 								processUpdateResult(versionCheckResult);
+							}
+							
+							GenericSharedInfo appSharedInfo = (GenericSharedInfo) dataMap.get("appSharedInfo");//获取分享应用的配置
+							if(appSharedInfo!=null){
+								AppApplication.setAppSharedInfo(appSharedInfo);
 							}
 						}else{
 							//版本检查失败

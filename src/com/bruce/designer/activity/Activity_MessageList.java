@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import com.bruce.designer.R;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.constants.Config;
+import com.bruce.designer.constants.ConstantDesigner;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -197,7 +200,21 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 				itemClickListener = new OnSingleClickListener() {
 					@Override
 					public void onSingleClick(View v) {
-//						Activity_AlbumInfo.show(context, album, authorInfo);
+						broadcastMessageStatusChanged();//更新db后发送广播
+						Long sourceId =  message.getSourceId();
+						//交互消息类型(评论、收藏、赞)跳转到作品页面
+						if(sourceId!=null&&sourceId>0){
+							Activity_AlbumInfo.show(context, sourceId.intValue());
+						}
+					}
+				};
+			}
+			
+			if(messageType == ConstantDesigner.MESSAGE_TYPE_FOLLOW){//关注消息
+				itemClickListener = new OnSingleClickListener() {
+					@Override
+					public void onSingleClick(View v) {
+						Activity_UserHome.show(context, message.getFromId(), message.getFromUser().getNickname(), message.getFromUser().getHeadImg(), false, false);
 					}
 				};
 			}
@@ -338,5 +355,15 @@ public class Activity_MessageList extends BaseActivity implements OnRefreshListe
 		// 头像
 		public ImageView msgAvatrView;
 	}
-
+	
+	/**
+	 * 广播消息状态被改变
+	 * @param messageId
+	 */
+	private void broadcastMessageStatusChanged() {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.MESSAGE_STATUS_CHANGED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_MESSAGE_READ_CHANGED);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+	}
 }

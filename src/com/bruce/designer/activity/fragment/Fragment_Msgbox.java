@@ -1,12 +1,16 @@
 package com.bruce.designer.activity.fragment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,6 +26,7 @@ import com.bruce.designer.activity.Activity_MessageChat;
 import com.bruce.designer.activity.Activity_MessageList;
 import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageBoxApi;
+import com.bruce.designer.broadcast.DesignerReceiver;
 import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.handler.DesignerHandler;
@@ -65,6 +70,9 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 	private Handler handler;
 
 	private OnClickListener onClickListener;
+	/*receiver，用于接收消息阅读状态*/
+	private DesignerReceiver receiver;
+	private boolean messageReadChanged;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,6 +85,18 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		
 		View mainView = inflater.inflate(R.layout.fragment_msgbox, null);
 		initView(mainView);
+		
+		
+		//注册receiver，接收广播后要刷新数据
+		receiver = new DesignerReceiver(){
+			public void onReceive(Context context, Intent intent) {
+				int key = intent.getIntExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, 0);
+				if(key==ConstantsKey.BROADCAST_MESSAGE_READ_CHANGED){
+					messageReadChanged = true;
+				}
+			}
+		};
+		LocalBroadcastManager.getInstance(activity).registerReceiver(receiver, new IntentFilter(ConstantsKey.BroadcastActionEnum.MESSAGE_STATUS_CHANGED.getAction()));
 		
 		return mainView;
 	}
@@ -96,7 +116,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 		pullRefreshView.setOnRefreshListener(this);
 		
 		ListView msgboxView = pullRefreshView.getRefreshableView();
-		messageBoxAdapter = new MessageBoxAdapter(activity, null);
+		messageBoxAdapter = new MessageBoxAdapter(activity, new ArrayList<Message>());
 		msgboxView.setAdapter(messageBoxAdapter);
 	}
 
@@ -107,7 +127,7 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 //		getMessageBox(0);
 		
 		//判断list中是否有数据（没有则立刻刷新，有则判断刷新时间间隔）
-		if(messageBoxList==null ||messageBoxList.size()<=0){//没有则立刻刷新
+		if(messageReadChanged||messageBoxList==null ||messageBoxList.size()<=0){//没有则立刻刷新
 			pullRefreshView.setRefreshing(false);
 		}else{
 			//判断上次刷新时间
@@ -265,6 +285,8 @@ public class Fragment_Msgbox extends BaseFragment implements OnRefreshListener2<
 					case HANDLER_FLAG_MSGBOX_RESULT:
 						pullRefreshView.onRefreshComplete();
 						if(successResult){
+							messageReadChanged = false;//刷到数据后，将消息状态标记为【无变化】
+							
 							Map<String, Object> userFansDataMap = (Map<String, Object>) apiResult.getData();
 							if(userFansDataMap!=null){
 								List<Message> messageBoxResultList = (List<Message>)  userFansDataMap.get("messageBoxList");

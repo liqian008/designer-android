@@ -8,6 +8,7 @@
     <include layout="@layout/titlebar" />
 
     <ScrollView
+        android:id="@+id/settingsScrollView"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_marginTop="50.0dip"

@@ -54,6 +54,7 @@
         jinwanr_android_yyb（应用宝）
         jinwanr_android_xiaomi（小米）
         jinwanr_android_qh60（奇虎360）
+        jinwanr_android_sinaweibo（sina微博）
         待添加...
          -->
         <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr_android" />

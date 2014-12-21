@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 			<RelativeLayout
-                android:id="@+id/pushSettingFavorited"
+                android:id="@+id/pushSettingFollowed"
                 style="@style/style_settings_item_container" >
 
                 <TextView
