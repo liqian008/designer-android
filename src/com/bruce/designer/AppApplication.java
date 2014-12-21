@@ -10,6 +10,8 @@ import com.baidu.frontia.FrontiaApplication;
 import com.bruce.designer.constants.Config;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.UserPassport;
+import com.bruce.designer.model.share.GenericSharedInfo;
+import com.bruce.designer.model.share.GenericSharedInfo.WxSharedInfo;
 import com.bruce.designer.util.ApplicationUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.UniversalImageUtil;
@@ -29,6 +31,8 @@ public class AppApplication extends FrontiaApplication {
 	private static float screendensity;
 	private static int screenHeight;
 	private static int screenWidth;
+	/*应用分享时的对象*/
+	private static GenericSharedInfo appSharedInfo;
 
 	/**
 	 * 其他全局量
@@ -120,6 +124,18 @@ public class AppApplication extends FrontiaApplication {
 		}
 	}
 	
+	public synchronized static GenericSharedInfo getAppSharedInfo() {
+		if(appSharedInfo==null){
+			appSharedInfo = new GenericSharedInfo();
+			appSharedInfo.setWxSharedInfo(new WxSharedInfo(Config.SHARED_APP_DEFAULT_TITLE, Config.SHARED_APP_DEFAULT_CONTENT, Config.SHARED_APP_DEFAULT_ICON_URL, Config.SHARED_APP_DEFAULT_LINK));
+		}
+		return appSharedInfo;
+	}
+
+	public synchronized static void setAppSharedInfo(GenericSharedInfo appSharedInfo) {
+		AppApplication.appSharedInfo = appSharedInfo;
+	}
+
 	/**
 	 * 判断当前用户是否是游客
 	 * @return

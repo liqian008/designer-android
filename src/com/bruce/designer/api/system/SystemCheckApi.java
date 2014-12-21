@@ -10,6 +10,7 @@ import com.bruce.designer.api.AbstractApi;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.VersionCheckResult;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.JsonUtil;
 import com.bruce.designer.util.ResponseBuilderUtil;
 import com.bruce.designer.util.StringUtils;
@@ -51,6 +52,14 @@ public class SystemCheckApi extends AbstractApi {
 			//微信公众帐号的二维码
 			String wxmpQrcodeUrl = jsonData.optString("wxmpQrcodeUrl", "");
 			dataMap.put("wxmpQrcodeUrl", wxmpQrcodeUrl);
+			
+			//分享对象
+			String appSharedInfoStr = jsonData.optString("appSharedInfo", "");
+			try{
+				GenericSharedInfo appSharedInfo = JsonUtil.gson.fromJson(appSharedInfoStr, GenericSharedInfo.class);
+				dataMap.put("appSharedInfo", appSharedInfo);
+			}catch(Exception e){
+			}
 			
 			//登录用户的个人资料
 			String hostUserStr = jsonData.optString("hostUser");

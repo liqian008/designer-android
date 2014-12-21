@@ -4,7 +4,7 @@ import com.bruce.designer.AppApplication;
 
 public class Config {
 	
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	
 	public static final String GUEST_ACCESS_DENIED_TEXT = "游客无法进行该操作，请先进行登录";
 	
@@ -34,9 +34,9 @@ public class Config {
 	//online website	
 	public static final String JINWAN_WEB_DOMAIN = "http://www.jinwanr.com";
 	//online mcap api	
-//	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
+	public static final String JINWAN_MOBILE_DOMAIN = "http://mobile.jinwanr.com";
 	//测试服务器的 mcap api	
-	public static final String JINWAN_MOBILE_DOMAIN = "http://mtest.jinwanr.com";
+//	public static final String JINWAN_MOBILE_DOMAIN = "http://mtest.jinwanr.com";
 	//本机测试的 mcap api
 //	public static final String JINWAN_MOBILE_DOMAIN = "http://172.168.1.88:8080/designer-mcap";
 	
@@ -69,9 +69,14 @@ public class Config {
 	public static final String SP_KEY_WEIXINMP_QRCODE_URL = "WEIXINMP_QRCODE_URL";
 
 	
-	
-	
-	
+	/*分享应用时的默认标题*/
+	public static final String SHARED_APP_DEFAULT_TITLE = "我正在使用【金玩儿网】客户端";
+	/*分享应用时的默认内容*/
+	public static final String SHARED_APP_DEFAULT_CONTENT = "这里聚集了许多优秀设计师和他们的高级定制作品，快来体验一下吧！";
+	/*分享应用时的默认icon*/
+	public static final String SHARED_APP_DEFAULT_ICON_URL = "http://imgqn.jinwanr.com/avatar/100031_0d2ff4c74464b26fd4f909cbac864f54.jpg";
+	/*分享应用时的默认链接*/
+	public static final String SHARED_APP_DEFAULT_LINK = "http://www.jinwanr.com/downloads/";
 	
 
 }

@@ -82,7 +82,7 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	
 	private GenericSharedInfo generalSharedInfo;
 	
-	private PullToRefreshListView pullRefresh;
+	private PullToRefreshListView pullRefresh; 
 	private ListView commentListView;
 	private AlbumCommentsAdapter commentsAdapter;
 	private AlbumSlidesAdapter slideAdapter;
@@ -104,12 +104,13 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 	/*评论tailId*/
 	private long commentsTailId = 0;
 	
-	private long likeAmount, favoriteAmount, commentAmount;//赞，收藏的数量
+	private long browseAmount, likeAmount, favoriteAmount, commentAmount;//赞，收藏的数量
 	
 	private InputMethodManager inputManager;
 	
 	private Handler handler;
 	private OnClickListener onClickListener;
+	private View designerView;
 	
 	private Handler initHandler(){
 		Handler handler = new DesignerHandler(context){
@@ -123,7 +124,46 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 						if(successResult){
 							Map<String, Object> albumDataMap = (Map<String, Object>) apiResult.getData();
 							if(albumDataMap!=null){
-								Album albumInfo = (Album) albumDataMap.get("albumInfo");
+								final Album albumInfo = (Album) albumDataMap.get("albumInfo");
+								
+								designerId = albumInfo.getUserId();
+								
+								browseAmount = albumInfo.getBrowseCount();
+								likeAmount = albumInfo.getLikeCount();
+								commentAmount = albumInfo.getCommentCount();
+								favoriteAmount = albumInfo.getFavoriteCount();
+								
+								btnBrowse.setText("浏览("+browseAmount+")");
+								btnComment.setText("评论("+likeAmount+")");
+								btnLike.setText("喜欢("+commentAmount+")");
+								btnFavorite.setText("收藏("+favoriteAmount+")");
+								
+								albumTitleView.setText(albumInfo.getTitle());
+								albumContentView.setText(albumInfo.getRemark());
+								albumPriceView.setText("市价: "+albumInfo.getPrice()+"元");
+								pubtimeView.setText(TimeUtil.displayTime(albumInfo.getCreateTime()));
+								//显示设计师头像
+								ImageLoader.getInstance().displayImage(albumInfo.getAuthorInfo().getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
+								designerNameView.setText(albumInfo.getAuthorInfo().getDesignerNickname());
+								
+								btnComment.setOnClickListener(onClickListener);
+								btnShare.setOnClickListener(onClickListener);
+								btnLike.setOnClickListener(onClickListener);
+								btnFavorite.setOnClickListener(onClickListener);
+								
+								//用户主页按钮的点击事件
+								OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
+									@Override
+									public void onSingleClick(View view) {
+										//跳转至个人资料页
+										Activity_UserHome.show(context, designerId, albumInfo.getAuthorInfo().getDesignerNickname(), albumInfo.getAuthorInfo().getDesignerAvatar(), true, albumInfo.getAuthorInfo().isFollowed());
+									}
+								};
+								designerView.setOnClickListener(userHomeOnclickListener);
+								if(btnUserHome!=null){
+									btnUserHome.setOnClickListener(userHomeOnclickListener);
+								}
+								
 								List<AlbumSlide> slideList = albumInfo.getSlideList();
 								isLike = albumInfo.isLike();
 								isFavorite = albumInfo.isFavorite();
@@ -261,6 +301,17 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		context.startActivity(intent);
 	}
 	
+	/**
+	 * 通过push或消息点击进入
+	 * @param context
+	 * @param albumId
+	 */
+	public static void show(Context context, int albumId){
+		Intent intent = new Intent(context, Activity_AlbumInfo.class);
+		intent.putExtra(ConstantsKey.BUNDLE_ALBUM_INFO_ID, albumId);
+		context.startActivity(intent);
+	}
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -275,7 +326,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			//弹起软键盘
 			inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
 		}
-		
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
@@ -308,9 +358,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		btnFavorite = (Button) albumInfoView.findViewById(R.id.btnFavorite);
 		btnShare = (Button) albumInfoView.findViewById(R.id.btnShare);
 		
-		btnComment.setOnClickListener(onClickListener);
-		btnShare.setOnClickListener(onClickListener);
-		
 		//coverView = (ImageView) findViewById(R.id.cover_img);
 		GridView gridView = (GridView)albumInfoView.findViewById(R.id.albumSlideImages);
 		slideAdapter = new AlbumSlidesAdapter(context, null);
@@ -327,17 +374,24 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 		//评论框
 		commentInput = (EditText) findViewById(R.id.commentInput);
 		Button btnCommentPost = (Button) findViewById(R.id.btnCommentPost);
-		btnCommentPost.setOnClickListener(onClickListener);
+		
+		designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
 		
 		Intent intent = getIntent();
 		final Album album = (Album) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_INFO);
 		if(album==null){
 			//TODO 如果是通过消息或push进来，只有一个albumId，无其他数据
+			albumId = intent.getIntExtra(ConstantsKey.BUNDLE_ALBUM_INFO_ID, 0);
+			if(albumId>0){
+				//获取实时专辑信息
+				getAlbumInfo(albumId);
+			}
 			
 		}else{//intent中传的是album
 			albumId = album.getId();
 			designerId = album.getUserId();
 			
+			browseAmount = album.getBrowseCount();
 			likeAmount = album.getLikeCount();
 			favoriteAmount = album.getFavoriteCount();
 			commentAmount = album.getCommentCount();
@@ -354,6 +408,8 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 			}else{
 				btnFavorite.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_unfavorited), null,null,null);
 			}
+			btnComment.setOnClickListener(onClickListener);
+			btnShare.setOnClickListener(onClickListener);
 			btnLike.setOnClickListener(onClickListener);
 			btnFavorite.setOnClickListener(onClickListener);
 			
@@ -364,8 +420,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				final AlbumAuthorInfo authorInfo = (AlbumAuthorInfo) intent.getSerializableExtra(ConstantsKey.BUNDLE_ALBUM_AUTHOR_INFO);
 				if(authorInfo!=null){
-					View designerView = (View) albumInfoView.findViewById(R.id.designerContainer);
-					
 					//用户主页按钮的点击事件
 					OnSingleClickListener userHomeOnclickListener = new OnSingleClickListener() {
 						@Override
@@ -428,9 +482,11 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				//获取实时专辑信息
 				getAlbumInfo(album.getId());
-				
-				pullRefresh.setRefreshing(false);
 			}
+		}
+		if(albumId>0){
+			btnCommentPost.setOnClickListener(onClickListener);
+			pullRefresh.setRefreshing(false);
 		}
 	}
 
@@ -447,15 +503,6 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				message = handler.obtainMessage(HANDLER_FLAG_ALBUMINFO_RESULT);
 				message.obj = apiResult;
 				message.sendToTarget();
-				
-				
-//				if(jsonResult!=null&&jsonResult.getResult()==1){
-//					message = handler.obtainMessage(HANDLER_FLAG_INFO_RESULT);
-//					message.obj = jsonResult.getData();
-//					message.sendToTarget();
-//				}else{//发送失败消息
-//					handler.obtainMessage(0).sendToTarget();
-//				}
 			}
 		});
 		thread.start();
@@ -534,13 +581,15 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				@Override
 				public void onSingleClick(View v) {
 					toId = comment.getFromId();
-//					UiUtil.showShortToast(context, "toId: "+ toId);
-					commentPrefix = "回复"+comment.getNickname()+": ";//点击时构造一个评论的前缀文字（如提交时的前缀名与此时构造的与不一致，则不能将toId设为该用户）
-					commentInput.setText(commentPrefix);
-					commentInput.requestFocus();
-					commentInput.setSelection(commentInput.length());
-					//弹起软键盘
-					inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+					if(AppApplication.isGuest(toId) || !AppApplication.isHost(toId)){//不能回复自己
+//						UiUtil.showShortToast(context, "toId: "+ toId);
+						commentPrefix = "回复"+comment.getNickname()+": ";//点击时构造一个评论的前缀文字（如提交时的前缀名与此时构造的与不一致，则不能将toId设为该用户）
+						commentInput.setText(commentPrefix);
+						commentInput.requestFocus();
+						commentInput.setSelection(commentInput.length());
+						//弹起软键盘
+						inputManager.toggleSoftInput(0, InputMethodManager.SHOW_FORCED);
+					}
 				}
 			});
 			
@@ -569,34 +618,37 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					break;
 				case R.id.btnCommentPost:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_SEND_COMMENT, "专辑页中发送评论");
+					if(designerId!=null&&designerId>0){
 					
-					String  commentContent = commentInput.getText().toString();
-					//当有toId时，需要判断用户输入的内容
-					if(toId>0){
-						if(StringUtils.isBlank(commentContent) || commentContent.equals(commentPrefix)){
-							//用户输入为空，不能操作
-							break;
-						}else if(commentContent.startsWith(commentPrefix)){//用户有输入内容，可以评论
-							commentContent = commentContent.replace(commentPrefix, "");
-							//continue
-						}else{//其他情况，说明用户可能修改过前缀，此时toId应不可用
-							toId=designerId;
+						String commentContent = commentInput.getText().toString();
+						//当有toId时，需要判断用户输入的内容
+						if(toId>0){
+							if(StringUtils.isBlank(commentContent) || commentContent.equals(commentPrefix)){
+								//用户输入为空，不能操作
+								UiUtil.showShortToast(context, "评论内容不能为空");
+								break;
+							}else if(commentContent.startsWith(commentPrefix)){//用户有输入内容，可以评论
+								//commentContent = commentContent.replace(commentPrefix, "");
+								//continue
+							}else{//其他情况，说明用户可能修改过前缀，此时toId应不可用
+								toId=designerId;
+							}
+						}else {
+							toId=designerId;//确保toId有效
 						}
-					}else {
-						toId=designerId;//确保toId有效
+						if(StringUtils.isBlank(commentContent)){
+							//检查内容不为空
+							UiUtil.showShortToast(context, "评论内容不能为空");
+							return;
+						}
+						
+						String guestAvatar = null;
+						if(AppApplication.isGuest()){
+							//启动线程发布评论
+							UiUtil.showShortToast(context, "登录后评论，可让别人更容易找到你");
+						}
+						postComment(designerId, toId, commentContent, guestAvatar);
 					}
-					if(StringUtils.isBlank(commentContent)){
-						//检查内容不为空
-						UiUtil.showShortToast(context, "评论内容不能为空");
-						return;
-					}
-					
-					String guestAvatar = null;
-					if(AppApplication.isGuest()){
-						//启动线程发布评论
-						UiUtil.showShortToast(context, "登录后评论，可让别人更容易找到你");
-					}
-					postComment(designerId, toId, commentContent, guestAvatar);
 					break;
 				case R.id.btnComment:
 					StatService.onEvent(context, ConstantsStatEvent.EVENT_COMMENT, "专辑页中点击评论");
@@ -701,13 +753,18 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 
 	@Override
 	public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView) {
-		getAlbumComments(0);//下拉刷新，tailId为0
+		if(albumId!=null&&albumId>0){
+			getAlbumInfo(albumId);
+			getAlbumComments(0);//下拉刷新，tailId为0
+		}
 	}
 
 
 	@Override
 	public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView) {
-		getAlbumComments(commentsTailId);//加载更多，tailId为上次缓存的
+		if(albumId!=null&&albumId>0){
+			getAlbumComments(commentsTailId);//加载更多，tailId为上次缓存的
+		}
 	}
 	
 	/**

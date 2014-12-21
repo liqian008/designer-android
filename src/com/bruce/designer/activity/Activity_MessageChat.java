@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.bruce.designer.api.ApiManager;
 import com.bruce.designer.api.message.MessageListApi;
 import com.bruce.designer.api.message.PostChatApi;
 import com.bruce.designer.broadcast.NotificationBuilder;
+import com.bruce.designer.constants.ConstantsKey;
 import com.bruce.designer.constants.ConstantsStatEvent;
 import com.bruce.designer.handler.DesignerHandler;
 import com.bruce.designer.listener.OnSingleClickListener;
@@ -110,12 +112,14 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		handler = initHandler();
 		onClickListener = initListener();
 		
-		
 		Intent intent = getIntent();
 		//获取messageType
 		messageType =  intent.getIntExtra("messageType", 0); 
 		nickname =  intent.getStringExtra("nickname");
 		avatarUrl =  intent.getStringExtra("avatarUrl");
+		
+		//进入私信界面后，发送状态变更的广播
+		broadcastMessageStatusChanged();//更新db后发送广播
 		
 		//init view
 		titlebarView = findViewById(R.id.titlebar_return);
@@ -451,5 +455,16 @@ public class Activity_MessageChat extends BaseActivity implements OnRefreshListe
 		public TextView myChatTimetView;
 		public TextView myMsgContentView;
 		public ImageView myMsgAvatarView;
+	}
+	
+	/**
+	 * 广播消息状态被改变
+	 * @param messageId
+	 */
+	private void broadcastMessageStatusChanged() {
+		//发送album被变更的广播
+		Intent intent = new Intent(ConstantsKey.BroadcastActionEnum.MESSAGE_STATUS_CHANGED.getAction());
+		intent.putExtra(ConstantsKey.BUNDLE_BROADCAST_KEY, ConstantsKey.BROADCAST_MESSAGE_READ_CHANGED);
+		LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
 	}
 }

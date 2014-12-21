@@ -23,11 +23,13 @@ import com.bruce.designer.db.album.AlbumDB;
 import com.bruce.designer.listener.OnSingleClickListener;
 import com.bruce.designer.model.User;
 import com.bruce.designer.model.result.ApiResult;
+import com.bruce.designer.model.share.GenericSharedInfo;
 import com.bruce.designer.util.LogUtil;
 import com.bruce.designer.util.SharedPreferenceUtil;
 import com.bruce.designer.util.StringUtils;
 import com.bruce.designer.util.UiUtil;
 import com.bruce.designer.util.UrlUtil;
+import com.bruce.designer.view.SharePanelView;
 
 public class Activity_Settings extends BaseActivity {
 	
@@ -151,12 +153,15 @@ public class Activity_Settings extends BaseActivity {
 				}
 				break;
 			case R.id.inviteFriends:
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "邀请好友");
+				
+				GenericSharedInfo generalSharedInfo = AppApplication.getAppSharedInfo();
+//				UiUtil.showLongToast(context, JsonUtil.gson.toJson(generalSharedInfo)); 
+				SharePanelView sharePanel = new SharePanelView(context, generalSharedInfo);
+				sharePanel.show(findViewById(R.id.settingsScrollView));
+				break;
 			case R.id.wxmpView:
-				if(view.getId()==R.id.inviteFriends){
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "邀请好友");
-				}else if(view.getId()==R.id.wxmpView){
-					StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "微信公众帐号");
-				}
+				StatService.onEvent(context, ConstantsStatEvent.EVENT_SETTINGS_OPTION, "微信公众帐号");
 				Activity_AboutUs.show(context);
 				break;
 			case R.id.clearCache:
