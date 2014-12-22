@@ -32,8 +32,6 @@ public interface ConstantsKey {
 	/* 微信登录广播的action */
 	public static final String BROADCAST_ACTION_WEIXIN_LOGIN = "com.bruce.designer.action.weixin.login";
 	
-	
-	
 	public static final int BROADCAST_NETWORK_INVALID = 1;
 	
 	public static final int BROADCAST_GUEST_DENIED = 11;

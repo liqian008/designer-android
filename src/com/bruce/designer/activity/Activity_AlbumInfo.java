@@ -139,8 +139,21 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 								btnFavorite.setText("收藏("+favoriteAmount+")");
 								
 								albumTitleView.setText(albumInfo.getTitle());
-								albumContentView.setText(albumInfo.getRemark());
-								albumPriceView.setText("市价: "+albumInfo.getPrice()+"元");
+								String remark = albumInfo.getRemark();
+								if(!StringUtils.isBlank(remark)){
+									remark = remark.replace("\r", "");
+									remark = remark.replace("\n", "");
+									if(remark.length()>30){
+										remark = remark.substring(0, 29)+"......查看详情";
+									}
+								}else{
+									remark = albumInfo.getTitle();
+								}
+								albumContentView.setText(remark);
+								
+								if(AppApplication.isShowPrice()){
+									albumPriceView.setText("市价: "+albumInfo.getPrice()+"元");
+								}
 								pubtimeView.setText(TimeUtil.displayTime(albumInfo.getCreateTime()));
 								//显示设计师头像
 								ImageLoader.getInstance().displayImage(albumInfo.getAuthorInfo().getDesignerAvatar(), designerAvatarView, UniversalImageUtil.DEFAULT_AVATAR_DISPLAY_OPTION);
@@ -440,7 +453,9 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 				
 				pubtimeView.setText(TimeUtil.displayTime(album.getCreateTime()));
 				albumTitleView.setText(album.getTitle());
-				albumPriceView.setText("市价: "+album.getPrice()+"元");
+				if(AppApplication.isShowPrice()){
+					albumPriceView.setText("市价: "+album.getPrice()+"元");
+				}
 //				albumContentView.setText(album.getRemark());
 				//专辑描述
 				String remark = album.getRemark();
@@ -448,12 +463,12 @@ public class Activity_AlbumInfo extends BaseActivity implements OnRefreshListene
 					remark = remark.replace("\r", "");
 					remark = remark.replace("\n", "");
 					if(remark.length()>30){
-						remark = remark.substring(0, 29);
+						remark = remark.substring(0, 29)+"......查看详情";
 					}
 				}else{
 					remark = album.getTitle();
 				}
-				albumContentView.setText(remark +"......查看详情");
+				albumContentView.setText(remark);
 				albumContentView.setOnClickListener(new OnSingleClickListener() {
 					public void onSingleClick(View v) {
 						albumContentView.setText(album.getRemark());

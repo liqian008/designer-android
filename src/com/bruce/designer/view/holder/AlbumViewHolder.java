@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.baidu.mobstat.StatService;
+import com.bruce.designer.AppApplication;
 import com.bruce.designer.R;
 import com.bruce.designer.activity.Activity_AlbumInfo;
 import com.bruce.designer.activity.Activity_UserHome;
@@ -83,19 +84,21 @@ public class AlbumViewHolder {
 			
 			//专辑title
 			titleView.setText(album.getTitle());
-			priceView.setText("市价: "+album.getPrice()+"元");
+			if(AppApplication.isShowPrice()){
+				priceView.setText("市价: "+album.getPrice()+"元");
+			}
 			//专辑描述
 			String remark = album.getRemark();
 			if(!StringUtils.isBlank(remark)){
 				remark = remark.replace("\r", "");
 				remark = remark.replace("\n", "");
 				if(remark.length()>30){
-					remark = remark.substring(0, 29);
+					remark = remark.substring(0, 29) +"......查看详情";
 				}
 			}else{
 				remark = album.getTitle();
 			}
-			contentView.setText(remark +"......查看详情");
+			contentView.setText(remark);
 			
 			//专辑统计
 			btnBrowse.setText("浏览("+String.valueOf(album.getBrowseCount())+")");

@@ -89,10 +89,16 @@ public class Activity_Splash extends BaseActivity {
 									AppApplication.setHostUser(hostUser);
 								}
 							}
+							
 							VersionCheckResult versionCheckResult = (VersionCheckResult) dataMap.get("versionCheckResult");
 							if(versionCheckResult!=null){
 								updateStatus = versionCheckResult.getUpdateStatus();
 								processUpdateResult(versionCheckResult);
+							}
+							
+							Boolean showPrice = (Boolean) dataMap.get("showPrice");//是否显示价格
+							if(Boolean.TRUE.equals(showPrice)){
+								AppApplication.setShowPrice(showPrice);
 							}
 							
 							GenericSharedInfo appSharedInfo = (GenericSharedInfo) dataMap.get("appSharedInfo");//获取分享应用的配置

@@ -33,6 +33,8 @@ public class AppApplication extends FrontiaApplication {
 	private static int screenWidth;
 	/*应用分享时的对象*/
 	private static GenericSharedInfo appSharedInfo;
+	/*是否显示售价（主要为了应对应用宝审核时关闭）*/
+	private static boolean showPrice=false;
 
 	/**
 	 * 其他全局量
@@ -134,6 +136,14 @@ public class AppApplication extends FrontiaApplication {
 
 	public synchronized static void setAppSharedInfo(GenericSharedInfo appSharedInfo) {
 		AppApplication.appSharedInfo = appSharedInfo;
+	}
+	
+	public static boolean isShowPrice() {
+		return showPrice;
+	}
+
+	public static void setShowPrice(boolean showPrice) {
+		AppApplication.showPrice = showPrice;
 	}
 
 	/**

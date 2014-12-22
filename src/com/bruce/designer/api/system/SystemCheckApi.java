@@ -61,6 +61,9 @@ public class SystemCheckApi extends AbstractApi {
 			}catch(Exception e){
 			}
 			
+			boolean showPrice= jsonData.optBoolean("showPrice", false);
+			dataMap.put("showPrice", showPrice);
+			
 			//登录用户的个人资料
 			String hostUserStr = jsonData.optString("hostUser");
 //			LogUtil.d("hostUserStr: "+hostUserStr);

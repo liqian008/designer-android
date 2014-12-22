@@ -57,7 +57,7 @@
         jinwanr_android_sinaweibo（sina微博）
         待添加...
          -->
-        <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr_android" />
+        <meta-data  android:name="BaiduMobAd_CHANNEL"  android:value="jinwanr_android_yyb" />
         <!-- baiduStat 您从百度网站获取的 APP	KEY  -->
         <meta-data android:name="BaiduMobAd_STAT_ID" android:value="540d890b4c" /> 
          <!-- 微信开放平台的appid，可使用登录、分享功能 -->
@@ -161,7 +161,7 @@
         
         <receiver android:name="com.bruce.designer.broadcast.DesignerReceiver">
             <intent-filter>
-                <action android:name="com.bruce.designer.action" />
+                <action android:name="com.bruce.designer.action.system" />
             </intent-filter>
         </receiver>
         
